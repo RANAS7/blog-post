@@ -1,4 +1,4 @@
-package com.msp.everestFitness.everestFitness.config;
+package com.msp.everestFitness.everestFitness.config.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

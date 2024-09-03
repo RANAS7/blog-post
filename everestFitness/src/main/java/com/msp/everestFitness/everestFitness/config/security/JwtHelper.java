@@ -16,9 +16,12 @@ import java.util.function.Function;
 @Component
 public class JwtHelper {
 
-    public static final long JWT_TOKEN_VALIDITY = 10 * 24 * 60 * 60;  // Token validity duration in seconds
+//    public static final long JWT_TOKEN_VALIDITY = 10 * 24 * 60 * 60;  // Token validity duration in seconds
 
-    private String secret = "afafasfafafasfasfasfafacasdasfasxASFACASDFACASDFASFASFDAFASFASDAADSCSDFADCVSGCFVADXCcadwavfsfarvf";  // Secret key
+    public static final long JWT_TOKEN_VALIDITY = 30;  // Token validity duration in seconds (1 minute)
+
+
+    private static final String secret = "afafasfafafasfasfasfafacasdasfasxASFACASDFACASDFASFASFDAFASFASDAADSCSDFADCVSGCFVADXCcadwavfsfarvf";  // Secret key
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes());  // Generate signing key from secret
