@@ -16,9 +16,7 @@ import java.util.function.Function;
 @Component
 public class JwtHelper {
 
-//    public static final long JWT_TOKEN_VALIDITY = 10 * 24 * 60 * 60;  // Token validity duration in seconds
-
-    public static final long JWT_TOKEN_VALIDITY = 30;  // Token validity duration in seconds (1 minute)
+    public static final long JWT_TOKEN_VALIDITY = 10 * 24 * 60 * 60;  // Token validity duration in seconds
 
 
     private static final String secret = "afafasfafafasfasfasfafacasdasfasxASFACASDFACASDFASFASFDAFASFASDAADSCSDFADCVSGCFVADXCcadwavfsfarvf";  // Secret key

@@ -1,5 +1,8 @@
 package com.msp.everestFitness.everestFitness.config.security;
 
+import com.msp.everestFitness.everestFitness.model.Users;
+import com.msp.everestFitness.everestFitness.repository.UsersRepo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -7,17 +10,26 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 @Configuration
-public class AppConfig {
-    @Bean
-    public UserDetailsService userDetailsService(){
-        UserDetails user= User.builder().username("Deepak").password(passwordEncoder().encode("123")).roles("ADMIN").build();
-        UserDetails user1= User.builder().username("Thakur").password(passwordEncoder().encode("123")).roles("ADMIN").build();
-        return new InMemoryUserDetailsManager(user, user1);
+public class UserDetailsServiceImpl implements UserDetailsService {
+    @Autowired
+    private UsersRepo usersRepo;
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Users user = (Users) usersRepo.findByEmail(email)
+                .orElseThrow(()-> new UsernameNotFoundException("Email not found with email: "+email));
+
+        return User.builder()
+                .username(user.getEmail())
+                .password(user.getPassword())
+                .roles(user.getUserType().name())
+                .build();
     }
 
     @Bean

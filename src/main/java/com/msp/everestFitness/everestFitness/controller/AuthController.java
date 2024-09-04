@@ -3,6 +3,8 @@ package com.msp.everestFitness.everestFitness.controller;
 import com.msp.everestFitness.everestFitness.jwt.JwtRequest;
 import com.msp.everestFitness.everestFitness.jwt.JwtResponse;
 import com.msp.everestFitness.everestFitness.config.security.JwtHelper;
+import com.msp.everestFitness.everestFitness.model.Users;
+import com.msp.everestFitness.everestFitness.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/auth")
 public class AuthController {
 
@@ -25,12 +28,24 @@ public class AuthController {
     @Autowired
     private AuthenticationManager manager;
 
+    @Autowired
+    private UserService userService;
+
 
     @Autowired
     private JwtHelper helper;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@RequestBody Users users){
+        try{
+            userService.registerUser(users);
+            return ResponseEntity.status(HttpStatus.CREATED).body("User Successfully Created with Email : "+ users.getEmail());
+        }catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@RequestBody JwtRequest request) {

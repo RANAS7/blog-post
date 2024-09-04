@@ -18,6 +18,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -39,20 +41,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 //        } catch (InterruptedException e) {
 //            throw new RuntimeException(e);
 //        }
-        //Authorization
 
+        // Authorization
         String requestHeader = request.getHeader("Authorization");
-        //Bearer 2352345235sdfrsfgsdfsdf
-//        log.info(" Header :  {}", requestHeader);
+// Bearer 2352345235sdfrsfgsdfsdf
+// log.info(" Header :  {}", requestHeader);
+
         String username = null;
         String token = null;
-        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
-            //looking good
+
+// Paths that don't require authentication
+        List<String> permitAllPaths = Arrays.asList("/api/auth/login",
+                "/api/auth/register");
+
+// Get the request URI
+        String requestUri = request.getRequestURI();
+
+// Check if the request URI matches any of the permitAll paths
+        boolean isPermitAll = permitAllPaths.stream().anyMatch(requestUri::startsWith);
+
+        if (isPermitAll) {
+            logger.info(" The Request URI is permitted without authentication. "+ requestUri);
+        } else if (requestHeader != null && requestHeader.startsWith("Bearer")) {
+            // looking good
             token = requestHeader.substring(7);
             try {
-
                 username = this.jwtHelper.getUsernameFromToken(token);
-
             } catch (IllegalArgumentException e) {
                 logger.info("Illegal Argument while fetching the username !!");
                 e.printStackTrace();
@@ -60,17 +74,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 logger.info("Given jwt token is expired !!");
                 e.printStackTrace();
             } catch (MalformedJwtException e) {
-                logger.info("Some changed has done in token !! Invalid Token");
+                logger.info("Some change has been made to the token !! Invalid Token");
                 e.printStackTrace();
             } catch (Exception e) {
                 e.printStackTrace();
-
             }
-
-
         } else {
-            logger.info("Invalid Header Value !! ");
+            logger.info("Invalid Header Value !!");
         }
+
 
 
         //

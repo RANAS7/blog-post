@@ -10,7 +10,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 public class EverestFitnessApplication {
 
 	public static void main(String[] args) {
-		Dotenv dotenv=Dotenv.load();
+		// Load environment variables from .env file
+		Dotenv dotenv = Dotenv.configure()
+				.filename(".env") // specify the filename (optional if named .env)
+				.load();
 
 //		Set system properties for database
 		System.setProperty("SPRING_DATASOURCE_URL", dotenv.get("SPRING_DATASOURCE_URL"));

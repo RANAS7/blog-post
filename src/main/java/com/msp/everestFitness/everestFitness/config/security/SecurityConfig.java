@@ -30,7 +30,8 @@ public class SecurityConfig {
 
                 // Configure authorization rules
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login").permitAll()  //access Allowed without login
+                        .requestMatchers("/api/auth/login",
+                                "/api/auth/register").permitAll()  //access Allowed without login
                         .requestMatchers("/test").authenticated()        // Require authentication for this endpoint
                         .anyRequest().authenticated()                    // Require authentication for all other requests
                 )
