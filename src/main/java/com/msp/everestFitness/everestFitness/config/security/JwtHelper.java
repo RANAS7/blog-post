@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -18,8 +19,8 @@ public class JwtHelper {
 
     public static final long JWT_TOKEN_VALIDITY = 10 * 24 * 60 * 60;  // Token validity duration in seconds
 
-
-    private static final String secret = "afafasfafafasfasfasfafacasdasfasxASFACASDFACASDFASFASFDAFASFASDAADSCSDFADCVSGCFVADXCcadwavfsfarvf";  // Secret key
+    @Value("${JWT_SECRET_KEY}")
+    private String secret;  // Secret key
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes());  // Generate signing key from secret

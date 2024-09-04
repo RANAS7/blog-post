@@ -17,8 +17,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 @RestController
-@CrossOrigin
 @RequestMapping("/api/auth")
 public class AuthController {
 
@@ -75,9 +76,14 @@ public class AuthController {
 
     }
 
-    @ExceptionHandler(BadCredentialsException.class)
-    public String exceptionHandler() {
-        return "Credentials Invalid !!";
+//    @ExceptionHandler(BadCredentialsException.class)
+//    public String exceptionHandler() {
+//        return "Credentials Invalid !!";
+//    }
+
+    @GetMapping("/current_user")
+    public String getLogInUser(Principal principal){
+        return principal.getName();
     }
 
 }

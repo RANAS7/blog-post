@@ -26,6 +26,8 @@ public class EverestFitnessApplication {
 		System.setProperty("CLOUDINARY_API_KEY", dotenv.get("CLOUDINARY_API_KEY"));
 		System.setProperty("CLOUDINARY_API_SECRET", dotenv.get("CLOUDINARY_API_SECRET"));
 
+//		Set Systerperties for Jwt Authentication
+System.setProperty("JWT_SECRET_KEY", dotenv.get("JWT_SECRET_KEY"));
 		SpringApplication.run(EverestFitnessApplication.class, args);
 	}
 
