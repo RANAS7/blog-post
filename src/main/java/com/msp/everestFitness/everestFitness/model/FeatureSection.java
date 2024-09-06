@@ -10,7 +10,6 @@ import java.util.UUID;
 @Data
 @Table(name = "feature_sections")
 public class FeatureSection {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID featureId;

@@ -1,8 +1,9 @@
 package com.msp.everestFitness.everestFitness.model;
 
-import com.msp.everestFitness.everestFitness.Enumrated.MembershipStatus;
+import com.msp.everestFitness.everestFitness.enumrated.MembershipStatus;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.extern.java.Log;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -15,12 +16,12 @@ import java.util.UUID;
 public class Members {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID memberId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long memberId;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private Users user;
+    private Users users;
 
     @Column(nullable = false)
     private String firstName;

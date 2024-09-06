@@ -8,4 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface CategoryRepo extends JpaRepository<Category, UUID> {
+//    void delete(UUID id);
 }

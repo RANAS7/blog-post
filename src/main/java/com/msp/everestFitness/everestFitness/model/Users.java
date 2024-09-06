@@ -1,29 +1,33 @@
 package com.msp.everestFitness.everestFitness.model;
 
-import com.msp.everestFitness.everestFitness.Enumrated.UserType;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.msp.everestFitness.everestFitness.enumrated.UserType;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@NoArgsConstructor
 @Data
 @Table(name = "users")
 public class Users {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID userId;
+
+    @Column(nullable = false)
+    private String name;
 
     @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false)
+    private boolean isVerified = false;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -35,10 +39,4 @@ public class Users {
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt = Timestamp.from(Instant.now());
 
-    public Users(UUID userId, String email, String password, UserType userType) {
-        this.userId=userId;
-        this.email=email;
-        this.password=password;
-        this.userType=userType;
-    }
 }

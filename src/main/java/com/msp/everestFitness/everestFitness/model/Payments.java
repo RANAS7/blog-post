@@ -13,8 +13,8 @@ import java.util.UUID;
 public class Payments {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID paymentId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long paymentId;
 
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)

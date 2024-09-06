@@ -1,4 +1,4 @@
-package com.msp.everestFitness.everestFitness.Enumrated;
+package com.msp.everestFitness.everestFitness.enumrated;
 
 public enum UserType {
     MEMBER, GUEST, USER, ADMIN

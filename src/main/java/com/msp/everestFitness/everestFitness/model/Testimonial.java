@@ -13,8 +13,8 @@ import java.util.UUID;
 public class Testimonial {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID testimonialId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long testimonialId;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

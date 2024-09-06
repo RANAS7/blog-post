@@ -36,79 +36,56 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-//        try {
-//            Thread.sleep(500);
-//        } catch (InterruptedException e) {
-//            throw new RuntimeException(e);
-//        }
-
         // Authorization
         String requestHeader = request.getHeader("Authorization");
-// Bearer 2352345235sdfrsfgsdfsdf
-// log.info(" Header :  {}", requestHeader);
-
         String username = null;
         String token = null;
 
-// Paths that don't require authentication
-        List<String> permitAllPaths = Arrays.asList("/api/auth/login",
-                "/api/auth/register");
-
-// Get the request URI
         String requestUri = request.getRequestURI();
 
-// Check if the request URI matches any of the permitAll paths
-        boolean isPermitAll = permitAllPaths.stream().anyMatch(requestUri::startsWith);
-
-        if (isPermitAll) {
-            logger.info(" The Request URI is permitted without authentication. "+ requestUri);
-        } else if (requestHeader != null && requestHeader.startsWith("Bearer")) {
-            // looking good
+        if (requestHeader != null && requestHeader.startsWith("Bearer"))
+        {
             token = requestHeader.substring(7);
             try {
                 username = this.jwtHelper.getUsernameFromToken(token);
-            } catch (IllegalArgumentException e) {
-                logger.info("Illegal Argument while fetching the username !!");
-                e.printStackTrace();
-            } catch (ExpiredJwtException e) {
-                logger.info("Given jwt token is expired !!");
-                e.printStackTrace();
-            } catch (MalformedJwtException e) {
-                logger.info("Some change has been made to the token !! Invalid Token");
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (ExpiredJwtException ex) {
+                logger.info("JWT token has expired.", ex);
+                throw new ExpiredJwtException(ex.getHeader(), ex.getClaims(), "JWT token has expired");
+            } catch (MalformedJwtException ex) {
+                logger.info("Malformed JWT token.", ex);
+                throw new MalformedJwtException("Invalid JWT token format.");
+            } catch (IllegalArgumentException ex) {
+                logger.info("Illegal argument exception.", ex);
+                throw new IllegalArgumentException("Invalid input provided.");
+            } catch (Exception ex) {
+                logger.info("An unexpected error occurred.", ex);
+                throw new RuntimeException("An unexpected error occurred. Please try again later.");
             }
-        } else {
-            logger.info("Invalid Header Value !!");
+        }
+        else{
+            // Log and throw the invalid header value exception only if the path requires authentication
+            logger.info("The Request URI is permitted without authentication: " + requestUri);
+
         }
 
-
-
-        //
+        // If username is not null and SecurityContextHolder does not contain authentication
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-
-            //fetch user detail from username
+            // Fetch user details using the username
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
             Boolean validateToken = this.jwtHelper.validateToken(token, userDetails);
-            if (validateToken) {
 
-                //set the authentication
+            if (validateToken) {
+                // Set the authentication in the security context
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-
-
             } else {
-                logger.info("Validation fails !!");
+                logger.info("Token validation failed.");
             }
-
-
         }
 
+        // Continue the filter chain
         filterChain.doFilter(request, response);
-
-
     }
+
 }

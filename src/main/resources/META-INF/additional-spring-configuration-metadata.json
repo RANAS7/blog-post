@@ -1,0 +1,5 @@
+{"properties": [{
+  "name": "swagger.host.url",
+  "type": "java.lang.String",
+  "description": "A description for 'swagger.host.url'"
+}]}

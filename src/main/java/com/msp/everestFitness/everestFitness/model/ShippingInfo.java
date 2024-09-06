@@ -1,6 +1,6 @@
 package com.msp.everestFitness.everestFitness.model;
 
-import com.msp.everestFitness.everestFitness.Enumrated.AddressType;
+import com.msp.everestFitness.everestFitness.enumrated.AddressType;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Entity
 @Data
-@Table(name = "shipping_information")
+@Table(name = "shipping_info")
 public class ShippingInfo {
 
     @Id
@@ -19,7 +19,7 @@ public class ShippingInfo {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private Users user;
+    private Users users;
 
     @Column(nullable = false)
     private String address;
@@ -38,7 +38,7 @@ public class ShippingInfo {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private AddressType userType;
+    private AddressType addressType;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt = Timestamp.from(Instant.now());

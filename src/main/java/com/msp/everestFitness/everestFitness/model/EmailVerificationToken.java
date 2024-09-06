@@ -7,20 +7,23 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.UUID;
 
-@Entity
 @Data
-@Table(name = "categories")
-public class Category {
+@Entity
+@Table(name = "email_verification_token")
+public class EmailVerificationToken {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID categoryId;
+    private UUID id;
+
+    @Column(nullable = false, unique = true)
+    private String token;
 
     @Column(nullable = false)
-    private String name;
+    private String email;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt = Timestamp.from(Instant.now());
 
-    @Column(name = "updated_at", nullable = false)
-    private Timestamp updatedAt = Timestamp.from(Instant.now());
+    @Column(nullable = false)
+    private Timestamp expiryDate;
 }
