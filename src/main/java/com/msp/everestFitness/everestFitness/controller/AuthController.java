@@ -1,11 +1,9 @@
 package com.msp.everestFitness.everestFitness.controller;
 
-import ch.qos.logback.core.model.Model;
 import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
 import com.msp.everestFitness.everestFitness.jwt.JwtRequest;
 import com.msp.everestFitness.everestFitness.jwt.JwtResponse;
 import com.msp.everestFitness.everestFitness.config.security.JwtHelper;
-import com.msp.everestFitness.everestFitness.model.PasswordResetToken;
 import com.msp.everestFitness.everestFitness.model.Users;
 import com.msp.everestFitness.everestFitness.repository.UsersRepo;
 import com.msp.everestFitness.everestFitness.service.EmailVerificationService;
@@ -23,7 +21,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.security.Principal;
 
@@ -97,11 +94,6 @@ public class AuthController {
 
     }
 
-//    @ExceptionHandler(BadCredentialsException.class)
-//    public String exceptionHandler() {
-//        return "Credentials Invalid !!";
-//    }
-
     @GetMapping("/current_user")
     public String getLogInUser(Principal principal) {
         return principal.getName();
@@ -113,16 +105,14 @@ public class AuthController {
         return new ResponseEntity<>("Password reset link has been sent to your email.", HttpStatus.OK);
     }
 
-//    @GetMapping("/resetPasswordForm")
-//    public String resetPasswordForm() {
-//        return "resetPasswordForm";
-//    }
-//
-////    @GetMapping("/reset-form")
-////    public String showResetPasswordForm(@RequestParam(name = "token", required = false) String token) {
-////        // Pass the token as a query parameter to the Thymeleaf template if needed
-////        return "resetPasswordForm";
-////    }
+//@GetMapping("/reset-form")
+//public String showResetPasswordForm(@RequestParam(name = "token", required = false) String token, Model model) {
+//    PasswordResetFormDto passwordResetForm = new PasswordResetFormDto(); // Create an instance of PasswordResetForm
+//    model.addText("passwordResetForm");
+//    model.addText("token");
+//    return "ResetPasswordForm";
+//}
+
 
     @GetMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestParam String newPassword, @RequestParam String confirmPassword) {

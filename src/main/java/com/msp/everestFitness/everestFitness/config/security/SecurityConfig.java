@@ -48,18 +48,20 @@ public class SecurityConfig {
                                 "/api/auth/forgot-password",
                                 "/api/auth/reset-password",
                                 "/api/auth/verify-email",
-                                "/api/auth/ResetPasswordForm"
-                                // -- Swagger UI v2
-                                ,"/v2/api-docs",
+                                "/api/auth/reset-form",
+
+                                // OpenAPI 3.x (Swagger UI v3)
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+
+                                // Swagger UI v2 (Swagger 2.0)
+                                "/v2/api-docs",
                                 "/swagger-resources",
                                 "/swagger-resources/**",
                                 "/configuration/ui",
                                 "/configuration/security",
                                 "/swagger-ui.html",
-                                "/webjars/**",
-                                // -- Swagger UI v3 (OpenAPI)
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**").permitAll()  //access Allowed without login
+                                "/webjars/**").permitAll()  //access Allowed without login
 
                         // Endpoints that do not require authentication only for get method
                         .requestMatchers(HttpMethod.GET, "/api/subcategory/",
@@ -70,19 +72,15 @@ public class SecurityConfig {
                         // Endpoints that require ADMIN role
                         .requestMatchers("/api/subcategory/",
                                 "/api/subcategory/",
-                                "/api/category/"
-                        ).hasRole(String.valueOf(UserType.ADMIN))  // Only ADMIN can access
+                                "/api/category/").hasRole("ADMIN")  // Only ADMIN can access
 
-                        // Endpoints that require MEMBER and USER role
-                        .requestMatchers("/api/shipping/info/").hasAnyRole(
-                                String.valueOf(UserType.MEMBER),
-                                String.valueOf(UserType.USER))  // Only MEMBER and USER can access
+                        // Endpoints that require MEMBER or USER role
+                        .requestMatchers("/api/shipping/info/").hasAnyRole("MEMBER", "USER", "GUEST")  // Only MEMBER, GUEST, and USER can access
 
                         // Endpoints that require authentication
                         .requestMatchers("/test").authenticated()        // Require authentication for this endpoint
                         .anyRequest().authenticated()                    // Require authentication for all other requests
                 )
-
                 // Exception handling configuration
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(point)  // Use custom entry point for unauthorized access
