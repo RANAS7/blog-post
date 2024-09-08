@@ -1,14 +1,18 @@
 package com.msp.everestFitness.everestFitness.service;
 
 import com.msp.everestFitness.everestFitness.model.Users;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
-@Service
 public interface UserService {
 //    List<Users> getUsers();
-    Users registerUser(Users users);
-    boolean changePassword();
-
+    void registerUser(Users users);
+    void changePassword(UUID userId, String oldPassword, String newPassword, String confirmPassword);
+    List<Users> getAllUsers();
+    Users getUserById(UUID id);
+    Users getUserByEmail(String email);
+    Users getUserByName(String name);
+    List<Users> searchUsers(String name, String email);
+    Users getByUserType(String userType);
 }

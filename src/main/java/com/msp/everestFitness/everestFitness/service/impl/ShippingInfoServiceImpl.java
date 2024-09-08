@@ -25,6 +25,16 @@ public class ShippingInfoServiceImpl implements ShippingInfoService {
             ShippingInfo info = shippingInfoRepo.findById(shippingInfo.getShippingId())
                     .orElseThrow(() -> new ResourceNotFoundException("The Shipping Information is not exist in our record with the Id: " + shippingInfo.getShippingId()));
 
+            // Check if the user is trying to change the PRIMARY address
+            if (shippingInfo.getAddressType() == AddressType.PRIMARY && info.getAddressType() != AddressType.PRIMARY) {
+                // Set the old PRIMARY address to ALTERNATIVE for this user
+                ShippingInfo primaryAddress = shippingInfoRepo.findByUsersUserIdAndAddressType(shippingInfo.getUsers().getUserId(), AddressType.PRIMARY);
+                if (primaryAddress != null) {
+                    primaryAddress.setAddressType(AddressType.ALTERNATIVE);
+                    shippingInfoRepo.save(primaryAddress);
+                }
+            }
+
             info.setAddress(shippingInfo.getAddress());
             info.setCity(shippingInfo.getCity());
             info.setState(shippingInfo.getState());
@@ -37,15 +47,25 @@ public class ShippingInfoServiceImpl implements ShippingInfoService {
 
         }
 
+        // New ShippingInfo case
+
+        // Check if the user already has a PRIMARY address
+        ShippingInfo primaryAddress = shippingInfoRepo.findByUsersUserIdAndAddressType(shippingInfo.getUsers().getUserId(), AddressType.PRIMARY);
+        if (primaryAddress == null) {
+            // If no PRIMARY address exists, set the new one as PRIMARY
+            shippingInfo.setAddressType(AddressType.PRIMARY);
+        } else {
+            // Otherwise, set the new address as ALTERNATIVE
+            shippingInfo.setAddressType(AddressType.ALTERNATIVE);
+        }
+
         return shippingInfoRepo.save(shippingInfo);
-
-
     }
 
-    @Override
-    public List<ShippingInfo> getAllShippingInfo() {
-        return shippingInfoRepo.findAll();
-    }
+//    @Override
+//    public List<ShippingInfo> getAllShippingInfo() {
+//        return shippingInfoRepo.findAll();
+//    }
 
 
     @Override
@@ -60,6 +80,11 @@ public class ShippingInfoServiceImpl implements ShippingInfoService {
             throw new ResourceNotFoundException("The Shipping Information is not exist in our record");
         }
         shippingInfoRepo.deleteById(id);
+    }
+
+    @Override
+    public List<ShippingInfo> findByUsersUserId(UUID userId) {
+        return shippingInfoRepo.findByUsersUserId(userId);
     }
 
 

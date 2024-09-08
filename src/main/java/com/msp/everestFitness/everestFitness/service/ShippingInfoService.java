@@ -7,7 +7,8 @@ import java.util.UUID;
 
 public interface ShippingInfoService {
     ShippingInfo addShippingInfo(ShippingInfo shippingInfo);
-    List<ShippingInfo> getAllShippingInfo();
+//    List<ShippingInfo> getAllShippingInfo();
    ShippingInfo getShippingInfoById(UUID id);
    void deleteShippingInfo(UUID id);
+    List<ShippingInfo> findByUsersUserId(UUID userId);
 }

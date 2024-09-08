@@ -65,16 +65,18 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         }
 
         if (!newPassword.equals(confirmPassword)) {
-            throw new IllegalArgumentException("Passwords do not equal with Confirm Password");
+            throw new IllegalArgumentException("New Passwords do not equal with Confirm Password");
         }
 
         Users users = (Users) usersRepo.findByEmail(passwordResetToken.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("User not found with the email: " + passwordResetToken.getEmail()));
 
+        // Update user password
+        users.setPassword(passwordEncoder.encode(newPassword));
+        usersRepo.save(users);
 
 //        Delete token after reset password
         passwordResetTokenRepository.delete(passwordResetToken);
-
     }
 
 

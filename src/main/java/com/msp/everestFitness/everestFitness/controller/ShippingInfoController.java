@@ -26,25 +26,19 @@ public class ShippingInfoController {
 
     @GetMapping("/")
     public ResponseEntity<?> getShippingInfo(@RequestParam(name = "id", required = false) UUID id) {
-        if (id != null) {
-            // Retrieve a single ShippingInfo by ID
-            Optional<ShippingInfo> shippingInfo = Optional.ofNullable(shippingInfoService.getShippingInfoById(id));
-            if (shippingInfo.isPresent()) {
-                return new ResponseEntity<>(shippingInfo.get(), HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>("ShippingInfo not found with ID: " + id, HttpStatus.NOT_FOUND);
-            }
-        } else {
-            // Retrieve all ShippingInfo records
-            List<ShippingInfo> shippingInfos = shippingInfoService.getAllShippingInfo();
-            return new ResponseEntity<>(shippingInfos, HttpStatus.OK);
-        }
+        // Retrieve a single ShippingInfo by ID
+        return new ResponseEntity<>(shippingInfoService.getShippingInfoById(id), HttpStatus.OK);
     }
 
     @DeleteMapping("/")
     public ResponseEntity<?> deleteShippingInfo(@RequestParam UUID id) {
         shippingInfoService.deleteShippingInfo(id);
         return new ResponseEntity<>("The Shipping Information Successfully Deletes", HttpStatus.OK);
+    }
+
+    @GetMapping("/by-user")
+    public ResponseEntity<?> getShippingInfoByUsersUserId(@RequestParam UUID userId) {
+        return new ResponseEntity<>(shippingInfoService.findByUsersUserId(userId), HttpStatus.OK);
     }
 
 }

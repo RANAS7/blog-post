@@ -20,11 +20,16 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.security.Principal;
+import java.util.List;
+import java.util.UUID;
 
 @RestController
+@Controller
 @RequestMapping("/api/auth")
 public class AuthController {
 
@@ -105,14 +110,6 @@ public class AuthController {
         return new ResponseEntity<>("Password reset link has been sent to your email.", HttpStatus.OK);
     }
 
-//@GetMapping("/reset-form")
-//public String showResetPasswordForm(@RequestParam(name = "token", required = false) String token, Model model) {
-//    PasswordResetFormDto passwordResetForm = new PasswordResetFormDto(); // Create an instance of PasswordResetForm
-//    model.addText("passwordResetForm");
-//    model.addText("token");
-//    return "ResetPasswordForm";
-//}
-
 
     @GetMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestParam String newPassword, @RequestParam String confirmPassword) {
@@ -121,8 +118,48 @@ public class AuthController {
     }
 
     @GetMapping("/verify-email")
-    public ResponseEntity<?> verifyEmail(@RequestParam String token){
+    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
         emailVerificationService.verifyEmail(token);
         return new ResponseEntity<>("Email verified successfully", HttpStatus.OK);
     }
+
+    @PostMapping("/password/change")
+    public ResponseEntity<?> changePassword(@RequestParam UUID userId,
+                                            @RequestParam String oldPassword,
+                                            @RequestParam String newPassword,
+                                            @RequestParam String confirmPassword) {
+        userService.changePassword(userId, oldPassword, newPassword, confirmPassword);
+        return new ResponseEntity<>("Password changed successfully", HttpStatus.OK);
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<?> getUsers(@RequestParam(name = "id", required = false) UUID id) {
+        if (id != null) {
+            return new ResponseEntity<>(userService.getUserById(id), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
+    }
+
+    @GetMapping("/user/by-email")
+    public ResponseEntity<?> getUserByEmail(@RequestParam String email) {
+        return new ResponseEntity<>(userService.getUserByEmail(email), HttpStatus.OK);
+    }
+
+    @GetMapping("/user/by-name")
+    public ResponseEntity<?> getUserByName(@RequestParam String name) {
+        return new ResponseEntity<>(userService.getUserByName(name), HttpStatus.OK);
+    }
+
+    @GetMapping("/users/search")
+    public ResponseEntity<List<Users>> searchUsers(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String email) {
+        return new ResponseEntity<>(userService.searchUsers(name, email), HttpStatus.OK);
+    }
+
+    @GetMapping("/users/type")
+    public ResponseEntity<?> getUsersByUserType(@RequestParam String userType) {
+        return new ResponseEntity<>(userService.getByUserType(userType), HttpStatus.OK);
+    }
+
 }

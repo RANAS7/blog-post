@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Data
 @Entity
-@Table(name ="password_reset_token" )
+@Table(name = "password_reset_token")
 public class PasswordResetToken {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -22,7 +22,7 @@ public class PasswordResetToken {
     private String email;
 
     @Column(nullable = false)
-    private Timestamp caretedAt= Timestamp.from(Instant.now());
+    private Timestamp caretedAt = Timestamp.from(Instant.now());
 
     @Column(nullable = false)
     private Timestamp expiryDate;

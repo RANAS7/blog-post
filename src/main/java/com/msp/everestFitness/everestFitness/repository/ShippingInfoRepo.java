@@ -1,5 +1,6 @@
 package com.msp.everestFitness.everestFitness.repository;
 
+import com.msp.everestFitness.everestFitness.enumrated.AddressType;
 import com.msp.everestFitness.everestFitness.model.ShippingInfo;
 import com.msp.everestFitness.everestFitness.service.ShippingInfoService;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,5 +15,6 @@ import java.util.UUID;
 
 @Repository
 public interface ShippingInfoRepo extends JpaRepository<ShippingInfo, UUID> {
-//    void delete(UUID id);
+    List<ShippingInfo> findByUsersUserId(UUID userId);
+    ShippingInfo findByUsersUserIdAndAddressType(UUID userId, AddressType addressType);
 }
