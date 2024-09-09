@@ -67,12 +67,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/subcategory/",
                                 "/api/subcategory/by-category",
                                 "/api/category/",
-                                "/api/shipping/info/").permitAll() //access Allowed without login only for get method
+                                "/api/shipping/info/",
+                                "/api/product/").permitAll() //access Allowed without login only for get method
 
                         // Endpoints that require ADMIN role
                         .requestMatchers("/api/subcategory/",
                                 "/api/subcategory/",
-                                "/api/category/").hasRole("ADMIN")  // Only ADMIN can access
+                                "/api/category/", "/api/product/").hasRole("ADMIN")  // Only ADMIN can access
 
                         // Endpoints that require MEMBER or USER role
                         .requestMatchers("/api/shipping/info/").hasAnyRole("MEMBER", "USER", "GUEST")  // Only MEMBER, GUEST, and USER can access

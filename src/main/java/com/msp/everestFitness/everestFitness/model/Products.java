@@ -1,12 +1,10 @@
 package com.msp.everestFitness.everestFitness.model;
 
-import com.msp.everestFitness.everestFitness.model.Subcategory;
 import jakarta.persistence.*;
 import lombok.Data;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity

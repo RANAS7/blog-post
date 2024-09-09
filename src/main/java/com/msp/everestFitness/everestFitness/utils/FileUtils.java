@@ -1,37 +1,70 @@
 package com.msp.everestFitness.everestFitness.utils;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Map;
 import java.util.UUID;
 
 @Component
 public class FileUtils {
 
-    private static final Logger log= LoggerFactory.getLogger(FileUtils.class);
+    private static final Logger log = LoggerFactory.getLogger(FileUtils.class);
 
-    // Directory where documents will be stored
-    private static final String FILES = "./src/main/resources/static/files";
+    private final Cloudinary cloudinary;
 
+    @Value("${CLOUDINARY_FOLDER_NAME}")
+    private String cloudinaryFolderName;
 
-    //     * Saves a file to the specified directory.
-    public void saveFile(MultipartFile file, String fileName) throws IOException {
-        Path uploads = Paths.get(FILES); // Path to the documents directory
-        if (!Files.exists(uploads)) {
-            Files.createDirectories(uploads); // Create the directory if it doesn't exist
-        }
-        Files.copy(file.getInputStream(), uploads.resolve(fileName)); // Copy the file to the target location
+    public FileUtils(Cloudinary cloudinary) {
+        this.cloudinary = cloudinary;
     }
 
+    // Uploads a file to Cloudinary
+    public String uploadFileToCloudinary(MultipartFile file) throws IOException {
+        if (file.isEmpty()) {
+            log.info("Attempted to upload an empty file");
+            return null;
+        }
 
-    //     * Generates a unique filename using a truncated UUID and the original file extension.
+        // Upload the file to Cloudinary and specify the folder
+        Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(),
+                ObjectUtils.asMap(
+                        "folder", cloudinaryFolderName // Specify the folder name here
+                )
+        );
+
+        String url = (String) uploadResult.get("url");
+        log.info("Uploaded file to Cloudinary folder '{}': {}", cloudinaryFolderName, url);
+        return url;
+    }
+
+    // Deletes a file from Cloudinary by public ID, which includes the folder path
+    public void deleteFileFromCloudinary(String publicId) throws IOException {
+        if (publicId == null || publicId.isEmpty()) {
+            log.error("Invalid publicId. Cannot delete file from Cloudinary.");
+            return;
+        }
+
+        // Delete the file from Cloudinary using the publicId (which includes the folder path)
+        Map<String, Object> result = cloudinary.uploader().destroy(publicId, ObjectUtils.asMap("resource_type", "image"));
+
+        // Check the result for confirmation and log accordingly
+        if ("ok".equals(result.get("result"))) {
+            log.info("Successfully deleted file from Cloudinary: {}", publicId);
+        } else {
+            log.error("Failed to delete file from Cloudinary: {}", publicId);
+        }
+    }
+
+    // Generates a unique file name using UUID
     public String generateFileName(MultipartFile file) {
         String originalFilename = StringUtils.cleanPath(file.getOriginalFilename()); // Clean the original filename
         String extension = getFileExtension(originalFilename); // Extract the file extension
@@ -40,21 +73,18 @@ public class FileUtils {
         return generatedFileName;
     }
 
-
-    //     * Deletes a file if it exists in the directory.
-    public void deleteFileIfExists(String fileName) throws IOException {
-        Path filePath = Paths.get(FILES).resolve(fileName); // Path to the file
-        if (Files.exists(filePath)) {
-            Files.delete(filePath); // Delete the file if it exists
-            log.info("Deleted file: " + fileName); // Log the deletion
-        } else {
-            log.error("File not found for deletion: " + fileName); // Log a warning if the file doesn't exist
-        }
+    // Extracts public ID from Cloudinary URL
+    public String extractPublicIdFromUrl(String url) {
+        if (url == null || url.isEmpty()) return null;
+        // Assuming URL format like https://res.cloudinary.com/{cloud_name}/image/upload/{public_id}.{format}
+        int lastSlash = url.lastIndexOf('/');
+        int dotIndex = url.lastIndexOf('.');
+        return (lastSlash != -1 && dotIndex != -1) ? url.substring(lastSlash + 1, dotIndex) : null;
     }
 
-
-    //     * Extracts the file extension from the filename.
+    // Extracts the file extension from the filename
     private String getFileExtension(String filename) {
-        return filename.substring(filename.lastIndexOf(".") + 1); // Extract and return the extension
+        int lastDot = filename.lastIndexOf(".");
+        return (lastDot != -1) ? filename.substring(lastDot + 1) : "";
     }
 }

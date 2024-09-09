@@ -25,6 +25,8 @@ public class EverestFitnessApplication {
         System.setProperty("CLOUDINARY_CLOUD_NAME", dotenv.get("CLOUDINARY_CLOUD_NAME"));
         System.setProperty("CLOUDINARY_API_KEY", dotenv.get("CLOUDINARY_API_KEY"));
         System.setProperty("CLOUDINARY_API_SECRET", dotenv.get("CLOUDINARY_API_SECRET"));
+        System.setProperty("CLOUDINARY_FOLDER_NAME", dotenv.get("CLOUDINARY_FOLDER_NAME"));
+        System.setProperty("CLOUDINARY_URL",dotenv.get("CLOUDINARY_URL"));
 
 //		Set Systerperties for Jwt Authentication
         System.setProperty("JWT_SECRET_KEY", dotenv.get("JWT_SECRET_KEY"));
