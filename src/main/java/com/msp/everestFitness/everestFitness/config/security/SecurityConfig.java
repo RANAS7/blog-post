@@ -68,7 +68,8 @@ public class SecurityConfig {
                                 "/api/subcategory/by-category",
                                 "/api/category/",
                                 "/api/shipping/info/",
-                                "/api/product/").permitAll() //access Allowed without login only for get method
+                                "/api/product/",
+                                "/api/product-ratings/").permitAll() //access Allowed without login only for get method
 
                         // Endpoints that require ADMIN role
                         .requestMatchers("/api/subcategory/",

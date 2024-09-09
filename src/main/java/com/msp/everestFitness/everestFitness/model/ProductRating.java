@@ -27,7 +27,7 @@ public class ProductRating {
     @Column(nullable = false)
     private Integer rating;
 
-    private String comment;
+    private String review;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt = Timestamp.from(Instant.now());

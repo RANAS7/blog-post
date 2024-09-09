@@ -71,6 +71,11 @@ public class ProductServiceImpl implements ProductService {
             existingProduct = productsRepo.save(products);
         }
 
+        // Check if the total number of images exceeds the limit of 4
+        if (images.size() + images.size() > 4) {
+            throw new IllegalArgumentException("You can only upload maximum 4 images for a product.");
+        }
+
         // Save images for the product
         for (MultipartFile file : images) {
             ProductImages productImage = new ProductImages();
@@ -146,6 +151,7 @@ public class ProductServiceImpl implements ProductService {
             if (publicId != null && !publicId.isEmpty()) {
                 fileUtils.deleteFileFromCloudinary(cloudinaryFolderName+"/"+publicId);
             }
+
 
             // Delete the image record from the database
             productsImagesRepo.delete(productImage);
