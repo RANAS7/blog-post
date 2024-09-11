@@ -31,7 +31,7 @@ public class Users {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private UserType userType;
+    private UserType userType = UserType.USER;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt = Timestamp.from(Instant.now());

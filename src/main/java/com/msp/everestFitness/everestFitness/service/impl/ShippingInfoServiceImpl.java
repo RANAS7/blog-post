@@ -62,10 +62,6 @@ public class ShippingInfoServiceImpl implements ShippingInfoService {
         return shippingInfoRepo.save(shippingInfo);
     }
 
-//    @Override
-//    public List<ShippingInfo> getAllShippingInfo() {
-//        return shippingInfoRepo.findAll();
-//    }
 
 
     @Override
@@ -84,7 +80,7 @@ public class ShippingInfoServiceImpl implements ShippingInfoService {
 
     @Override
     public List<ShippingInfo> findByUsersUserId(UUID userId) {
-        return shippingInfoRepo.findByUsersUserId(userId);
+        return shippingInfoRepo.findByUsers_UserId(userId);
     }
 
 

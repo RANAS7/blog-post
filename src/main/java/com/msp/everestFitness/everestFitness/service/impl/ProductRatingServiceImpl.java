@@ -22,8 +22,8 @@ public class ProductRatingServiceImpl implements ProductRatingService {
     @Override
     public void addRating(ProductRatingRequestDto request) {
         ProductRating productRating = new ProductRating();
-        productRating.setProduct(request.getProduct());
-        productRating.setUser(request.getUser());
+        productRating.setProducts(request.getProducts());
+        productRating.setUsers(request.getUsers());
         productRating.setRating(request.getRating());
         productRating.setReview(request.getReview());
 
@@ -33,7 +33,7 @@ public class ProductRatingServiceImpl implements ProductRatingService {
     // Get all ratings for a product
     @Override
     public List<ProductRating> getRatingsForProduct(Products product) {
-        return productRatingRepo.findByProduct(product);
+        return productRatingRepo.findByProducts(product);
     }
 
     // Get a rating by ID
@@ -41,9 +41,18 @@ public class ProductRatingServiceImpl implements ProductRatingService {
         return productRatingRepo.findById(ratingId).orElse(null);
     }
 
-    // Delete a rating
     @Override
-    public void deleteRating(UUID ratingId) {
+    public void deleteRating(UUID ratingId, UUID userId) {
+        // Fetch the rating by its ID
+        ProductRating rating = productRatingRepo.findById(ratingId)
+                .orElseThrow(() -> new IllegalArgumentException("Rating not found"));
+
+        // Check if the rating belongs to the current user
+        if (!rating.getUsers().getUserId().equals(userId)) {
+            throw new IllegalStateException("You are not allowed to delete this rating.");
+        }
+
+        // Proceed with deletion if the user is the creator of the rating
         productRatingRepo.deleteById(ratingId);
     }
 }

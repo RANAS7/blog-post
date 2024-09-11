@@ -61,7 +61,7 @@ public class AuthController {
     public ResponseEntity<?> registerUser(@RequestBody Users users) {
         try {
             userService.registerUser(users);
-            emailVerificationService.createEmailVerificaionToken(users.getEmail());
+            emailVerificationService.createEmailVerificationToken(users.getEmail());
             return ResponseEntity.status(HttpStatus.CREATED).body("User Successfully Created with Email : " + users.getEmail());
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -82,7 +82,9 @@ public class AuthController {
         JwtResponse response = JwtResponse.builder()
                 .jwtToken(token)
                 .username(userDetails.getUsername())
-                .userID(user.getUserId()).build();
+                .userID(user.getUserId())
+                .userType(user.getUserType().name())
+                .build();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

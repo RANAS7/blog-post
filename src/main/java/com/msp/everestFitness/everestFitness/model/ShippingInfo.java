@@ -25,6 +25,9 @@ public class ShippingInfo {
     private String address;
 
     @Column(nullable = false)
+    private String phoneNumber;
+
+    @Column(nullable = false)
     private String city;
 
     @Column(nullable = false)

@@ -33,8 +33,8 @@ public class ProductRatingController {
 
     // Delete a rating
     @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteRating(@RequestParam UUID ratingId) {
-        productRatingService.deleteRating(ratingId);
+    public ResponseEntity<?> deleteRating(@RequestParam UUID ratingId, @RequestParam UUID userId) {
+        productRatingService.deleteRating(ratingId,userId);
         return new ResponseEntity<>("Rating deleted successfully", HttpStatus.OK);
     }
 }

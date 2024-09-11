@@ -9,6 +9,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -49,6 +52,7 @@ public class SecurityConfig {
                                 "/api/auth/reset-password",
                                 "/api/auth/verify-email",
                                 "/api/auth/reset-form",
+                                "/api/auth/google/**",
 
                                 // OpenAPI 3.x (Swagger UI v3)
                                 "/v3/api-docs/**",
@@ -74,15 +78,21 @@ public class SecurityConfig {
                         // Endpoints that require ADMIN role
                         .requestMatchers("/api/subcategory/",
                                 "/api/subcategory/",
-                                "/api/category/", "/api/product/").hasRole("ADMIN")  // Only ADMIN can access
+                                "/api/category/", "/api/product/",
+                                "/api/order-item/").hasRole("ADMIN")  // Only ADMIN can access
 
                         // Endpoints that require MEMBER or USER role
-                        .requestMatchers("/api/shipping/info/").hasAnyRole("MEMBER", "USER", "GUEST")  // Only MEMBER, GUEST, and USER can access
+                        .requestMatchers("/api/shipping/info/","/api/order/").hasAnyRole("MEMBER", "USER", "GUEST")  // Only MEMBER, GUEST, and USER can access
 
                         // Endpoints that require authentication
                         .requestMatchers("/test").authenticated()        // Require authentication for this endpoint
                         .anyRequest().authenticated()                    // Require authentication for all other requests
                 )
+                // OAuth2 login configuration for Google
+//                .oauth2Login(oauth2 -> oauth2
+//                        .loginPage("/api/auth/google") // Optional: Define a custom Google login page
+//                        .defaultSuccessUrl("/api/auth/google-success", true)
+//                )
                 // Exception handling configuration
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(point)  // Use custom entry point for unauthorized access
@@ -111,4 +121,23 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
+//    @Bean
+//    public ClientRegistrationRepository clientRegistrationRepository() {
+//        return new InMemoryClientRegistrationRepository(this.googleClientRegistration());
+//    }
+//
+//    private ClientRegistration googleClientRegistration() {
+//        return ClientRegistration.withRegistrationId("google")
+//                .clientId("your-google-client-id")
+//                .clientSecret("your-google-client-secret")
+//                .scope("openid", "profile", "email")
+//                .authorizationUri("https://accounts.google.com/o/oauth2/auth")
+//                .tokenUri("https://oauth2.googleapis.com/token")
+//                .userInfoUri("https://www.googleapis.com/oauth2/v3/userinfo")
+//                .userNameAttributeName("sub")
+//                .clientName("Google")
+//                .redirectUri("{baseUrl}/login/oauth2/code/google")
+//                .build();
+//    }
 }

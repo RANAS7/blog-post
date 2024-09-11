@@ -7,8 +7,8 @@ import lombok.Data;
 
 @Data
 public class ProductRatingRequestDto {
-    private Products product;
-    private Users user;
+    private Products products;
+    private Users users;
     private Integer rating;
     private String review;
 }

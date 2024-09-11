@@ -24,6 +24,9 @@ public class Products {
     @Column(nullable = false)
     private Double price;
 
+    @Column(nullable = false)
+    private Long stock;
+
     private Double discountedPrice;
 
     @ManyToOne

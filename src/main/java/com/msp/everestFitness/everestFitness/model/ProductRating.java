@@ -18,11 +18,11 @@ public class ProductRating {
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
-    private Products product;
+    private Products products;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private Users user;
+    private Users users;
 
     @Column(nullable = false)
     private Integer rating;

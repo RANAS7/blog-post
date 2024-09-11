@@ -17,5 +17,5 @@ public interface ProductRatingService {
     List<ProductRating> getRatingsForProduct(Products product);
 
     // Delete a rating
-    void deleteRating(UUID ratingId);
+    void deleteRating(UUID ratingId, UUID userId);
 }

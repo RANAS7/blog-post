@@ -4,9 +4,12 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -19,18 +22,16 @@ public class Orders {
     private UUID orderId;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private Users user;
+    @JoinColumn(name = "shipping_id", nullable = false)
+    private ShippingInfo shippingInfo;
 
     @Column(name = "order_date", nullable = false, updatable = false)
-    private LocalDateTime orderDate = LocalDateTime.now();
+    private Timestamp orderDate = Timestamp.from(Instant.now());
 
     @Column(nullable = false)
     private Double total;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Timestamp createdAt = Timestamp.from(Instant.now());
+    @Transient
+    private List<OrderItems> orderItems = new ArrayList<>();
 
-    @Column(name = "updated_at", nullable = false)
-    private Timestamp updatedAt = Timestamp.from(Instant.now());
 }

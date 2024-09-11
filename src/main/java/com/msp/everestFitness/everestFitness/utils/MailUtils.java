@@ -1,7 +1,14 @@
 package com.msp.everestFitness.everestFitness.utils;
 
+import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
+import com.msp.everestFitness.everestFitness.model.OrderItems;
+import com.msp.everestFitness.everestFitness.model.Orders;
+import com.msp.everestFitness.everestFitness.repository.OrderItemsRepo;
+import com.msp.everestFitness.everestFitness.repository.OrdersRepo;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -13,7 +20,11 @@ import org.springframework.util.StreamUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.Year;
+import java.util.List;
+import java.util.UUID;
 
 
 @Service
@@ -25,8 +36,15 @@ public class MailUtils {
     @Value("${DOMAIN}")
     private String domain;
 
+    @Autowired
+    private OrdersRepo ordersRepo;
+
+    @Autowired
+    private OrderItemsRepo orderItemsRepo;
+
     String currentYear = String.valueOf(Year.now().getValue());
 
+    private static final Logger log = LoggerFactory.getLogger(MailUtils.class);
 
     //Mail configuration for Reset password
     public void sendPasswordResetEmail(String toEmail, String token, String recipientName) throws MessagingException {
@@ -66,7 +84,7 @@ public class MailUtils {
 
             String subject = "Email Verification";
 
-            String verificationLink =domain + "/api/auth/verify-email?token=" + token;
+            String verificationLink = domain + "/api/auth/verify-email?token=" + token;
 
             ClassPathResource htmlFile = new ClassPathResource("templates/EmailVerification.html");
             String htmlContent = StreamUtils.copyToString(htmlFile.getInputStream(), StandardCharsets.UTF_8);
@@ -83,72 +101,69 @@ public class MailUtils {
         } catch (Exception e) {
             throw new RuntimeException("Internal server error:" + e.getMessage(), e);
         }
-
     }
 
 
-    public void sendKycApprovalEmail(String toEmail, String vendorName) throws MessagingException, IOException {
-        try {
-            // Create a MimeMessage object
-            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+    public void sendOrderConfirmationMail(String toEmail, UUID orderId) throws MessagingException, IOException {
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
 
-            // Set the subject of the email
-            String subject = "KYC Approval Notification";
 
-            ClassPathResource htmlFile = new ClassPathResource("templates/kycApprovalNotice.html");
-            String htmlContent = StreamUtils.copyToString(htmlFile.getInputStream(), StandardCharsets.UTF_8);
+        String subject = "Order Confirmation - " + orderId;
 
-            String currentYear = String.valueOf(Year.now().getValue());
+        String estimatedDeliveryDate= String.valueOf(Timestamp.from(Instant.now().plusSeconds(3 * 24 * 60 * 60)));
 
-            // HTML content for the KYC approval notice
-            htmlContent = htmlContent.replace("vendorName", vendorName);
-            htmlContent = htmlContent.replace("currentYear", currentYear);
+        // Load the HTML template
+        ClassPathResource htmlFile = new ClassPathResource("templates/OrderConfirmation.html");
+        String htmlContent = StreamUtils.copyToString(htmlFile.getInputStream(), StandardCharsets.UTF_8);
 
-            // Set the content of the message
-            helper.setTo(toEmail);
-            helper.setSubject(subject);
-            helper.setText(htmlContent, true);
+        Orders order = ordersRepo.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with the id: " + orderId));
 
-            // Send the email
-            javaMailSender.send(mimeMessage);
-            System.out.println("KYC Approval Email sent successfully");
-        } catch (MessagingException e) {
-            System.err.println("Failed to send email: " + e.getMessage());
-            throw e; // Rethrow or handle accordingly
+        List<OrderItems> orderItems = orderItemsRepo.findByOrder_OrderId(orderId);
+
+        // Loop through the order items and populate the table rows
+        StringBuilder orderItemsHtml = new StringBuilder();
+        int sn = 0;
+
+        for (OrderItems item : orderItems) {
+
+            String productName = item.getProducts().getName(); // Assuming getProduct() has a getName() method
+            int quantity = item.getQuantity();
+            double price = item.getPrice();
+            double total = price * quantity;
+
+            orderItemsHtml.append("<tr>")
+                    .append("<td>").append(sn += 1).append("</td>")
+                    .append("<td>").append(productName).append("</td>")
+                    .append("<td>").append(quantity).append("</td>")
+                    .append("<td>$").append(price).append("</td>")
+                    .append("<td>$").append(total).append("</td>")
+                    .append("</tr>");
         }
+
+        // Inject the dynamic order items and other placeholders into the template
+        htmlContent = htmlContent.replace("${orderItemsHtml}", orderItemsHtml.toString())
+                .replace("${customerName}", order.getShippingInfo().getUsers().getName())  // Correct method for customer name
+                .replace("${orderId}", order.getOrderId().toString())
+                .replace("${orderDate}", order.getOrderDate().toString())
+                .replace("${deliveryDate}", estimatedDeliveryDate) // Adjust delivery date if needed
+                .replace("${orderTotal}", String.valueOf(order.getTotal()))
+                .replace("${shippingAddress}", order.getShippingInfo().getAddress())
+                .replace("${shippingCity}", order.getShippingInfo().getCity())
+                .replace("${shippingState}", order.getShippingInfo().getState())
+                .replace("${shippingPostalCode}", order.getShippingInfo().getPostalCode())
+                .replace("${shippingCountry}", order.getShippingInfo().getCountry())
+                .replace("${shippingPhoneNumber}", order.getShippingInfo().getPhoneNumber())
+                .replace("[Year]", currentYear);
+
+        helper.setTo(toEmail);
+        helper.setSubject(subject);
+        // Set the HTML content
+        helper.setText(htmlContent, true);
+
+        // Send the email
+        javaMailSender.send(mimeMessage);
     }
 
-
-    public void sendKycRejectionEmail(String toEmail, String vendorName, String rejectionReason) throws MessagingException, IOException {
-        try {
-            // Create a MimeMessage object
-            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
-
-            // Set the subject of the email
-            String subject = "KYC Rejection Notification";
-
-            ClassPathResource htmlFile = new ClassPathResource("templates/rejectionNotice.html");
-            String htmlContent = StreamUtils.copyToString(htmlFile.getInputStream(), StandardCharsets.UTF_8);
-
-
-            // HTML content for the KYC approval notice
-            htmlContent = htmlContent.replace("vendorName", vendorName);
-            htmlContent = htmlContent.replace("rejectionReason", rejectionReason);
-            htmlContent = htmlContent.replace("currentYear", currentYear);
-
-            // Set the content of the message
-            helper.setTo(toEmail);
-            helper.setSubject(subject);
-            helper.setText(htmlContent, true);
-
-            // Send the email
-            javaMailSender.send(mimeMessage);
-            System.out.println("KYC Approval Email sent successfully");
-        } catch (MessagingException e) {
-            System.err.println("Failed to send email: " + e.getMessage());
-            throw e; // Rethrow or handle accordingly
-        }
-    }
 }

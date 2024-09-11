@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            color: #666;
+        }
+        .order-details {
+            background-color: #f8f8f8;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .order-details h3 {
+            margin: 0 0 10px;
+            color: #555;
+        }
+        .order-details p {
+            margin: 5px 0;
+            color: #888;
+        }
+        .product-list {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .product-list th, .product-list td {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        .product-list th {
+            background-color: #f4f4f4;
+        }
+        .product-list td {
+            text-align: center;
+        }
+        .footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #333;
+            color: #fff;
+            border-radius: 5px;
+        }
+        .total {
+            font-weight: bold;
+            color: #333;
+            text-align: right;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Thank you for your order!</h1>
+    <p>Hello ${customerName},</p>
+    <p>We are excited to confirm your order. Below are the details of your purchase:</p>
+
+    <div class="order-details">
+        <h3>Order Summary</h3>
+        <p><strong>Order Number:</strong> #${orderId}</p>
+        <p><strong>Order Date:</strong> ${orderDate}</p>
+        <p><strong>Estimated Delivery:</strong> ${deliveryDate}</p>
+    </div>
+
+    <h3>Items Ordered:</h3>
+    <table class="product-list">
+        <thead>
+        <tr>
+            <th>SN</th>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        ${orderItemsHtml} <!-- Insert dynamic order items here -->
+        </tbody>
+    </table>
+
+    <p class="total">Grand Total: $${orderTotal}</p>
+
+    <div class="order-details">
+        <h3>Shipping Information</h3>
+        <p><strong>Address:</strong> ${shippingAddress}</p>
+        <p><strong>City:</strong> ${shippingCity}</p>
+        <p><strong>State:</strong> ${shippingState}</p>
+        <p><strong>Postal Code:</strong> ${shippingPostalCode}</p>
+        <p><strong>Country:</strong> ${shippingCountry}</p>
+        <p><strong>Phone Number:</strong> ${shippingPhoneNumber}</p>
+    </div>
+
+    <p>If you have any questions, feel free to contact our support team at support@example.com.</p>
+
+    <p>Thank you for shopping with us!</p>
+
+    <div class="footer">
+        <p>&copy; [Year] Everest Fitness. All rights reserved.</p>
+    </div>
+</div>
+
+</body>
+</html>

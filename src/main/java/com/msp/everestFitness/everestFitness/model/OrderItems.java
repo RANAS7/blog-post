@@ -23,13 +23,16 @@ public class OrderItems {
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
-    private Products product;
+    private Products products;
 
     @Column(nullable = false)
     private Integer quantity;
 
     @Column(nullable = false)
     private Double price;
+
+    @Column(nullable = false)
+    private Double totalAmt;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Timestamp createdAt = Timestamp.from(Instant.now());

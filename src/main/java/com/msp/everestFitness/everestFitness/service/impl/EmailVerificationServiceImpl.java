@@ -30,7 +30,7 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
     private MailUtils mailUtils;
 
     @Override
-    public void createEmailVerificaionToken(String email) throws MessagingException, IOException {
+    public void createEmailVerificationToken(String email) throws MessagingException, IOException {
         Users users = (Users) usersRepo.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Email: " + email));
 

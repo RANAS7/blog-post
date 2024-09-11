@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public interface EmailVerificationService {
 
-    void createEmailVerificaionToken(String email) throws MessagingException, IOException;
+    void createEmailVerificationToken(String email) throws MessagingException, IOException;
 
     boolean validateToken(String token);
 
