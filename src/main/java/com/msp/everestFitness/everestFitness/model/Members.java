@@ -14,10 +14,9 @@ import java.util.UUID;
 @Data
 @Table(name = "members")
 public class Members {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long memberId;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID memberId;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

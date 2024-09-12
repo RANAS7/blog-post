@@ -9,7 +9,7 @@ import java.util.UUID;
 @Entity
 @Data
 @Table(name = "feature_sections")
-public class FeatureSection {
+public class FeatureImage {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID featureId;
