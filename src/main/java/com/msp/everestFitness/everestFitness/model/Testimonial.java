@@ -13,19 +13,24 @@ import java.util.UUID;
 public class Testimonial {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long testimonialId;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private Users user;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID testimonialId;
 
     @Column(nullable = false)
-    private String content;
+    private String name;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false)
+    private String position;
+
+    @Column(nullable = false)
+    private String image;
+
+    @Column(nullable = false)
+    private String description;
+
+    @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
     private Timestamp createdAt = Timestamp.from(Instant.now());
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at", nullable = false, insertable = false)
     private Timestamp updatedAt = Timestamp.from(Instant.now());
 }
