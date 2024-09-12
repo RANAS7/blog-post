@@ -55,4 +55,9 @@ public class ProductRatingServiceImpl implements ProductRatingService {
         // Proceed with deletion if the user is the creator of the rating
         productRatingRepo.deleteById(ratingId);
     }
+
+    @Override
+    public Double getAverageRatingByProductId(UUID productId) {
+        return productRatingRepo.getAverageRatingByProductId(productId);
+    }
 }

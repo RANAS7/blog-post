@@ -3,7 +3,6 @@ package com.msp.everestFitness.everestFitness.model;
 import com.msp.everestFitness.everestFitness.enumrated.MembershipStatus;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.extern.java.Log;
 
 import java.sql.Timestamp;
 import java.time.Instant;
