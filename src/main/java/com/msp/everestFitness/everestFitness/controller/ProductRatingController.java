@@ -34,7 +34,13 @@ public class ProductRatingController {
     // Delete a rating
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteRating(@RequestParam UUID ratingId, @RequestParam UUID userId) {
-        productRatingService.deleteRating(ratingId,userId);
+        productRatingService.deleteRating(ratingId, userId);
         return new ResponseEntity<>("Rating deleted successfully", HttpStatus.OK);
+    }
+
+    // Get avg ratings of a product
+    @GetMapping("/avg")
+    public ResponseEntity<?> getAverageRatingByProductId(@RequestParam UUID productId) {
+        return new ResponseEntity<>(productRatingService.getAverageRatingByProductId(productId), HttpStatus.OK);
     }
 }

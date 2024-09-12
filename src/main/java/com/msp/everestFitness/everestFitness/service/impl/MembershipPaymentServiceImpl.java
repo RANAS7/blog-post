@@ -42,11 +42,12 @@ public class MembershipPaymentServiceImpl implements MembershipPaymentService {
 
     @Override
     public List<MembershipPayments> getAllMembershipPayments() {
-        return List.of();
+        return membershipPaymentsRepo.findAll();
     }
 
     @Override
     public MembershipPayments getMembershipPaymentById(UUID membershipPaymentId) {
-        return null;
+        return membershipPaymentsRepo.findById(membershipPaymentId)
+                .orElseThrow(() -> new ResourceNotFoundException("The membership payment not found with the Id: "+membershipPaymentId));
     }
 }

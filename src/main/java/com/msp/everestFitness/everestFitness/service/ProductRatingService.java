@@ -18,4 +18,6 @@ public interface ProductRatingService {
 
     // Delete a rating
     void deleteRating(UUID ratingId, UUID userId);
+
+    Double getAverageRatingByProductId(UUID productId);
 }

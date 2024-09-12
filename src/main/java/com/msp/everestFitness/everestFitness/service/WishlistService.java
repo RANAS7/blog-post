@@ -1,0 +1,17 @@
+package com.msp.everestFitness.everestFitness.service;
+
+import com.msp.everestFitness.everestFitness.model.Wishlist;
+
+import java.util.List;
+import java.util.UUID;
+
+public interface WishlistService {
+    void createWishlist(Wishlist wishlist);
+
+    List<Wishlist> getAllWishList();
+
+    Wishlist getWishlistById(UUID wishlistId);
+
+    void removeWishlist(UUID wishlistId);
+}
+

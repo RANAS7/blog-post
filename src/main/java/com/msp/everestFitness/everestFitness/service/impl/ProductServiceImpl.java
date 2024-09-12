@@ -36,9 +36,6 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private Cloudinary cloudinary;
 
-    @Value("${CLOUDINARY_URL}")
-    private String cloudinaryUrl;
-
     @Value("${CLOUDINARY_FOLDER_NAME}")
     private String cloudinaryFolderName;
 
@@ -148,10 +145,7 @@ public class ProductServiceImpl implements ProductService {
             String publicId = fileUtils.extractPublicIdFromUrl(productImage.getImageUrl());
 
             // Delete the file from Cloudinary
-            if (publicId != null && !publicId.isEmpty()) {
                 fileUtils.deleteFileFromCloudinary(cloudinaryFolderName+"/"+publicId);
-            }
-
 
             // Delete the image record from the database
             productsImagesRepo.delete(productImage);
