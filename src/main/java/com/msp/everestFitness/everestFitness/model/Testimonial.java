@@ -16,8 +16,7 @@ public class Testimonial {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID testimonialId;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @Column(nullable = false)
     private String name;
 
     @Column(nullable = false)
