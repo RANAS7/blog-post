@@ -1,4 +1,4 @@
-package com.msp.everestFitness.everestFitness.controller;
+package com.msp.everestFitness.everestFitness.restController;
 
 import com.msp.everestFitness.everestFitness.model.Category;
 import com.msp.everestFitness.everestFitness.model.Subcategory;

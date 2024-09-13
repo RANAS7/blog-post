@@ -1,4 +1,4 @@
-package com.msp.everestFitness.everestFitness.controller;
+package com.msp.everestFitness.everestFitness.restController;
 
 import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
 import com.msp.everestFitness.everestFitness.jwt.JwtRequest;
@@ -21,8 +21,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.security.Principal;
 import java.util.List;
@@ -124,6 +124,7 @@ public class AuthController {
         emailVerificationService.verifyEmail(token);
         return new ResponseEntity<>("Email verified successfully", HttpStatus.OK);
     }
+
 
     @PostMapping("/password/change")
     public ResponseEntity<?> changePassword(@RequestParam UUID userId,

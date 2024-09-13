@@ -1,5 +1,6 @@
 package com.msp.everestFitness.everestFitness.service.impl;
 
+import com.msp.everestFitness.everestFitness.enumrated.OrderStatus;
 import com.msp.everestFitness.everestFitness.enumrated.UserType;
 import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
 import com.msp.everestFitness.everestFitness.model.*;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -82,11 +84,11 @@ public class OrderServiceImpl implements OrderService {
             // Save each order item
             orderItemsRepo.save(item);
 
-            Products products=productsRepo.findById(item.getProducts().getProductId())
-                    .orElseThrow(()-> new ResourceNotFoundException("The Product nto found with the id: "+item.getProducts().getProductId()));
+            Products products = productsRepo.findById(item.getProducts().getProductId())
+                    .orElseThrow(() -> new ResourceNotFoundException("The Product nto found with the id: " + item.getProducts().getProductId()));
 
 
-            products.setStock(products.getStock()-item.getQuantity());
+            products.setStock(products.getStock() - item.getQuantity());
 
             productsRepo.save(products);
 
@@ -94,7 +96,7 @@ public class OrderServiceImpl implements OrderService {
             grandTotal += totalAmt;
         }
 
-        Orders orders=ordersRepo.findById(savedOrder.getOrderId())
+        Orders orders = ordersRepo.findById(savedOrder.getOrderId())
                 .orElseThrow(() -> new ResourceNotFoundException("The order does not exist in our record"));
 
         orders.setTotal(grandTotal);
@@ -172,18 +174,22 @@ public class OrderServiceImpl implements OrderService {
         ordersRepo.delete(existingOrder);
     }
 
-//    @Override
-//    public Orde getOrderDetails(UUID orderId) {
-//        Orders order = getOrderById(orderId);
-//        List<OrderItems> orderItems = ordersRepo.getOrderItemsByOrderId(orderId);
-//        ShippingInfo shippingInfo = (ShippingInfo) shippingInfoRepo.findByUsers_UserId(order.getShippingInfo().getUsers().getUserId());
-//
-//        if (orderItems.isEmpty()) {
-//            throw new ResourceNotFoundException("Order items not found for order id " + orderId);
-//        }
-//        if (shippingInfo == null) {
-//            throw new ResourceNotFoundException("Shipping info not found for user id " + order.getShippingInfo().getUsers().getUserId());
-//        }
-//        return null;
-//    }
+    @Override
+    public void updateOrderStatus(UUID orderId, OrderStatus orderStatus) {
+        // Additional logic to cancel the order
+        Orders order = ordersRepo.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + orderId));
+        order.setOrderStatus(orderStatus);
+        ordersRepo.save(order);
+
+        if (orderStatus == OrderStatus.RETURNED || orderStatus == OrderStatus.CANCELLED) {
+            List<OrderItems> orderItemsList = orderItemsRepo.findByOrder_OrderId(orderId);
+
+            for (OrderItems orderItems : orderItemsList) {
+                Products products = orderItems.getProducts();
+                products.setStock(products.getStock() + orderItems.getQuantity());
+                productsRepo.save(products);
+            }
+        }
+    }
 }

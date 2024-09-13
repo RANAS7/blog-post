@@ -6,6 +6,7 @@ import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundExceptio
 import com.msp.everestFitness.everestFitness.model.ProductImages;
 import com.msp.everestFitness.everestFitness.model.Products;
 import com.msp.everestFitness.everestFitness.model.Subcategory;
+import com.msp.everestFitness.everestFitness.repository.ProductRatingRepo;
 import com.msp.everestFitness.everestFitness.repository.ProductsImagesRepo;
 import com.msp.everestFitness.everestFitness.repository.ProductsRepo;
 import com.msp.everestFitness.everestFitness.repository.SubcategoryRepo;
@@ -41,6 +42,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private FileUtils fileUtils;
+
+    @Autowired
+    private ProductRatingRepo productRatingRepo;
 
     @Override
     public void addProduct(Products products, UUID subcategoryId, List<MultipartFile> images) throws IOException {
@@ -106,11 +110,11 @@ public class ProductServiceImpl implements ProductService {
             dto.setPrice(product.getPrice());
             dto.setDiscountedPrice(product.getDiscountedPrice());
             dto.setImageUrls(imageUrls);
+            dto.setRating(productRatingRepo.getAverageRatingByProductId(product.getProductId()));
 
             return dto;
         }).collect(Collectors.toList());
     }
-
 
 
     @Override
@@ -118,7 +122,7 @@ public class ProductServiceImpl implements ProductService {
         Products product = productsRepo.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product with ID " + productId + " was not found."));
 
-        List<String> imageUrls = productsImagesRepo.findByProduct_ProductId(product.getProductId())
+        List<String> imageUrls = productsImagesRepo.findByProduct_ProductId(productId)
                 .stream()
                 .map(ProductImages::getImageUrl)
                 .collect(Collectors.toList());
@@ -130,6 +134,7 @@ public class ProductServiceImpl implements ProductService {
         dto.setPrice(product.getPrice());
         dto.setDiscountedPrice(product.getDiscountedPrice());
         dto.setImageUrls(imageUrls);
+        dto.setRating(productRatingRepo.getAverageRatingByProductId(productId));
 
         return dto;
     }
@@ -145,7 +150,7 @@ public class ProductServiceImpl implements ProductService {
             String publicId = fileUtils.extractPublicIdFromUrl(productImage.getImageUrl());
 
             // Delete the file from Cloudinary
-                fileUtils.deleteFileFromCloudinary(cloudinaryFolderName+"/"+publicId);
+            fileUtils.deleteFileFromCloudinary(cloudinaryFolderName + "/" + publicId);
 
             // Delete the image record from the database
             productsImagesRepo.delete(productImage);

@@ -1,4 +1,4 @@
-package com.msp.everestFitness.everestFitness.controller;
+package com.msp.everestFitness.everestFitness.restController;
 
 import com.msp.everestFitness.everestFitness.service.OrderItemService;
 import org.springframework.beans.factory.annotation.Autowired;

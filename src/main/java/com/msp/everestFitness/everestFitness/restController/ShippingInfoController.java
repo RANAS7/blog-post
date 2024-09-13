@@ -1,4 +1,4 @@
-package com.msp.everestFitness.everestFitness.controller;
+package com.msp.everestFitness.everestFitness.restController;
 
 import com.msp.everestFitness.everestFitness.model.ShippingInfo;
 import com.msp.everestFitness.everestFitness.service.ShippingInfoService;
@@ -7,8 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 
