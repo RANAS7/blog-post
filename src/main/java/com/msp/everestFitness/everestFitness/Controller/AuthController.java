@@ -1,4 +1,4 @@
-package com.msp.everestFitness.everestFitness.restController;
+package com.msp.everestFitness.everestFitness.Controller;
 
 import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
 import com.msp.everestFitness.everestFitness.jwt.JwtRequest;
@@ -23,6 +23,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.security.Principal;
 import java.util.List;
@@ -112,6 +113,15 @@ public class AuthController {
         return new ResponseEntity<>("Password reset link has been sent to your email.", HttpStatus.OK);
     }
 
+    @GetMapping("/reset-form")
+    public ModelAndView resetForm(@RequestParam UUID token) {
+        ModelAndView modelAndView = new ModelAndView();
+
+        modelAndView.addObject("token", token.toString());
+        modelAndView.setViewName("ResetPasswordForm");
+        return modelAndView;
+    }
+
 
     @GetMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestParam String newPassword, @RequestParam String confirmPassword) {
@@ -120,10 +130,18 @@ public class AuthController {
     }
 
     @GetMapping("/verify-email")
-    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
+    public ModelAndView verifyEmail(@RequestParam String token) {
+        ModelAndView modelAndView = new ModelAndView();
         emailVerificationService.verifyEmail(token);
-        return new ResponseEntity<>("Email verified successfully", HttpStatus.OK);
+        modelAndView.setViewName("email-verification-success");
+        return modelAndView;
     }
+//    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
+//        emailVerificationService.verifyEmail(token);
+//        return new ResponseEntity<>("Email verified successfully", HttpStatus.OK);
+
+
+//    }
 
 
     @PostMapping("/password/change")

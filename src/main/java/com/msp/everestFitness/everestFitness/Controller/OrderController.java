@@ -1,4 +1,4 @@
-package com.msp.everestFitness.everestFitness.restController;
+package com.msp.everestFitness.everestFitness.Controller;
 
 import com.msp.everestFitness.everestFitness.enumrated.OrderStatus;
 import com.msp.everestFitness.everestFitness.model.Orders;

@@ -1,4 +1,4 @@
-package com.msp.everestFitness.everestFitness.restController;
+package com.msp.everestFitness.everestFitness.Controller;
 
 import com.msp.everestFitness.everestFitness.model.Wishlist;
 import com.msp.everestFitness.everestFitness.service.WishlistService;
