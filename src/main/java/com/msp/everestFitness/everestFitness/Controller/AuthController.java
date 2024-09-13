@@ -1,5 +1,6 @@
 package com.msp.everestFitness.everestFitness.Controller;
 
+import com.msp.everestFitness.everestFitness.dto.PasswordResetFormDto;
 import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
 import com.msp.everestFitness.everestFitness.jwt.JwtRequest;
 import com.msp.everestFitness.everestFitness.jwt.JwtResponse;
@@ -118,12 +119,14 @@ public class AuthController {
         ModelAndView modelAndView = new ModelAndView();
 
         modelAndView.addObject("token", token.toString());
+        modelAndView.addObject("passwordResetForm", new PasswordResetFormDto()); // Add a form object for Thymeleaf
         modelAndView.setViewName("ResetPasswordForm");
         return modelAndView;
     }
 
 
-    @GetMapping("/reset-password")
+
+    @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestParam String newPassword, @RequestParam String confirmPassword) {
         passwordResetService.resetPassword(token, newPassword, confirmPassword);
         return new ResponseEntity<>("Password has been reset successfully.", HttpStatus.OK);
