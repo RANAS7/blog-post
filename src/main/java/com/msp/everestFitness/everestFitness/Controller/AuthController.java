@@ -125,11 +125,14 @@ public class AuthController {
     }
 
 
-
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestParam String newPassword, @RequestParam String confirmPassword) {
+    public ModelAndView resetPassword(@RequestParam String token, @RequestParam String newPassword, @RequestParam String confirmPassword) {
         passwordResetService.resetPassword(token, newPassword, confirmPassword);
-        return new ResponseEntity<>("Password has been reset successfully.", HttpStatus.OK);
+
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("PasswordResetSuccess");
+        return modelAndView;
+//        return new ResponseEntity<>("Password has been reset successfully.", HttpStatus.OK);
     }
 
     @GetMapping("/verify-email")
