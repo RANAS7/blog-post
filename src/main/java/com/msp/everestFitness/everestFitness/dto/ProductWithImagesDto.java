@@ -17,4 +17,5 @@ public class ProductWithImagesDto {
     private Double price;
     private Double discountedPrice;
     private List<String> imageUrls;
+    private Double rating;
 }

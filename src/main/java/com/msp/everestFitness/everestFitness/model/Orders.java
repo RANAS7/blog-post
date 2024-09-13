@@ -1,5 +1,6 @@
 package com.msp.everestFitness.everestFitness.model;
 
+import com.msp.everestFitness.everestFitness.enumrated.OrderStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -29,7 +30,11 @@ public class Orders {
     private Timestamp orderDate = Timestamp.from(Instant.now());
 
     @Column(nullable = false)
-    private Double total;
+    private double total;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private OrderStatus orderStatus;
 
     @Transient
     private List<OrderItems> orderItems = new ArrayList<>();

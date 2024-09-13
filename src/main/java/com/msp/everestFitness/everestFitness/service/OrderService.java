@@ -1,5 +1,6 @@
 package com.msp.everestFitness.everestFitness.service;
 
+import com.msp.everestFitness.everestFitness.enumrated.OrderStatus;
 import com.msp.everestFitness.everestFitness.model.Orders;
 import jakarta.mail.MessagingException;
 
@@ -18,4 +19,6 @@ public interface OrderService {
     List<Orders> getAllOrders();
 
     void deleteOrder(UUID orderId);
+
+    void updateOrderStatus(UUID orderId, OrderStatus orderStatus);
 }

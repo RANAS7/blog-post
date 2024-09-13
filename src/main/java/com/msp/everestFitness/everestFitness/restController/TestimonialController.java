@@ -1,4 +1,4 @@
-package com.msp.everestFitness.everestFitness.controller;
+package com.msp.everestFitness.everestFitness.restController;
 
 import com.msp.everestFitness.everestFitness.model.Testimonial;
 import com.msp.everestFitness.everestFitness.service.TestimonialService;

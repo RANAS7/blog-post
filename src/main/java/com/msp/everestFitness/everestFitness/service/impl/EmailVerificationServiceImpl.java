@@ -52,7 +52,7 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
     }
 
     @Override
-    public void verifyEmail(String token) {
+    public boolean verifyEmail(String token) {
         // Fetch the email verification token from the repository
         EmailVerificationToken emailVerificationToken = emailVerificationRepogitory.findByToken(token)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid token"));
@@ -72,6 +72,7 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
 
         emailVerificationRepogitory.delete(emailVerificationToken);
 
+        return false;
     }
 
     // Optional: Scheduled cleanup for expired tokens

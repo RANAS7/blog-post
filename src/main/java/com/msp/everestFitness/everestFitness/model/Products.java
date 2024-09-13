@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
