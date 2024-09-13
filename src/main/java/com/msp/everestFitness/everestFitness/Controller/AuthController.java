@@ -1,5 +1,6 @@
-package com.msp.everestFitness.everestFitness.restController;
+package com.msp.everestFitness.everestFitness.Controller;
 
+import com.msp.everestFitness.everestFitness.dto.PasswordResetFormDto;
 import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
 import com.msp.everestFitness.everestFitness.jwt.JwtRequest;
 import com.msp.everestFitness.everestFitness.jwt.JwtResponse;
@@ -23,6 +24,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.security.Principal;
 import java.util.List;
@@ -112,18 +114,40 @@ public class AuthController {
         return new ResponseEntity<>("Password reset link has been sent to your email.", HttpStatus.OK);
     }
 
+    @GetMapping("/reset-form")
+    public ModelAndView resetForm(@RequestParam UUID token) {
+        ModelAndView modelAndView = new ModelAndView();
 
-    @GetMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestParam String token, @RequestParam String newPassword, @RequestParam String confirmPassword) {
+        modelAndView.addObject("token", token.toString());
+        modelAndView.addObject("passwordResetForm", new PasswordResetFormDto()); // Add a form object for Thymeleaf
+        modelAndView.setViewName("ResetPasswordForm");
+        return modelAndView;
+    }
+
+
+    @PostMapping("/reset-password")
+    public ModelAndView resetPassword(@RequestParam String token, @RequestParam String newPassword, @RequestParam String confirmPassword) {
         passwordResetService.resetPassword(token, newPassword, confirmPassword);
-        return new ResponseEntity<>("Password has been reset successfully.", HttpStatus.OK);
+
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("PasswordResetSuccess");
+        return modelAndView;
+//        return new ResponseEntity<>("Password has been reset successfully.", HttpStatus.OK);
     }
 
     @GetMapping("/verify-email")
-    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
+    public ModelAndView verifyEmail(@RequestParam String token) {
+        ModelAndView modelAndView = new ModelAndView();
         emailVerificationService.verifyEmail(token);
-        return new ResponseEntity<>("Email verified successfully", HttpStatus.OK);
+        modelAndView.setViewName("email-verification-success");
+        return modelAndView;
     }
+//    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
+//        emailVerificationService.verifyEmail(token);
+//        return new ResponseEntity<>("Email verified successfully", HttpStatus.OK);
+
+
+//    }
 
 
     @PostMapping("/password/change")
