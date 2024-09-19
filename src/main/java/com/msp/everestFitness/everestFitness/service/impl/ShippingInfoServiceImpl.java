@@ -1,5 +1,6 @@
 package com.msp.everestFitness.everestFitness.service.impl;
 
+import com.msp.everestFitness.everestFitness.config.LoginUtil;
 import com.msp.everestFitness.everestFitness.enumrated.AddressType;
 import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
 import com.msp.everestFitness.everestFitness.model.ShippingInfo;
@@ -18,8 +19,11 @@ public class ShippingInfoServiceImpl implements ShippingInfoService {
     @Autowired
     private ShippingInfoRepo shippingInfoRepo;
 
+    @Autowired
+    private LoginUtil loginUtil;
+
     @Override
-    public ShippingInfo addShippingInfo(ShippingInfo shippingInfo) {
+    public void addShippingInfo(ShippingInfo shippingInfo) {
 
         if (shippingInfo.getShippingId() != null) {
             ShippingInfo info = shippingInfoRepo.findById(shippingInfo.getShippingId())
@@ -43,7 +47,7 @@ public class ShippingInfoServiceImpl implements ShippingInfoService {
             info.setCountry(shippingInfo.getCountry());
             info.setUpdatedAt(Timestamp.from(Instant.now()));
 
-            return shippingInfoRepo.save(info);
+            shippingInfoRepo.save(info);
 
         }
 
@@ -59,9 +63,8 @@ public class ShippingInfoServiceImpl implements ShippingInfoService {
             shippingInfo.setAddressType(AddressType.ALTERNATIVE);
         }
 
-        return shippingInfoRepo.save(shippingInfo);
+        shippingInfoRepo.save(shippingInfo);
     }
-
 
 
     @Override
@@ -72,15 +75,15 @@ public class ShippingInfoServiceImpl implements ShippingInfoService {
 
     @Override
     public void deleteShippingInfo(UUID id) {
-        if (id == null){
+        if (id == null) {
             throw new ResourceNotFoundException("The Shipping Information is not exist in our record");
         }
         shippingInfoRepo.deleteById(id);
     }
 
     @Override
-    public List<ShippingInfo> findByUsersUserId(UUID userId) {
-        return shippingInfoRepo.findByUsers_UserId(userId);
+    public List<ShippingInfo> findByUsersUserId() {
+        return shippingInfoRepo.findByUsers_UserId(loginUtil.getCurrentUserId());
     }
 
 

@@ -28,7 +28,7 @@ public class EverestFitnessApplication {
         System.setProperty("CLOUDINARY_FOLDER_NAME", dotenv.get("CLOUDINARY_FOLDER_NAME"));
         System.setProperty("CLOUDINARY_URL",dotenv.get("CLOUDINARY_URL"));
 
-//		Set Systerperties for Jwt Authentication
+//		Set System properties for Jwt Authentication
         System.setProperty("JWT_SECRET_KEY", dotenv.get("JWT_SECRET_KEY"));
 
 //        Set system properties for Mail

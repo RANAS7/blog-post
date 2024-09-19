@@ -35,8 +35,8 @@ public class ShippingInfoController {
     }
 
     @GetMapping("/by-user")
-    public ResponseEntity<?> getShippingInfoByUsersUserId(@RequestParam UUID userId) {
-        return new ResponseEntity<>(shippingInfoService.findByUsersUserId(userId), HttpStatus.OK);
+    public ResponseEntity<?> getShippingInfoByUsersUserId() {
+        return new ResponseEntity<>(shippingInfoService.findByUsersUserId(), HttpStatus.OK);
     }
 
 }
