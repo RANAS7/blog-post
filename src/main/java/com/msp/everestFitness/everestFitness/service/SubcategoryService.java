@@ -10,6 +10,6 @@ public interface SubcategoryService {
     void addSubCategory(Subcategory subcategory);
     List<Subcategory> getAllSubcategory();
     Subcategory getSubCategoryById(UUID id);
-    List<Subcategory> findSubcategoriesByCategory(Category category);
+    List<Subcategory> findSubcategoriesByCategory(UUID category);
     void deleteSubCategory(UUID id);
 }

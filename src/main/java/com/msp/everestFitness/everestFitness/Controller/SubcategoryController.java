@@ -31,7 +31,7 @@ public class SubcategoryController {
     }
 
     @GetMapping("/by-category")
-    public ResponseEntity<?> getSubcategoryByCategory(@RequestParam Category category) {
+    public ResponseEntity<?> getSubcategoryByCategory(@RequestParam UUID category) {
         return new ResponseEntity<>(subcategoryService.findSubcategoriesByCategory(category), HttpStatus.OK);
     }
 

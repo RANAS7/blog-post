@@ -1,6 +1,7 @@
 package com.msp.everestFitness.everestFitness.Controller;
 
 import com.msp.everestFitness.everestFitness.model.Products;
+import com.msp.everestFitness.everestFitness.model.Subcategory;
 import com.msp.everestFitness.everestFitness.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -42,5 +43,20 @@ public class ProductController {
     public ResponseEntity<?> deleteProductById(@RequestParam UUID productId) throws IOException {
         productService.deleteProductById(productId);
         return new ResponseEntity<>("Product successfully deleted", HttpStatus.OK);
+    }
+
+    @GetMapping("/suggestions/by-subcategory")
+    public ResponseEntity<?> getSuggestedProductsBySubcategory(@RequestParam UUID subcategoryId) {
+        return new ResponseEntity<>(productService.getSuggestedProductsBySubcategory(subcategoryId), HttpStatus.OK);
+    }
+
+    @GetMapping("/suggestions/by-discount")
+    public ResponseEntity<?> getSuggestedProductsByDiscount(@RequestParam double minDiscount) {
+        return new ResponseEntity<>(productService.getSuggestedProductsByDiscount(minDiscount), HttpStatus.OK);
+    }
+
+    @GetMapping("/suggestions")
+    public ResponseEntity<?> getAllSuggestedProducts(@RequestParam UUID subcategoryId,@RequestParam double minDiscount){
+        return new ResponseEntity<>(productService.getSuggestedProducts(subcategoryId, minDiscount),HttpStatus.OK);
     }
 }

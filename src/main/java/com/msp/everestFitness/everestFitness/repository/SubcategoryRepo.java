@@ -10,5 +10,5 @@ import java.util.UUID;
 
 @Repository
 public interface SubcategoryRepo extends JpaRepository<Subcategory, UUID> {
-    List<Subcategory> findByCategory(Category category);
+    List<Subcategory> findByCategory_CategoryId(UUID category);
 }

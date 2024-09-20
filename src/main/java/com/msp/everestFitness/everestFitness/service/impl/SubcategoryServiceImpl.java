@@ -45,8 +45,8 @@ public class SubcategoryServiceImpl implements SubcategoryService {
     }
 
     @Override
-    public List<Subcategory> findSubcategoriesByCategory(Category category) {
-        return subcategoryRepo.findByCategory(category);
+    public List<Subcategory> findSubcategoriesByCategory(UUID category) {
+        return subcategoryRepo.findByCategory_CategoryId(category);
     }
 
     @Override
