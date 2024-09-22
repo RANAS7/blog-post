@@ -156,7 +156,7 @@ public class ProductServiceImpl implements ProductService {
             productsImagesRepo.delete(productImage);
         }
 
-        // Finally, delete the product itself from the repository
+        // Delete the product itself from the repository
         productsRepo.deleteById(productId);
     }
 

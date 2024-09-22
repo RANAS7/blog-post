@@ -19,14 +19,14 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping("/")
-    public ResponseEntity<?> createOrder(@RequestBody Orders orders) throws MessagingException, IOException {
-        orderService.createOrder(orders);
+    public ResponseEntity<?> createOrder(@RequestAttribute Orders orders, @RequestParam String couponCode) throws MessagingException, IOException {
+        orderService.createOrder(orders, couponCode);
         return new ResponseEntity<>("Order created successfully please checkout you email", HttpStatus.CREATED);
     }
 
     @PostMapping("/guest")
-    public ResponseEntity<?> createGuestOrder(@RequestBody Orders orders) throws MessagingException, IOException {
-        orderService.createGuestOrder(orders);
+    public ResponseEntity<?> createGuestOrder(@RequestAttribute Orders orders, @RequestParam String couponCode) throws MessagingException, IOException {
+        orderService.createGuestOrder(orders, couponCode);
         return new ResponseEntity<>("Order created successfully please checkout your email", HttpStatus.CREATED);
     }
 

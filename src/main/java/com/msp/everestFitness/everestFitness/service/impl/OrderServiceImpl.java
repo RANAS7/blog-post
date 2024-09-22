@@ -1,5 +1,6 @@
 package com.msp.everestFitness.everestFitness.service.impl;
 
+import com.msp.everestFitness.everestFitness.enumrated.DiscountType;
 import com.msp.everestFitness.everestFitness.enumrated.OrderStatus;
 import com.msp.everestFitness.everestFitness.enumrated.UserType;
 import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
@@ -12,9 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -36,10 +39,13 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private UsersRepo usersRepo;
 
+    @Autowired
+    private CouponRepo couponRepo;
+
 
     //    Create order for USER and MEMBER
     @Override
-    public void createOrder(Orders order) throws MessagingException, IOException {
+    public void createOrder(Orders order, String couponCode) throws MessagingException, IOException {
 
         // Fetch the ShippingInfo
         ShippingInfo shippingInfo = shippingInfoRepo.findById(order.getShippingInfo().getShippingId())
@@ -57,6 +63,47 @@ public class OrderServiceImpl implements OrderService {
         // Set the correct shipping info in the order
         order.setShippingInfo(shippingInfo);
 
+        // Apply coupon if couponCode is provided
+        double discountAmount = 0.0;
+
+        if (couponCode != null && !couponCode.isEmpty()) {
+            Coupons coupon = couponRepo.findByCode(couponCode);
+            if (coupon == null) {
+                throw new IllegalArgumentException("Invalid or expired coupon code");
+            }
+
+            // Validate if the coupon is active
+            if (!coupon.getIsActive()) {
+                throw new IllegalArgumentException("The coupon is inactive");
+            }
+
+            // Validate coupon's validity period
+            Timestamp currentTime = Timestamp.from(Instant.now());
+            if (coupon.getValidFrom().after(currentTime) || (coupon.getValidUntil() != null && coupon.getValidUntil().before(currentTime))) {
+                throw new IllegalArgumentException("The coupon is not valid for this period");
+            }
+
+            // Check if the order meets the coupon's minimum order amount
+            if (order.getTotal() < coupon.getMinimumOrderAmount()) {
+                throw new IllegalArgumentException("The order does not meet the minimum amount required for the coupon");
+            }
+
+            // Apply discount based on discount type (FIXED or PERCENTAGE)
+            discountAmount = switch (coupon.getDiscountType()) {
+                case FIXED -> coupon.getDiscountAmount();
+                case PERCENTAGE -> order.getTotal() * (coupon.getDiscountAmount() / 100);
+                default -> throw new IllegalArgumentException("Invalid discount type");
+            };
+
+            // Ensure discount does not exceed the maximum allowed amount
+            if (discountAmount > coupon.getMaxDiscountAmount()) {
+                discountAmount = coupon.getMaxDiscountAmount();
+            }
+
+            // Reduce the total by the discount amount
+            order.setTotal(order.getTotal() - discountAmount);
+        }
+
         // Save the order
         Orders savedOrder = ordersRepo.save(order);
 
@@ -65,18 +112,10 @@ public class OrderServiceImpl implements OrderService {
 
         // Save the order items
         for (OrderItems item : order.getOrderItems()) {
-            // Ensure the product is not null
-            if (item.getProducts() == null || item.getProducts().getProductId() == null) {
-                throw new IllegalArgumentException("Product information is missing for one or more items");
-            }
-
-            // Fetch the product from the database using the product ID to avoid transient issues
             Products product = productsRepo.findById(item.getProducts().getProductId())
                     .orElseThrow(() -> new IllegalArgumentException("Product not found"));
 
             double totalAmt = item.getPrice() * item.getQuantity();
-
-            // Set the fetched product and saved order for the item
             item.setProducts(product);
             item.setOrder(savedOrder);
             item.setTotalAmt(totalAmt);
@@ -84,24 +123,19 @@ public class OrderServiceImpl implements OrderService {
             // Save each order item
             orderItemsRepo.save(item);
 
-            Products products = productsRepo.findById(item.getProducts().getProductId())
-                    .orElseThrow(() -> new ResourceNotFoundException("The Product nto found with the id: " + item.getProducts().getProductId()));
+            // Update the product's stock
+            product.setStock(product.getStock() - item.getQuantity());
+            productsRepo.save(product);
 
-
-            products.setStock(products.getStock() - item.getQuantity());
-
-            productsRepo.save(products);
-
-            // Add to the grand total
             grandTotal += totalAmt;
         }
 
-        Orders orders = ordersRepo.findById(savedOrder.getOrderId())
-                .orElseThrow(() -> new ResourceNotFoundException("The order does not exist in our record"));
+        // Apply coupon discount to the grand total
+        grandTotal = grandTotal - discountAmount;
 
-        orders.setTotal(grandTotal);
-        ordersRepo.save(orders);
-
+        // Update order total
+        savedOrder.setTotal(grandTotal);
+        ordersRepo.save(savedOrder);
 
         // Send confirmation mail to the user's email
         mailUtils.sendOrderConfirmationMail(users.getEmail(), savedOrder.getOrderId());
@@ -110,8 +144,7 @@ public class OrderServiceImpl implements OrderService {
 
     //    Create order for GUEST
     @Override
-    public void createGuestOrder(Orders order) throws MessagingException, IOException {
-
+    public void createGuestOrder(Orders order, String couponCode) throws MessagingException, IOException {
 
         // Validate minimum order amount
         if (order.getTotal() < 50) {
@@ -121,38 +154,85 @@ public class OrderServiceImpl implements OrderService {
         // Check if the user exists, if not, create a new guest user
         Users user = order.getShippingInfo().getUsers();
         if (user == null || user.getUserId() == null) {
-            // Extract user details from shippingInfo
-            assert order.getShippingInfo().getUsers() != null;
             String name = order.getShippingInfo().getUsers().getName();
             String email = order.getShippingInfo().getUsers().getEmail();
 
-            // Create or update the user
             user = (Users) usersRepo.findByEmail(email).orElseGet(() -> {
                 Users newUser = new Users();
                 newUser.setName(name);
                 newUser.setEmail(email);
-                newUser.setUserType(UserType.GUEST); // Mark as guest
+                newUser.setUserType(UserType.GUEST);
                 newUser.setVerified(true);
                 return usersRepo.save(newUser);
             });
 
-            // Set the user to the order's shipping info
             order.getShippingInfo().setUsers(user);
-            order.setShippingInfo(order.getShippingInfo());
         }
 
-        // Save order
+        // Fetch the ShippingInfo
+        ShippingInfo shippingInfo = shippingInfoRepo.findById(order.getShippingInfo().getShippingId())
+                .orElseThrow(() -> new ResourceNotFoundException("The shipping info not found"));
+
+        order.setShippingInfo(shippingInfo);
+
+        // Apply coupon discount logic (if applicable)
+        double discountAmount = 0.0;
+        if (couponCode != null && !couponCode.isEmpty()) {
+            Coupons coupon = couponRepo.findByCode(couponCode);
+            if (coupon == null) {
+                throw new IllegalArgumentException("Invalid or expired coupon code");
+            }
+
+            if (!coupon.getIsActive()) {
+                throw new IllegalArgumentException("Coupon is inactive");
+            }
+
+            Timestamp currentTime = Timestamp.from(Instant.now());
+            if (coupon.getValidUntil() != null && coupon.getValidUntil().before(currentTime)) {
+                throw new IllegalArgumentException("Coupon has expired");
+            }
+
+            // Apply discount based on the type
+            discountAmount = switch (coupon.getDiscountType()) {
+                case PERCENTAGE -> order.getTotal() * (coupon.getDiscountAmount() / 100);
+                case FIXED -> coupon.getDiscountAmount();
+                default -> throw new IllegalArgumentException("Invalid discount type");
+            };
+
+            if (discountAmount > coupon.getMaxDiscountAmount()) {
+                discountAmount = coupon.getMaxDiscountAmount();
+            }
+
+            order.setTotal(order.getTotal() - discountAmount);
+        }
+
+        // Save the order
         Orders savedOrder = ordersRepo.save(order);
 
-        // Save order items
+        double grandTotal = 0.0;
         for (OrderItems item : order.getOrderItems()) {
+            Products product = productsRepo.findById(item.getProducts().getProductId())
+                    .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+
+            double totalAmt = item.getPrice() * item.getQuantity();
+            item.setProducts(product);
             item.setOrder(savedOrder);
+            item.setTotalAmt(totalAmt);
+
             orderItemsRepo.save(item);
+
+            product.setStock(product.getStock() - item.getQuantity());
+            productsRepo.save(product);
+
+            grandTotal += totalAmt;
         }
 
-        // Send confirmation email
+        savedOrder.setTotal(grandTotal - discountAmount);
+        ordersRepo.save(savedOrder);
+
         mailUtils.sendOrderConfirmationMail(user.getEmail(), savedOrder.getOrderId());
     }
+
 
 
     @Override

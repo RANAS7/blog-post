@@ -10,9 +10,9 @@ import java.util.UUID;
 
 public interface OrderService {
 
-    void createOrder(Orders order) throws MessagingException, IOException;
+    void createOrder(Orders order, String couponCode) throws MessagingException, IOException;
 
-    void createGuestOrder(Orders order) throws MessagingException, IOException;
+    void createGuestOrder(Orders order, String couponCode) throws MessagingException, IOException;
 
     Orders getOrderById(UUID orderId);
 
