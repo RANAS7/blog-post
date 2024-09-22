@@ -34,7 +34,7 @@ public class Coupons {
     @Column(name = "minimum_order_amount", columnDefinition = "Decimal(10,2)")
     private double minimumOrderAmount;
 
-    @Column(name = "max_discount_amount")
+    @Column(name = "max_discount_amount", columnDefinition = "Decimal(10,2)")
     private double maxDiscountAmount;
 
     @Column(name = "is_active", nullable = false)
