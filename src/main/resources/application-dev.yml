@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://autorack.proxy.rlwy.net:17940/railway
+    username: postgres
+    password: AWcaKOdrJhWxneqaDVVXdlbzRprTSiFx
+
+  sql:
+    init:
+      mode: always
