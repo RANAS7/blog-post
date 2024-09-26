@@ -19,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
@@ -101,6 +103,19 @@ public class AuthController {
             throw new BadCredentialsException(" Invalid Username or Password  !!");
         }
 
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout() {
+        // Clear the authentication from the SecurityContext
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+            // Optionally, you can perform additional actions like invalidating the token in your storage if needed.
+            SecurityContextHolder.clearContext(); // Clear the context for the current user
+        }
+
+        // Return a success response
+        return new ResponseEntity<>("Successfully logged out", HttpStatus.OK);
     }
 
     @GetMapping("/current_user")
