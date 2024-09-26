@@ -1,6 +1,5 @@
 package com.msp.everestFitness.everestFitness.service.impl;
 
-import com.msp.everestFitness.everestFitness.enumrated.DiscountType;
 import com.msp.everestFitness.everestFitness.enumrated.OrderStatus;
 import com.msp.everestFitness.everestFitness.enumrated.UserType;
 import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
@@ -13,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
@@ -41,6 +39,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private CouponRepo couponRepo;
+
+    @Autowired
+    private CartItemRepo cartItemRepo;
+
+    @Autowired
+    private CartRepo cartRepo;
 
 
     //    Create order for USER and MEMBER
@@ -139,6 +143,11 @@ public class OrderServiceImpl implements OrderService {
 
         // Send confirmation mail to the user's email
         mailUtils.sendOrderConfirmationMail(users.getEmail(), savedOrder.getOrderId());
+
+        Carts cart= cartRepo.findByUsers_UserId(users.getUserId());
+
+        cartItemRepo.deleteByCartId(cart.getId());
+        cartRepo.deleteById(cart.getId());
     }
 
 
