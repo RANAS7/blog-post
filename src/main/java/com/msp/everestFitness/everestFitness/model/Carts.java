@@ -17,5 +17,6 @@ public class Carts {
     @OneToOne(fetch = FetchType.LAZY)
     private Users users;
 
+    @Column(columnDefinition = "Timestamp default current_timestamp")
     private Timestamp createdAt;
 }

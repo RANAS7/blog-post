@@ -3,8 +3,6 @@ package com.msp.everestFitness.everestFitness.model;
 import com.msp.everestFitness.everestFitness.enumrated.DiscountType;
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -22,13 +20,13 @@ public class Coupons {
     @Column(name = "code", unique = true, nullable = false, length = 50)
     private String code;
 
-    @Column(name = "discount_amount", nullable = false, columnDefinition = "Decimal(10,2)" )
+    @Column(name = "discount_amount", nullable = false, columnDefinition = "Decimal(10,2)")
     private double discountAmount;
 
     @Column(name = "valid_from", nullable = false, updatable = false)
     private Timestamp validFrom = Timestamp.from(Instant.now());
 
-    @Column(name = "valid_until", columnDefinition = "Decimal(10,2)")
+    @Column(name = "valid_until")
     private Timestamp validUntil;
 
     @Column(name = "minimum_order_amount", columnDefinition = "Decimal(10,2)")
@@ -47,11 +45,9 @@ public class Coupons {
     @Column(name = "description")
     private String description;  // Fixed incorrect Column annotation to String
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Timestamp createdAt;
+    @Column(name = "created_at", updatable = false)
+    private Timestamp createdAt = Timestamp.from(Instant.now());
 
-    @UpdateTimestamp
     @Column(name = "updated_at")
-    private Timestamp updatedAt;
+    private Timestamp updatedAt = Timestamp.from(Instant.now());
 }

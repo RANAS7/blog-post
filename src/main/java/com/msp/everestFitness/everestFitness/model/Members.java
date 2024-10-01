@@ -33,17 +33,14 @@ public class Members {
 
     private LocalDate dateOfBirth;
 
-    @Column(name = "membership_start_date", nullable = false, updatable = false)
-    private Timestamp membershipStartDate = Timestamp.from(Instant.now());
+    @Column(updatable = false, columnDefinition = "Timestamp default current_timestamp")
+    private Timestamp membershipStartDate ;
 
     private Timestamp membershipEndDate;
 
     @Enumerated(EnumType.STRING)
     private MembershipStatus membershipStatus;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Timestamp createdAt = Timestamp.from(Instant.now());
-
-    @Column(name = "updated_at", nullable = false)
-    private Timestamp updatedAt = Timestamp.from(Instant.now());
+    @Column(insertable = false, columnDefinition = "Timestamp default current_timestamp")
+    private Timestamp updatedAt;
 }

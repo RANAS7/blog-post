@@ -26,8 +26,8 @@ public class Orders {
     @JoinColumn(name = "shipping_id", nullable = false)
     private ShippingInfo shippingInfo;
 
-    @Column(name = "order_date", nullable = false, updatable = false)
-    private Timestamp orderDate = Timestamp.from(Instant.now());
+    @Column(columnDefinition = "Timestamp default current_timestamp", updatable = false)
+    private Timestamp orderDate;
 
     @Column(nullable = false)
     private double total;
@@ -36,7 +36,7 @@ public class Orders {
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
-    @Transient
-    private List<OrderItems> orderItems = new ArrayList<>();
+//    @Transient
+//    private List<OrderItems> orderItems = new ArrayList<>();
 
 }

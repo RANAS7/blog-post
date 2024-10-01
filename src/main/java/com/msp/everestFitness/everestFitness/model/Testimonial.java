@@ -28,9 +28,9 @@ public class Testimonial {
     @Column(nullable = false)
     private String description;
 
-    @Column(name = "created_at", nullable = false, updatable = false, insertable = false)
-    private Timestamp createdAt = Timestamp.from(Instant.now());
+    @Column(columnDefinition = "Timestamp default current_timestamp", updatable = false, insertable = false)
+    private Timestamp createdAt;
 
-    @Column(name = "updated_at", nullable = false, insertable = false)
-    private Timestamp updatedAt = Timestamp.from(Instant.now());
+    @Column(columnDefinition = "Timestamp default current_timestamp", insertable = false)
+    private Timestamp updatedAt;
 }

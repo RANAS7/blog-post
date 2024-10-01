@@ -33,10 +33,10 @@ public class Users {
     @Enumerated(EnumType.STRING)
     private UserType userType = UserType.USER;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Timestamp createdAt = Timestamp.from(Instant.now());
+    @Column(columnDefinition = "Timestamp default current_timestamp", updatable = false)
+    private Timestamp createdAt;
 
-    @Column(name = "updated_at", nullable = false)
-    private Timestamp updatedAt = Timestamp.from(Instant.now());
+    @Column(insertable = false, columnDefinition = "Timestamp default current_timestamp")
+    private Timestamp updatedAt;
 
 }

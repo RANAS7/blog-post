@@ -40,6 +40,10 @@ public class EverestFitnessApplication {
 //        Set system properties for domain
         System.setProperty("DOMAIN", dotenv.get("DOMAIN"));
 
+//        Set system properties for stripe
+        System.setProperty("STRIPE_SECRET_KEY", dotenv.get("STRIPE_SECRET_KEY"));
+        System.setProperty("STRIPE_PUBLIC_KEY", dotenv.get("STRIPE_PUBLIC_KEY"));
+
         SpringApplication.run(EverestFitnessApplication.class, args);
     }
 

@@ -1,19 +1,18 @@
 package com.msp.everestFitness.everestFitness.service.impl;
 
 import com.msp.everestFitness.everestFitness.enumrated.OrderStatus;
-import com.msp.everestFitness.everestFitness.enumrated.UserType;
 import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
+import com.msp.everestFitness.everestFitness.hepler.OrderHelper;
 import com.msp.everestFitness.everestFitness.model.*;
 import com.msp.everestFitness.everestFitness.repository.*;
 import com.msp.everestFitness.everestFitness.service.OrderService;
 import com.msp.everestFitness.everestFitness.utils.MailUtils;
+import com.stripe.exception.StripeException;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,202 +45,113 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private CartRepo cartRepo;
 
+    @Autowired
+    private OrderHelper orderHelper;
+
 
     //    Create order for USER and MEMBER
     @Override
-    public void createOrder(Orders order, String couponCode) throws MessagingException, IOException {
+    public void createOrder(List<OrderItems> orderItems, UUID shippingInfoId, String couponCode, String deliveryOpt)
+            throws ResourceNotFoundException, IOException, MessagingException, StripeException {
 
         // Fetch the ShippingInfo
-        ShippingInfo shippingInfo = shippingInfoRepo.findById(order.getShippingInfo().getShippingId())
-                .orElseThrow(() -> new ResourceNotFoundException("The shipping info not found"));
+        ShippingInfo shippingInfo = shippingInfoRepo.findById(shippingInfoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Shipping info not found"));
 
-        // Fetch the Users from ShippingInfo
-        Users users = usersRepo.findById(shippingInfo.getUsers().getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("The user not found"));
+        // Fetch the User
+        Users user = usersRepo.findById(shippingInfo.getUsers().getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with the Id: " + shippingInfo.getUsers().getUserId()));
+
+        // Calculate total
+        double total = orderHelper.calculateTotal(orderItems);
 
         // Validate minimum order amount
-        if (order.getTotal() < 50) {
-            throw new IllegalArgumentException("Minimum order amount is $50");
-        }
+        orderHelper.validateMinimumOrderAmount(total);
 
-        // Set the correct shipping info in the order
+        // Create new order
+        Orders order = new Orders();
         order.setShippingInfo(shippingInfo);
 
-        // Apply coupon if couponCode is provided
+        // Apply coupon if provided
         double discountAmount = 0.0;
-
         if (couponCode != null && !couponCode.isEmpty()) {
-            Coupons coupon = couponRepo.findByCode(couponCode);
-            if (coupon == null) {
-                throw new IllegalArgumentException("Invalid or expired coupon code");
-            }
-
-            // Validate if the coupon is active
-            if (!coupon.getIsActive()) {
-                throw new IllegalArgumentException("The coupon is inactive");
-            }
-
-            // Validate coupon's validity period
-            Timestamp currentTime = Timestamp.from(Instant.now());
-            if (coupon.getValidFrom().after(currentTime) || (coupon.getValidUntil() != null && coupon.getValidUntil().before(currentTime))) {
-                throw new IllegalArgumentException("The coupon is not valid for this period");
-            }
-
-            // Check if the order meets the coupon's minimum order amount
-            if (order.getTotal() < coupon.getMinimumOrderAmount()) {
-                throw new IllegalArgumentException("The order does not meet the minimum amount required for the coupon");
-            }
-
-            // Apply discount based on discount type (FIXED or PERCENTAGE)
-            discountAmount = switch (coupon.getDiscountType()) {
-                case FIXED -> coupon.getDiscountAmount();
-                case PERCENTAGE -> order.getTotal() * (coupon.getDiscountAmount() / 100);
-                default -> throw new IllegalArgumentException("Invalid discount type");
-            };
-
-            // Ensure discount does not exceed the maximum allowed amount
-            if (discountAmount > coupon.getMaxDiscountAmount()) {
-                discountAmount = coupon.getMaxDiscountAmount();
-            }
-
-            // Reduce the total by the discount amount
-            order.setTotal(order.getTotal() - discountAmount);
+            discountAmount = orderHelper.applyCoupon(couponCode, total);
         }
+
+        // Calculate grand total after discount
+        double grandTotal = total - discountAmount;
+
+        // Apply delivery charge
+        DeliveryOpt deliveryOption = orderHelper.getDeliveryOption(deliveryOpt);
+//        if (deliveryOption != null) {
+//            grandTotal += deliveryOption.getCharge();
+//            order.setDeliveryOpt(deliveryOption);
+//        } else {
+//            throw new IllegalArgumentException("Invalid delivery option");
+//        }
+
+        order.setTotal(grandTotal);
 
         // Save the order
         Orders savedOrder = ordersRepo.save(order);
 
-        // Calculate the grand total of all order items
-        double grandTotal = 0.0;
+        // Save order items and update product stock
+        orderHelper.saveOrderItems(orderItems, savedOrder);
 
-        // Save the order items
-        for (OrderItems item : order.getOrderItems()) {
-            Products product = productsRepo.findById(item.getProducts().getProductId())
-                    .orElseThrow(() -> new IllegalArgumentException("Product not found"));
+        // Process payment with Stripe
+        String paymentIntentId = orderHelper.createStripePaymentIntent(grandTotal, user.getEmail());
 
-            double totalAmt = item.getPrice() * item.getQuantity();
-            item.setProducts(product);
-            item.setOrder(savedOrder);
-            item.setTotalAmt(totalAmt);
+        // Save payment information
+        orderHelper.savePaymentInfo(savedOrder, paymentIntentId, grandTotal);
 
-            // Save each order item
-            orderItemsRepo.save(item);
+        // Send confirmation email
+        mailUtils.sendOrderConfirmationMail(user.getEmail(), savedOrder.getOrderId());
 
-            // Update the product's stock
-            product.setStock(product.getStock() - item.getQuantity());
-            productsRepo.save(product);
+        // Clear user's cart
+        orderHelper.clearUserCart(user.getUserId());
 
-            grandTotal += totalAmt;
-        }
-
-        // Apply coupon discount to the grand total
-        grandTotal = grandTotal - discountAmount;
-
-        // Update order total
-        savedOrder.setTotal(grandTotal);
-        ordersRepo.save(savedOrder);
-
-        // Send confirmation mail to the user's email
-        mailUtils.sendOrderConfirmationMail(users.getEmail(), savedOrder.getOrderId());
-
-        Carts cart= cartRepo.findByUsers_UserId(users.getUserId());
-
-        cartItemRepo.deleteByCartId(cart.getId());
-        cartRepo.deleteById(cart.getId());
+//        return savedOrder;
     }
 
 
     //    Create order for GUEST
     @Override
-    public void createGuestOrder(Orders order, String couponCode) throws MessagingException, IOException {
+    public void createGuestOrder(List<OrderItems> orderItems, ShippingInfo shippingInfo, String couponCode, String deliveryOpt)
+            throws MessagingException, IOException, StripeException {
 
-        // Validate minimum order amount
-        if (order.getTotal() < 50) {
-            throw new IllegalArgumentException("Minimum order amount is $50");
-        }
+        double total = orderHelper.calculateTotal(orderItems);
 
-        // Check if the user exists, if not, create a new guest user
-        Users user = order.getShippingInfo().getUsers();
-        if (user == null || user.getUserId() == null) {
-            String name = order.getShippingInfo().getUsers().getName();
-            String email = order.getShippingInfo().getUsers().getEmail();
+        orderHelper.validateMinimumOrderAmount(total);
 
-            user = (Users) usersRepo.findByEmail(email).orElseGet(() -> {
-                Users newUser = new Users();
-                newUser.setName(name);
-                newUser.setEmail(email);
-                newUser.setUserType(UserType.GUEST);
-                newUser.setVerified(true);
-                return usersRepo.save(newUser);
-            });
+        Users user = orderHelper.getOrCreateGuestUser(shippingInfo);
 
-            order.getShippingInfo().setUsers(user);
-        }
+        shippingInfo.setUsers(user);
+        ShippingInfo shippingInfo1 = shippingInfoRepo.save(shippingInfo);
 
-        // Fetch the ShippingInfo
-        ShippingInfo shippingInfo = shippingInfoRepo.findById(order.getShippingInfo().getShippingId())
-                .orElseThrow(() -> new ResourceNotFoundException("The shipping info not found"));
+        double discountAmount = orderHelper.applyCoupon(couponCode, total);
+        double grandTotal = total - discountAmount;
 
-        order.setShippingInfo(shippingInfo);
+        // Apply delivery charge
+        DeliveryOpt deliveryOption = orderHelper.getDeliveryOption(deliveryOpt);
+        grandTotal += (double) deliveryOption.getCharge();
 
-        // Apply coupon discount logic (if applicable)
-        double discountAmount = 0.0;
-        if (couponCode != null && !couponCode.isEmpty()) {
-            Coupons coupon = couponRepo.findByCode(couponCode);
-            if (coupon == null) {
-                throw new IllegalArgumentException("Invalid or expired coupon code");
-            }
+        Orders orders = new Orders();
+        orders.setTotal(grandTotal);
+        orders.setShippingInfo(shippingInfo1);
+        Orders savedOrder = ordersRepo.save(orders);
 
-            if (!coupon.getIsActive()) {
-                throw new IllegalArgumentException("Coupon is inactive");
-            }
+        orderHelper.saveOrderItems(orderItems, savedOrder);
 
-            Timestamp currentTime = Timestamp.from(Instant.now());
-            if (coupon.getValidUntil() != null && coupon.getValidUntil().before(currentTime)) {
-                throw new IllegalArgumentException("Coupon has expired");
-            }
+        // Process payment with Stripe
+        String paymentIntentId = orderHelper.createStripePaymentIntent(grandTotal, user.getEmail());
 
-            // Apply discount based on the type
-            discountAmount = switch (coupon.getDiscountType()) {
-                case PERCENTAGE -> order.getTotal() * (coupon.getDiscountAmount() / 100);
-                case FIXED -> coupon.getDiscountAmount();
-                default -> throw new IllegalArgumentException("Invalid discount type");
-            };
-
-            if (discountAmount > coupon.getMaxDiscountAmount()) {
-                discountAmount = coupon.getMaxDiscountAmount();
-            }
-
-            order.setTotal(order.getTotal() - discountAmount);
-        }
-
-        // Save the order
-        Orders savedOrder = ordersRepo.save(order);
-
-        double grandTotal = 0.0;
-        for (OrderItems item : order.getOrderItems()) {
-            Products product = productsRepo.findById(item.getProducts().getProductId())
-                    .orElseThrow(() -> new IllegalArgumentException("Product not found"));
-
-            double totalAmt = item.getPrice() * item.getQuantity();
-            item.setProducts(product);
-            item.setOrder(savedOrder);
-            item.setTotalAmt(totalAmt);
-
-            orderItemsRepo.save(item);
-
-            product.setStock(product.getStock() - item.getQuantity());
-            productsRepo.save(product);
-
-            grandTotal += totalAmt;
-        }
-
-        savedOrder.setTotal(grandTotal - discountAmount);
-        ordersRepo.save(savedOrder);
+        // Save payment information
+        orderHelper.savePaymentInfo(savedOrder, paymentIntentId, grandTotal);
 
         mailUtils.sendOrderConfirmationMail(user.getEmail(), savedOrder.getOrderId());
-    }
 
+//        return savedOrder;
+    }
 
 
     @Override

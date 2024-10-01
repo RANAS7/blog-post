@@ -3,12 +3,13 @@ package com.msp.everestFitness.everestFitness.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Data
-@Table(name = "feature_sections")
+@Table
 public class FeatureImage {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -16,9 +17,9 @@ public class FeatureImage {
 
     private String fileUrl;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(updatable = false, columnDefinition = "Timestamp default current_timestamp")
+    private Timestamp createdAt;
 
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    @Column(insertable = false, columnDefinition = "Timestamp default current_timestamp")
+    private Timestamp updatedAt;
 }

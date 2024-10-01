@@ -21,8 +21,8 @@ public class EmailVerificationToken {
     @Column(nullable = false)
     private String email;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Timestamp createdAt = Timestamp.from(Instant.now());
+    @Column(updatable = false, columnDefinition = "Timestamp default current_timestamp")
+    private Timestamp createdAt;
 
     @Column(nullable = false)
     private Timestamp expiryDate;

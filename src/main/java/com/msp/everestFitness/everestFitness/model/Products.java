@@ -3,6 +3,7 @@ package com.msp.everestFitness.everestFitness.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
@@ -34,9 +35,9 @@ public class Products {
     @JoinColumn(name = "subcategory_id")
     private Subcategory subcategory;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(updatable = false)
     private Timestamp createdAt = Timestamp.from(Instant.now());
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(insertable = false)
     private Timestamp updatedAt = Timestamp.from(Instant.now());
 }

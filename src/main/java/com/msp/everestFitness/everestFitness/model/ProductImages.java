@@ -10,7 +10,7 @@ import java.util.UUID;
 @Entity
 @Data
 @Table(name = "product_images")
-public class ProductImages{
+public class ProductImages {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,9 +23,9 @@ public class ProductImages{
     @Column(nullable = false)
     private String imageUrl;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(updatable = false)
     private Timestamp createdAt = Timestamp.from(Instant.now());
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(insertable = false)
     private Timestamp updatedAt = Timestamp.from(Instant.now());
 }

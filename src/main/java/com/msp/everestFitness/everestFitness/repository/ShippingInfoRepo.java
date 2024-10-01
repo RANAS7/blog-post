@@ -17,4 +17,6 @@ import java.util.UUID;
 public interface ShippingInfoRepo extends JpaRepository<ShippingInfo, UUID> {
     List<ShippingInfo> findByUsers_UserId(UUID userId);
     ShippingInfo findByUsersUserIdAndAddressType(UUID userId, AddressType addressType);
+
+    ShippingInfo findByUsers_userId(UUID userId);
 }

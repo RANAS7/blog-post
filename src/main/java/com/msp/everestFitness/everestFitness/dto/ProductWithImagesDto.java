@@ -8,9 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Data
-@Entity
 public class ProductWithImagesDto {
-    @Id
     private UUID productId;
     private String name;
     private String description;

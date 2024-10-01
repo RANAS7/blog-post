@@ -21,8 +21,8 @@ public class PasswordResetToken {
     @Column(nullable = false)
     private String email;
 
-    @Column(nullable = false)
-    private Timestamp caretedAt = Timestamp.from(Instant.now());
+    @Column(updatable = false, columnDefinition = "Timestamp default current_timestamp")
+    private Timestamp createdAt;
 
     @Column(nullable = false)
     private Timestamp expiryDate;
