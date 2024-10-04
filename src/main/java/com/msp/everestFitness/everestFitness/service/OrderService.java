@@ -13,7 +13,7 @@ import java.util.UUID;
 
 public interface OrderService {
 
-    void createOrder(List<OrderItems> orderItems, UUID shippingInfoId, String couponCode, String deliveryOpt) throws MessagingException, IOException, StripeException;
+    Orders createOrder(Orders order) throws MessagingException, IOException, StripeException;
 
     void createGuestOrder(List<OrderItems> orderItems, ShippingInfo shippingInfo, String couponCode, String deliveryOpt) throws MessagingException, IOException, StripeException;
 

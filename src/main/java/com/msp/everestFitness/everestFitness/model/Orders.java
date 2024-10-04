@@ -1,15 +1,12 @@
 package com.msp.everestFitness.everestFitness.model;
 
 import com.msp.everestFitness.everestFitness.enumrated.OrderStatus;
+import com.msp.everestFitness.everestFitness.enumrated.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.Data;
 
 
-import java.sql.Time;
 import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,7 +33,28 @@ public class Orders {
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
-//    @Transient
-//    private List<OrderItems> orderItems = new ArrayList<>();
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethod;
 
+    @OneToOne
+    @JoinColumn(nullable = false)
+    private DeliveryOpt deliveryOpt;
+
+    @Column(name = "stripe_session_id")
+    private String stripeSessionId;
+
+    @Transient
+    private List<OrderItems> orderItems;
+
+    @Transient
+    private String coupon;
+    @Transient
+    private String deliveryOption;
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.orderId == null) {
+            this.orderId = UUID.randomUUID();
+        }
+    }
 }

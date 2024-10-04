@@ -74,7 +74,9 @@ public class SecurityConfig {
                                 "/api/category/",
                                 "/api/shipping/info/",
                                 "/api/product/",
-                                "/api/product-ratings/").permitAll() //access Allowed without login only for get method
+                                "/api/product-ratings/",
+                                "/api/payment/success",
+                                "/api/payment/failed").permitAll() //access Allowed without login only for get method
 
                         // Endpoints that require ADMIN role
                         .requestMatchers("/api/subcategory/",
@@ -83,7 +85,7 @@ public class SecurityConfig {
                                 "/api/order-item/").hasRole("ADMIN")  // Only ADMIN can access
 
                         // Endpoints that require MEMBER or USER role
-                        .requestMatchers("/api/shipping/info/","/api/order/").hasAnyRole("MEMBER", "USER", "GUEST")  // Only MEMBER, GUEST, and USER can access
+                        .requestMatchers("/api/shipping/info/", "/api/order/").hasAnyRole("MEMBER", "USER", "GUEST")  // Only MEMBER, GUEST, and USER can access
 
                         // Endpoints that require authentication
                         .requestMatchers("/test").authenticated()        // Require authentication for this endpoint

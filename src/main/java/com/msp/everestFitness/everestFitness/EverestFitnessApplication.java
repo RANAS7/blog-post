@@ -43,6 +43,7 @@ public class EverestFitnessApplication {
 //        Set system properties for stripe
         System.setProperty("STRIPE_SECRET_KEY", dotenv.get("STRIPE_SECRET_KEY"));
         System.setProperty("STRIPE_PUBLIC_KEY", dotenv.get("STRIPE_PUBLIC_KEY"));
+        System.setProperty("STRIPE_WEBHOOK_SECRET_KEY", dotenv.get("STRIPE_WEBHOOK_SECRET_KEY"));
 
         SpringApplication.run(EverestFitnessApplication.class, args);
     }

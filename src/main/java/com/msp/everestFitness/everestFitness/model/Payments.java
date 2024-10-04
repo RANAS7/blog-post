@@ -1,5 +1,6 @@
 package com.msp.everestFitness.everestFitness.model;
 
+import com.msp.everestFitness.everestFitness.enumrated.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -24,9 +25,6 @@ public class Payments {
 
     @Column(nullable = false)
     private Double amount;
-
-    @Column(name = "payment_method", nullable = false)
-    private String paymentMethod;
 
     private String cardType;
 

@@ -21,7 +21,7 @@ public class DeliveryOpt {
     @Column(nullable = false, columnDefinition = "Decimal(10,2)")
     private double charge;
     @Column(insertable = false, updatable = false)
-    private Timestamp createdAt=Timestamp.from(Instant.now());
+    private Timestamp createdAt = Timestamp.from(Instant.now());
     @Column(insertable = false)
-    private Timestamp updated=Timestamp.from(Instant.now());
+    private Timestamp updated = Timestamp.from(Instant.now());
 }

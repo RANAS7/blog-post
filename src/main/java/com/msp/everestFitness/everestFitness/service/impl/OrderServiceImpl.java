@@ -1,8 +1,9 @@
 package com.msp.everestFitness.everestFitness.service.impl;
 
 import com.msp.everestFitness.everestFitness.enumrated.OrderStatus;
+import com.msp.everestFitness.everestFitness.enumrated.PaymentMethod;
 import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
-import com.msp.everestFitness.everestFitness.hepler.OrderHelper;
+import com.msp.everestFitness.everestFitness.helper.OrderHelper;
 import com.msp.everestFitness.everestFitness.model.*;
 import com.msp.everestFitness.everestFitness.repository.*;
 import com.msp.everestFitness.everestFitness.service.OrderService;
@@ -46,71 +47,43 @@ public class OrderServiceImpl implements OrderService {
     private CartRepo cartRepo;
 
     @Autowired
-    private OrderHelper orderHelper;
+    private DeliveryOptRepo deliveryOptRepo;
 
+    @Autowired
+    private PaymentsRepo paymentsRepo;
+
+    @Autowired
+    private OrderHelper orderHelper;
 
     //    Create order for USER and MEMBER
     @Override
-    public void createOrder(List<OrderItems> orderItems, UUID shippingInfoId, String couponCode, String deliveryOpt)
-            throws ResourceNotFoundException, IOException, MessagingException, StripeException {
+    public Orders createOrder(Orders order) throws ResourceNotFoundException, IOException, MessagingException, StripeException {
+        UUID orderId = UUID.randomUUID();
+        order.setOrderId(orderId);
 
-        // Fetch the ShippingInfo
-        ShippingInfo shippingInfo = shippingInfoRepo.findById(shippingInfoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Shipping info not found"));
+        // Validate and fetch necessary order details
+        ShippingInfo shippingInfo = orderHelper.fetchShippingInfo(order.getShippingInfo().getShippingId());
+        Users user = orderHelper.fetchUser(shippingInfo.getUsers().getUserId());
 
-        // Fetch the User
-        Users user = usersRepo.findById(shippingInfo.getUsers().getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with the Id: " + shippingInfo.getUsers().getUserId()));
-
-        // Calculate total
-        double total = orderHelper.calculateTotal(orderItems);
-
-        // Validate minimum order amount
+        double total = orderHelper.calculateOrderTotal(order);
         orderHelper.validateMinimumOrderAmount(total);
 
-        // Create new order
-        Orders order = new Orders();
+        // Apply coupon if applicable
+        double discountAmount = orderHelper.applyCoupon(order.getCoupon(), total);
+
+        // Fetch delivery option and calculate delivery charge
+        DeliveryOpt deliveryOpt = orderHelper.fetchDeliveryOption(order.getDeliveryOption());
+        double deliveryCharge = deliveryOpt.getCharge();
+
+        // Update order with fetched details
         order.setShippingInfo(shippingInfo);
+        order.setTotal(total - discountAmount + deliveryCharge); // Adjust total for discount and delivery charge
 
-        // Apply coupon if provided
-        double discountAmount = 0.0;
-        if (couponCode != null && !couponCode.isEmpty()) {
-            discountAmount = orderHelper.applyCoupon(couponCode, total);
+        // Validate order ID
+        if (order.getOrderId() == null) {
+            throw new IllegalArgumentException("Order ID cannot be null");
         }
-
-        // Calculate grand total after discount
-        double grandTotal = total - discountAmount;
-
-        // Apply delivery charge
-        DeliveryOpt deliveryOption = orderHelper.getDeliveryOption(deliveryOpt);
-//        if (deliveryOption != null) {
-//            grandTotal += deliveryOption.getCharge();
-//            order.setDeliveryOpt(deliveryOption);
-//        } else {
-//            throw new IllegalArgumentException("Invalid delivery option");
-//        }
-
-        order.setTotal(grandTotal);
-
-        // Save the order
-        Orders savedOrder = ordersRepo.save(order);
-
-        // Save order items and update product stock
-        orderHelper.saveOrderItems(orderItems, savedOrder);
-
-        // Process payment with Stripe
-        String paymentIntentId = orderHelper.createStripePaymentIntent(grandTotal, user.getEmail());
-
-        // Save payment information
-        orderHelper.savePaymentInfo(savedOrder, paymentIntentId, grandTotal);
-
-        // Send confirmation email
-        mailUtils.sendOrderConfirmationMail(user.getEmail(), savedOrder.getOrderId());
-
-        // Clear user's cart
-        orderHelper.clearUserCart(user.getUserId());
-
-//        return savedOrder;
+        return order; // Order is created and returned
     }
 
 
@@ -119,38 +92,38 @@ public class OrderServiceImpl implements OrderService {
     public void createGuestOrder(List<OrderItems> orderItems, ShippingInfo shippingInfo, String couponCode, String deliveryOpt)
             throws MessagingException, IOException, StripeException {
 
-        double total = orderHelper.calculateTotal(orderItems);
-
-        orderHelper.validateMinimumOrderAmount(total);
-
-        Users user = orderHelper.getOrCreateGuestUser(shippingInfo);
-
-        shippingInfo.setUsers(user);
-        ShippingInfo shippingInfo1 = shippingInfoRepo.save(shippingInfo);
-
-        double discountAmount = orderHelper.applyCoupon(couponCode, total);
-        double grandTotal = total - discountAmount;
-
-        // Apply delivery charge
-        DeliveryOpt deliveryOption = orderHelper.getDeliveryOption(deliveryOpt);
-        grandTotal += (double) deliveryOption.getCharge();
-
-        Orders orders = new Orders();
-        orders.setTotal(grandTotal);
-        orders.setShippingInfo(shippingInfo1);
-        Orders savedOrder = ordersRepo.save(orders);
-
-        orderHelper.saveOrderItems(orderItems, savedOrder);
-
-        // Process payment with Stripe
-        String paymentIntentId = orderHelper.createStripePaymentIntent(grandTotal, user.getEmail());
-
-        // Save payment information
-        orderHelper.savePaymentInfo(savedOrder, paymentIntentId, grandTotal);
-
-        mailUtils.sendOrderConfirmationMail(user.getEmail(), savedOrder.getOrderId());
-
-//        return savedOrder;
+//        double total = orderHelper.calculateTotal(orderItems);
+//
+//        orderHelper.validateMinimumOrderAmount(total);
+//
+//        Users user = orderHelper.getOrCreateGuestUser(shippingInfo);
+//
+//        shippingInfo.setUsers(user);
+//        ShippingInfo shippingInfo1 = shippingInfoRepo.save(shippingInfo);
+//
+//        double discountAmount = orderHelper.applyCoupon(couponCode, total);
+//        double grandTotal = total - discountAmount;
+//
+//        // Apply delivery charge
+//        DeliveryOpt deliveryOption = orderHelper.getDeliveryOption(deliveryOpt);
+//        grandTotal += (double) deliveryOption.getCharge();
+//
+//        Orders orders = new Orders();
+//        orders.setTotal(grandTotal);
+//        orders.setShippingInfo(shippingInfo1);
+//        Orders savedOrder = ordersRepo.save(orders);
+//
+//        orderHelper.saveOrderItems(orderItems, savedOrder);
+//
+//        // Process payment with Stripe
+////        String paymentIntentId = orderHelper.createStripePaymentIntent(grandTotal, user.getEmail());
+//
+//        // Save payment information
+////        orderHelper.savePaymentInfo(savedOrder, paymentIntentId, grandTotal);
+//
+//        mailUtils.sendOrderConfirmationMail(user.getEmail(), savedOrder.getOrderId());
+//
+////        return savedOrder;
     }
 
 
