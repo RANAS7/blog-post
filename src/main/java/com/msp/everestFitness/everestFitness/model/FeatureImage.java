@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -18,7 +19,7 @@ public class FeatureImage {
     private String fileUrl;
 
     @Column(updatable = false, columnDefinition = "Timestamp default current_timestamp")
-    private Timestamp createdAt;
+    private Timestamp createdAt=Timestamp.from(Instant.now());
 
     @Column(insertable = false, columnDefinition = "Timestamp default current_timestamp")
     private Timestamp updatedAt;

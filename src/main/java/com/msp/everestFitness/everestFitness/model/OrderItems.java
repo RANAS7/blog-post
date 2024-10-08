@@ -35,8 +35,5 @@ public class OrderItems {
     private Double totalAmt;
 
     @Column(columnDefinition = "Timestamp default current_timestamp", updatable = false)
-    private Timestamp createdAt;
-
-    @Column(insertable = false, columnDefinition = "Timestamp default current_timestamp")
-    private Timestamp updatedAt;
+    private Timestamp createdAt = Timestamp.from(Instant.now());
 }

@@ -24,8 +24,8 @@ public class Subcategory {
     private String name;
 
     @Column(columnDefinition = "Timestamp default current_timestamp", updatable = false)
-    private Timestamp createdAt;
+    private Timestamp createdAt = Timestamp.from(Instant.now());
 
     @Column(insertable = false, columnDefinition = "Timestamp default current_timestamp")
-    private Timestamp updatedAt;
+    private Timestamp updatedAt = Timestamp.from(Instant.now());
 }

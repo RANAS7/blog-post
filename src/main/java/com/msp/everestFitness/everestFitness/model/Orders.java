@@ -7,6 +7,7 @@ import lombok.Data;
 
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -25,7 +26,7 @@ public class Orders {
     private ShippingInfo shippingInfo;
 
     @Column(columnDefinition = "Timestamp default current_timestamp", updatable = false)
-    private Timestamp orderDate;
+    private Timestamp orderDate = Timestamp.from(Instant.now());
 
     @Column(nullable = false)
     private double total;
@@ -42,7 +43,7 @@ public class Orders {
 
 
     @Transient
-    private List<OrderItems> orderItems=new ArrayList<>();
+    private List<OrderItems> orderItems = new ArrayList<>();
     @Transient
     private String coupon;
     @Transient

@@ -22,4 +22,6 @@ public interface CartItemRepo extends JpaRepository<CartItems, UUID> {
     @Modifying
     @Query(value = "DELETE FROM cart_items WHERE cart_id = :cartId", nativeQuery = true)
     Iterable<? extends OrderItems> deleteByCartId(@Param("cartId") UUID cartId);
+
+    List<CartItems> findByCarts_cartId(UUID cartId);
 }

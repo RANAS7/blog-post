@@ -4,6 +4,7 @@ import com.msp.everestFitness.everestFitness.enumrated.MembershipStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -34,7 +35,7 @@ public class Members {
     private LocalDate dateOfBirth;
 
     @Column(updatable = false, columnDefinition = "Timestamp default current_timestamp")
-    private Timestamp membershipStartDate ;
+    private Timestamp membershipStartDate=Timestamp.from(Instant.now()) ;
 
     private Timestamp membershipEndDate;
 
@@ -42,5 +43,5 @@ public class Members {
     private MembershipStatus membershipStatus;
 
     @Column(insertable = false, columnDefinition = "Timestamp default current_timestamp")
-    private Timestamp updatedAt;
+    private Timestamp updatedAt= Timestamp.from(Instant.now());
 }

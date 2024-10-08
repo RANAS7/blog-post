@@ -139,6 +139,8 @@ public class OrderServiceImpl implements OrderService {
             orderItemsRepo.save(newItem); // Save the new item
         }
 
+        mailUtils.sendOrderConfirmationMail(user.getEmail(), savedOrder);
+
         Payments payments = new Payments();
         payments.setPaymentStatus(PaymentStatus.PENDING);
         payments.setOrders(savedOrder);

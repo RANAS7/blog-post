@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.UUID;
 
 @Data
@@ -17,7 +18,7 @@ public class CartItems {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id")
-    private Carts cart;
+    private Carts carts;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Products product;
@@ -25,7 +26,7 @@ public class CartItems {
     private BigDecimal price;
 
     @Column(updatable = false, columnDefinition = "Timestamp default current_timestamp")
-    private Timestamp createdAt;
+    private Timestamp createdAt=Timestamp.from(Instant.now());
     @Column(insertable = false, columnDefinition = "Timestamp default current_timestamp")
-    private Timestamp updatedAt;
+    private Timestamp updatedAt=Timestamp.from(Instant.now());
 }

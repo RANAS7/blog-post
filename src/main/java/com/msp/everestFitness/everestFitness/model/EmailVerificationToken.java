@@ -22,7 +22,7 @@ public class EmailVerificationToken {
     private String email;
 
     @Column(updatable = false, columnDefinition = "Timestamp default current_timestamp")
-    private Timestamp createdAt;
+    private Timestamp createdAt = Timestamp.from(Instant.now());
 
     @Column(nullable = false)
     private Timestamp expiryDate;

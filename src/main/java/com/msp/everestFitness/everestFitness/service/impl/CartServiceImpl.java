@@ -27,7 +27,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public CartItems addItemToCart(CartItemDto cartItemDto) {
         Carts cart = cartRepo.findByUsers_UserId(cartItemDto.getUsers().getUserId());
-        List<CartItems> existingItem = cartItemRepo.findByCartAndProduct(cart.getId(), cartItemDto.getProducts().getProductId());
+        List<CartItems> existingItem = cartItemRepo.findByCartAndProduct(cart.getCartId(), cartItemDto.getProducts().getProductId());
 
         CartItems cartItem;
         if (existingItem != null) {
@@ -35,7 +35,7 @@ public class CartServiceImpl implements CartService {
             cartItem.setQuantity(cartItem.getQuantity() + cartItemDto.getQuantity());
         } else {
             cartItem = new CartItems();
-            cartItem.setCart(cart);
+            cartItem.setCarts(cart);
             cartItem.setProduct(cartItemDto.getProducts());
             cartItem.setQuantity(cartItemDto.getQuantity());
             cartItem.setPrice(cartItemDto.getPrice());
@@ -73,5 +73,16 @@ public class CartServiceImpl implements CartService {
         Carts cart = cartRepo.findByUsers_UserId(userId);
         cart.setUsers(cart.getUsers());
         return cartRepo.save(cart);
+    }
+
+    @Override
+    public void clearCart(UUID userId) {
+        Carts carts = cartRepo.findByUsers_UserId(userId);
+
+        List<CartItems> cartItemsList = cartItemRepo.findByCarts_cartId(carts.getCartId());
+        for (CartItems items : cartItemsList) {
+            cartItemRepo.deleteById(items.getCartItemId());
+        }
+        cartRepo.deleteById(carts.getCartId());
     }
 }

@@ -6,6 +6,7 @@ import com.msp.everestFitness.everestFitness.enumrated.PaymentStatus;
 import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
 import com.msp.everestFitness.everestFitness.model.*;
 import com.msp.everestFitness.everestFitness.repository.*;
+import com.msp.everestFitness.everestFitness.service.CartService;
 import com.msp.everestFitness.everestFitness.service.OrderService;
 import com.msp.everestFitness.everestFitness.utils.MailUtils;
 import com.stripe.exception.StripeException;
@@ -35,7 +36,7 @@ public class PaymentController {
     private OrdersRepo ordersRepo;
 
     @Autowired
-    private CartRepo cartRepo;
+    private CartService cartService;
 
     @Autowired
     private OrderItemsRepo orderItemsRepo;
@@ -61,12 +62,13 @@ public class PaymentController {
         orders.setOrderStatus(OrderStatus.COMPLETED);
         ordersRepo.save(orders);
 
+//        cartService.clearCart(orders.getShippingInfo().getUsers().getUserId());
+
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.addObject("orderId", orderId);
         modelAndView.setViewName("PaymentSuccessful");
         return modelAndView;
     }
-
 
 
     @GetMapping("/failed")

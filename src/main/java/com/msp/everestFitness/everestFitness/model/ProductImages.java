@@ -23,9 +23,9 @@ public class ProductImages {
     @Column(nullable = false)
     private String imageUrl;
 
-    @Column(updatable = false)
+    @Column(updatable = false, columnDefinition = "Timestamp default current_timestamp")
     private Timestamp createdAt = Timestamp.from(Instant.now());
 
-    @Column(insertable = false)
+    @Column(insertable = false, columnDefinition = "Timestamp default current_timestamp")
     private Timestamp updatedAt = Timestamp.from(Instant.now());
 }

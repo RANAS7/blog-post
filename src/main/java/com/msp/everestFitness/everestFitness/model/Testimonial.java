@@ -3,6 +3,7 @@ package com.msp.everestFitness.everestFitness.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.UUID;
@@ -29,8 +30,8 @@ public class Testimonial {
     private String description;
 
     @Column(columnDefinition = "Timestamp default current_timestamp", updatable = false, insertable = false)
-    private Timestamp createdAt;
+    private Timestamp createdAt= Timestamp.from(Instant.now());
 
     @Column(columnDefinition = "Timestamp default current_timestamp", insertable = false)
-    private Timestamp updatedAt;
+    private Timestamp updatedAt= Timestamp.from(Instant.now());
 }

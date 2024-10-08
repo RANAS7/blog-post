@@ -104,12 +104,12 @@ public class MailUtils {
     }
 
 
-    public void sendOrderConfirmationMail(String toEmail, UUID orderId) throws MessagingException, IOException {
+    public void sendOrderConfirmationMail(String toEmail, Orders savedOrder) throws MessagingException, IOException {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
 
 
-        String subject = "Order Confirmation - " + orderId;
+        String subject = "Order Confirmation - " + savedOrder.getOrderId();
 
         String estimatedDeliveryDate= String.valueOf(Timestamp.from(Instant.now().plusSeconds(3 * 24 * 60 * 60)));
 
@@ -117,10 +117,8 @@ public class MailUtils {
         ClassPathResource htmlFile = new ClassPathResource("templates/OrderConfirmation.html");
         String htmlContent = StreamUtils.copyToString(htmlFile.getInputStream(), StandardCharsets.UTF_8);
 
-        Orders order = ordersRepo.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found with the id: " + orderId));
 
-        List<OrderItems> orderItems = orderItemsRepo.findByOrder_OrderId(orderId);
+        List<OrderItems> orderItems = orderItemsRepo.findByOrder_OrderId(savedOrder.getOrderId());
 
         // Loop through the order items and populate the table rows
         StringBuilder orderItemsHtml = new StringBuilder();
@@ -144,17 +142,17 @@ public class MailUtils {
 
         // Inject the dynamic order items and other placeholders into the template
         htmlContent = htmlContent.replace("${orderItemsHtml}", orderItemsHtml.toString())
-                .replace("${customerName}", order.getShippingInfo().getUsers().getName())  // Correct method for customer name
-                .replace("${orderId}", order.getOrderId().toString())
-                .replace("${orderDate}", order.getOrderDate().toString())
+                .replace("${customerName}", savedOrder.getShippingInfo().getUsers().getName())  // Correct method for customer name
+                .replace("${orderId}", savedOrder.getOrderId().toString())
+                .replace("${orderDate}", savedOrder.getOrderDate().toString())
                 .replace("${deliveryDate}", estimatedDeliveryDate) // Adjust delivery date if needed
-                .replace("${orderTotal}", String.valueOf(order.getTotal()))
-                .replace("${shippingAddress}", order.getShippingInfo().getAddress())
-                .replace("${shippingCity}", order.getShippingInfo().getCity())
-                .replace("${shippingState}", order.getShippingInfo().getState())
-                .replace("${shippingPostalCode}", order.getShippingInfo().getPostalCode())
-                .replace("${shippingCountry}", order.getShippingInfo().getCountry())
-                .replace("${shippingPhoneNumber}", order.getShippingInfo().getPhoneNumber())
+                .replace("${orderTotal}", String.valueOf(savedOrder.getTotal()))
+                .replace("${shippingAddress}", savedOrder.getShippingInfo().getAddress())
+                .replace("${shippingCity}", savedOrder.getShippingInfo().getCity())
+                .replace("${shippingState}", savedOrder.getShippingInfo().getState())
+                .replace("${shippingPostalCode}", savedOrder.getShippingInfo().getPostalCode())
+                .replace("${shippingCountry}", savedOrder.getShippingInfo().getCountry())
+                .replace("${shippingPhoneNumber}", savedOrder.getShippingInfo().getPhoneNumber())
                 .replace("[Year]", currentYear);
 
         helper.setTo(toEmail);

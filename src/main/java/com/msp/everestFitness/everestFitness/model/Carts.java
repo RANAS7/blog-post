@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.UUID;
 
 @Data
@@ -12,11 +13,11 @@ import java.util.UUID;
 public class Carts {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    private UUID cartId;
 
     @OneToOne(fetch = FetchType.LAZY)
     private Users users;
 
     @Column(columnDefinition = "Timestamp default current_timestamp")
-    private Timestamp createdAt;
+    private Timestamp createdAt = Timestamp.from(Instant.now());
 }

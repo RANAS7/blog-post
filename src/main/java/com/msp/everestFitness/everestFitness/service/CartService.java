@@ -19,4 +19,6 @@ public interface CartService {
     Carts getOrCreateCart(UUID userId);
 
     Carts createNewCart(UUID userId);
+
+    void clearCart(UUID userId);
 }
