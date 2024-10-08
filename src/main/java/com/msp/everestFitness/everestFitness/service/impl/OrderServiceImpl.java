@@ -1,12 +1,14 @@
 package com.msp.everestFitness.everestFitness.service.impl;
 
+import com.msp.everestFitness.everestFitness.dto.PaymentResponse;
 import com.msp.everestFitness.everestFitness.enumrated.OrderStatus;
 import com.msp.everestFitness.everestFitness.enumrated.PaymentMethod;
+import com.msp.everestFitness.everestFitness.enumrated.PaymentStatus;
 import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
-import com.msp.everestFitness.everestFitness.helper.OrderHelper;
 import com.msp.everestFitness.everestFitness.model.*;
 import com.msp.everestFitness.everestFitness.repository.*;
 import com.msp.everestFitness.everestFitness.service.OrderService;
+import com.msp.everestFitness.everestFitness.service.PaymentService;
 import com.msp.everestFitness.everestFitness.utils.MailUtils;
 import com.stripe.exception.StripeException;
 import jakarta.mail.MessagingException;
@@ -14,6 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -53,37 +58,97 @@ public class OrderServiceImpl implements OrderService {
     private PaymentsRepo paymentsRepo;
 
     @Autowired
-    private OrderHelper orderHelper;
+    private PaymentService paymentService;
 
-    //    Create order for USER and MEMBER
     @Override
-    public Orders createOrder(Orders order) throws ResourceNotFoundException, IOException, MessagingException, StripeException {
-        UUID orderId = UUID.randomUUID();
-        order.setOrderId(orderId);
+    public PaymentResponse createOrder(Orders orders)
+            throws ResourceNotFoundException, IOException, MessagingException, StripeException {
+        // Fetch ShippingInfo
+        ShippingInfo shippingInfo = shippingInfoRepo.findById(orders.getShippingInfo().getShippingId())
+                .orElseThrow(() -> new ResourceNotFoundException("ShippingInfo not found with the id: " + orders.getShippingInfo().getShippingId()));
 
-        // Validate and fetch necessary order details
-        ShippingInfo shippingInfo = orderHelper.fetchShippingInfo(order.getShippingInfo().getShippingId());
-        Users user = orderHelper.fetchUser(shippingInfo.getUsers().getUserId());
+        // Fetch User
+        Users user = usersRepo.findById(shippingInfo.getUsers().getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with the id: " + shippingInfo.getUsers().getUserId()));
 
-        double total = orderHelper.calculateOrderTotal(order);
-        orderHelper.validateMinimumOrderAmount(total);
+        double total = 0.0;
+        double discountAmount = 0.0;
 
-        // Apply coupon if applicable
-        double discountAmount = orderHelper.applyCoupon(order.getCoupon(), total);
+        // Calculate total for order items
+        for (OrderItems item : orders.getOrderItems()) {
+            total += item.getPrice() * item.getQuantity();
+        }
+
+        // Validate minimum order amount
+        if (total < 50) {
+            throw new IllegalArgumentException("Please ensure your total is at least $50 to proceed with the checkout!");
+        }
+
+        // Validate coupon if provided
+        if (orders.getCoupon() != null && !orders.getCoupon().isEmpty()) {
+            Coupons coupon = couponRepo.findByCode(orders.getCoupon());
+            if (coupon == null || !coupon.getIsActive()) {
+                throw new IllegalArgumentException("Invalid or inactive coupon code");
+            }
+
+            Timestamp currentTime = Timestamp.from(Instant.now());
+            if (coupon.getValidFrom().after(currentTime) || (coupon.getValidUntil() != null && coupon.getValidUntil().before(currentTime))) {
+                throw new IllegalArgumentException("The coupon is not valid for this period");
+            }
+
+            if (total < coupon.getMinimumOrderAmount()) {
+                throw new IllegalArgumentException("The order does not meet the minimum amount required for the coupon");
+            }
+
+            // Calculate discount amount based on coupon type
+            discountAmount = switch (coupon.getDiscountType()) {
+                case FIXED -> coupon.getDiscountAmount();
+                case PERCENTAGE -> total * (coupon.getDiscountAmount() / 100);
+            };
+        }
 
         // Fetch delivery option and calculate delivery charge
-        DeliveryOpt deliveryOpt = orderHelper.fetchDeliveryOption(order.getDeliveryOption());
+        DeliveryOpt deliveryOpt = deliveryOptRepo.findByOption(orders.getDeliveryOption());
         double deliveryCharge = deliveryOpt.getCharge();
 
-        // Update order with fetched details
-        order.setShippingInfo(shippingInfo);
-        order.setTotal(total - discountAmount + deliveryCharge); // Adjust total for discount and delivery charge
+        // Create and save new order
+        Orders newOrder = new Orders();
+        newOrder.setTotal(total + deliveryCharge - discountAmount);
+        newOrder.setOrderDate(Timestamp.from(Instant.now()));
+        newOrder.setShippingInfo(shippingInfo);
+        newOrder.setPaymentMethod(orders.getPaymentMethod());
+        newOrder.setCoupon(orders.getCoupon());
+        newOrder.setDeliveryOpt(deliveryOpt);
 
-        // Validate order ID
-        if (order.getOrderId() == null) {
-            throw new IllegalArgumentException("Order ID cannot be null");
+        // Set order status based on payment method
+        if (orders.getPaymentMethod().equals(PaymentMethod.STRIPE)) {
+            newOrder.setOrderStatus(OrderStatus.PENDING);
+        } else {
+            newOrder.setOrderStatus(OrderStatus.COMPLETED);
         }
-        return order; // Order is created and returned
+        Orders savedOrder = ordersRepo.save(newOrder);
+
+        // Save order items
+        for (OrderItems item : orders.getOrderItems()) {
+            OrderItems newItem = new OrderItems(); // Create new instance for each item
+            newItem.setOrder(savedOrder);
+            newItem.setProducts(item.getProducts());
+            newItem.setQuantity(item.getQuantity());
+            newItem.setPrice(item.getPrice());
+            newItem.setTotalAmt(item.getQuantity() * item.getPrice());
+            orderItemsRepo.save(newItem); // Save the new item
+        }
+
+        Payments payments = new Payments();
+        payments.setPaymentStatus(PaymentStatus.PENDING);
+        payments.setOrders(savedOrder);
+        payments.setAmount(savedOrder.getTotal());
+        paymentsRepo.save(payments);        // Handle payment if Stripe is used
+        if (orders.getPaymentMethod().equals(PaymentMethod.STRIPE)) {
+            return paymentService.createPaymentLink(savedOrder);
+        }
+
+        return new PaymentResponse(); // Return response for completed order
     }
 
 

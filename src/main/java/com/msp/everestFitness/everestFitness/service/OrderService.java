@@ -1,5 +1,6 @@
 package com.msp.everestFitness.everestFitness.service;
 
+import com.msp.everestFitness.everestFitness.dto.PaymentResponse;
 import com.msp.everestFitness.everestFitness.enumrated.OrderStatus;
 import com.msp.everestFitness.everestFitness.model.OrderItems;
 import com.msp.everestFitness.everestFitness.model.Orders;
@@ -13,7 +14,7 @@ import java.util.UUID;
 
 public interface OrderService {
 
-    Orders createOrder(Orders order) throws MessagingException, IOException, StripeException;
+    PaymentResponse createOrder(Orders order) throws MessagingException, IOException, StripeException;
 
     void createGuestOrder(List<OrderItems> orderItems, ShippingInfo shippingInfo, String couponCode, String deliveryOpt) throws MessagingException, IOException, StripeException;
 

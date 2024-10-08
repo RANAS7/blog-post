@@ -19,4 +19,5 @@ public interface OrderItemsRepo extends JpaRepository<OrderItems, UUID> {
             "GROUP BY o.products " +
             "ORDER BY totalQuantitySold DESC")
     List<Object[]> findPopularProducts(Pageable pageable);
+
 }

@@ -1,8 +1,12 @@
 package com.msp.everestFitness.everestFitness.service.impl;
 
 import com.msp.everestFitness.everestFitness.dto.PaymentResponse;
+import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
 import com.msp.everestFitness.everestFitness.model.OrderItems;
 import com.msp.everestFitness.everestFitness.model.Orders;
+import com.msp.everestFitness.everestFitness.model.Users;
+import com.msp.everestFitness.everestFitness.repository.PaymentsRepo;
+import com.msp.everestFitness.everestFitness.repository.UsersRepo;
 import com.msp.everestFitness.everestFitness.service.PaymentService;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
@@ -10,6 +14,7 @@ import com.stripe.model.Customer;
 import com.stripe.param.CustomerCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import com.stripe.model.checkout.Session;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -19,51 +24,58 @@ import java.util.Collections;
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
+    @Autowired
+    private PaymentsRepo paymentsRepo;
+
+    @Autowired
+    private UsersRepo usersRepo;
+
     @Value("${STRIPE_SECRET_KEY}")
     private String stripeSecretKey;
 
     @Override
-    public PaymentResponse createPaymentLink(Orders orders) throws StripeException {
+    public PaymentResponse createPaymentLink(Orders savedOrder) throws StripeException {
         Stripe.apiKey = stripeSecretKey;
+
+        System.out.println("Orders is : " + savedOrder);
+
+        // Ensure that ShippingInfo and Users are not null before proceeding
+        if (savedOrder.getShippingInfo() == null) {
+            throw new IllegalArgumentException("ShippingInfo is not available.");
+        }
+
+        Users user = usersRepo.findById(savedOrder.getShippingInfo().getUsers().getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with the id: " + savedOrder.getShippingInfo().getUsers().getUserId()));
 
         // Create a new customer in Stripe with the provided email
         CustomerCreateParams customerParams = CustomerCreateParams.builder()
-                .setEmail(orders.getShippingInfo().getUsers().getEmail()) // Set the customer's email here
+                .setEmail(user.getEmail())
                 .build();
-        Customer customer = Customer.create(customerParams); // Create the customer
-
-        double totalAmt = 0.0;
-
-        for (OrderItems item : orders.getOrderItems()) {
-            totalAmt += item.getQuantity() * item.getPrice();
-        }
-
-
+        Customer customer = Customer.create(customerParams);
 
         // Create session parameters
         SessionCreateParams params = SessionCreateParams.builder()
                 .addAllPaymentMethodType(Collections.singletonList(SessionCreateParams.PaymentMethodType.CARD))
                 .setMode(SessionCreateParams.Mode.PAYMENT)
-                .setSuccessUrl("http://localhost:8082/api/payment/success?orderId=" + orders.getOrderId())
-                .setCancelUrl("http://localhost:8082/api/payment/failed")
+                .setSuccessUrl("http://localhost:8082/api/payment/success?orderId=" + savedOrder.getOrderId())
+                .setCancelUrl("http://localhost:8082/api/payment/failed?orderId=" + savedOrder.getOrderId())
                 .setCustomer(customer.getId())
                 .addLineItem(SessionCreateParams.LineItem.builder()
                         .setQuantity(1L)
                         .setPriceData(SessionCreateParams.LineItem.PriceData.builder()
-
                                 .setCurrency("usd")
-                                .setUnitAmountDecimal(BigDecimal.valueOf(totalAmt))
+                                .setUnitAmountDecimal(BigDecimal.valueOf(savedOrder.getTotal() * 100))
                                 .setProductData(SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                                        .setName("Order #" + orders.getOrderId())
+                                        .setName("Order Id: " + savedOrder.getOrderId())
                                         .build())
                                 .build())
                         .build())
-                .build(); // Don't forget to build the params!
+                .build();
 
         // Create a checkout session
         Session session = Session.create(params);
         PaymentResponse response = new PaymentResponse();
         response.setPaymentUrl(session.getUrl());
-        return response; // Return the checkout session URL
+        return response;
     }
 }

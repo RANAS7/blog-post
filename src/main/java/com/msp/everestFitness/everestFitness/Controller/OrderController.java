@@ -31,11 +31,12 @@ public class OrderController {
     @PostMapping("/")
     public ResponseEntity<?> createOrder(@RequestBody Orders order)
             throws MessagingException, IOException, StripeException {
-
-        Orders createdOrder = orderService.createOrder(order);
-        PaymentResponse response = paymentService.createPaymentLink(createdOrder);
-
-        return new ResponseEntity<>("Order created successfully: " + response.getPaymentUrl(), HttpStatus.CREATED);
+        if (order.getPaymentMethod().equals(PaymentMethod.STRIPE)) {
+            PaymentResponse response = orderService.createOrder(order);
+            return new ResponseEntity<>(response.getPaymentUrl(), HttpStatus.OK);
+        }
+        orderService.createOrder(order);
+        return new ResponseEntity<>("Order processing", HttpStatus.CREATED);
     }
 
     @PostMapping("/guest")

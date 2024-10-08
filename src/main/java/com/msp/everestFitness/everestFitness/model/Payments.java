@@ -1,6 +1,6 @@
 package com.msp.everestFitness.everestFitness.model;
 
-import com.msp.everestFitness.everestFitness.enumrated.PaymentMethod;
+import com.msp.everestFitness.everestFitness.enumrated.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -15,22 +15,21 @@ public class Payments {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long paymentId;
-
-    private String transactionId;
+    private UUID paymentId;
 
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
-    private Orders order;
+    private Orders orders;
 
     @Column(nullable = false)
     private Double amount;
 
-    private String cardType;
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
 
-    @Column(columnDefinition = "Timestamp default current_timestamp",updatable = false)
-    private Timestamp createdAt;
+    @Column(columnDefinition = "Timestamp default current_timestamp", updatable = false)
+    private Timestamp createdAt = Timestamp.from(Instant.now());
 
     @Column(insertable = false, columnDefinition = "Timestamp default current_timestamp")
-    private Timestamp updatedAt;
+    private Timestamp updatedAt = Timestamp.from(Instant.now());
 }

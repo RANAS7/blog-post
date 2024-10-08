@@ -7,6 +7,7 @@ import lombok.Data;
 
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,7 +20,7 @@ public class Orders {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID orderId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shipping_id", nullable = false)
     private ShippingInfo shippingInfo;
 
@@ -29,32 +30,21 @@ public class Orders {
     @Column(nullable = false)
     private double total;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private DeliveryOpt deliveryOpt;
 
-    @Column(name = "stripe_session_id")
-    private String stripeSessionId;
 
     @Transient
-    private List<OrderItems> orderItems;
-
+    private List<OrderItems> orderItems=new ArrayList<>();
     @Transient
     private String coupon;
     @Transient
     private String deliveryOption;
-
-    @PrePersist
-    protected void onCreate() {
-        if (this.orderId == null) {
-            this.orderId = UUID.randomUUID();
-        }
-    }
 }

@@ -17,7 +17,7 @@ public class ShippingInfo {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID shippingId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private Users users;
 
@@ -44,11 +44,16 @@ public class ShippingInfo {
     private AddressType addressType;
 
     @Column(columnDefinition = "Timestamp default current_timestamp", updatable = false)
-    private Timestamp createdAt;
+    private Timestamp createdAt=Timestamp.from(Instant.now());
 
     @Column(insertable = false, columnDefinition = "Timestamp default current_timestamp")
-    private Timestamp updatedAt;
+    private Timestamp updatedAt= Timestamp.from(Instant.now());
 
     @Transient
     private String email;
+
+    // Add this method to ensure the Users object is not null
+    public Users getUsers() {
+        return users != null ? users : new Users();
+    }
 }

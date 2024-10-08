@@ -17,7 +17,7 @@ public class OrderItems {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID orderItemId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private Orders order;
 
