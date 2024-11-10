@@ -31,11 +31,11 @@ public class OrderController {
     @PostMapping("/")
     public ResponseEntity<?> createOrder(@RequestBody Orders order)
             throws MessagingException, IOException, StripeException {
+        PaymentResponse response = orderService.createOrder(order);
+
         if (order.getPaymentMethod().equals(PaymentMethod.STRIPE)) {
-            PaymentResponse response = orderService.createOrder(order);
             return new ResponseEntity<>(response.getPaymentUrl(), HttpStatus.OK);
         }
-        orderService.createOrder(order);
         return new ResponseEntity<>("Order processing", HttpStatus.CREATED);
     }
 
@@ -44,9 +44,13 @@ public class OrderController {
             @RequestBody List<OrderItems> orderItems,
             @RequestBody ShippingInfo shippingInfo,
             @RequestParam(required = false) String couponCode,
+            @RequestParam PaymentMethod paymentMethod,
             @RequestParam String deliveryOpt)
             throws MessagingException, IOException, StripeException {
-        orderService.createGuestOrder(orderItems, shippingInfo, couponCode, deliveryOpt);
+        PaymentResponse response = orderService.createGuestOrder(orderItems, shippingInfo, couponCode, paymentMethod, deliveryOpt);
+        if (paymentMethod.equals(PaymentMethod.STRIPE)) {
+            return new ResponseEntity<>(response.getPaymentUrl(), HttpStatus.OK);
+        }
         return new ResponseEntity<>("Order created successfully! Please check your email for confirmation.", HttpStatus.CREATED);
 
     }

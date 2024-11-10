@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
@@ -139,7 +138,7 @@ public class OrderServiceImpl implements OrderService {
             orderItemsRepo.save(newItem); // Save the new item
         }
 
-        mailUtils.sendOrderConfirmationMail(user.getEmail(), savedOrder);
+//        mailUtils.sendOrderConfirmationMail(user.getEmail(), savedOrder);
 
         Payments payments = new Payments();
         payments.setPaymentStatus(PaymentStatus.PENDING);
@@ -156,42 +155,96 @@ public class OrderServiceImpl implements OrderService {
 
     //    Create order for GUEST
     @Override
-    public void createGuestOrder(List<OrderItems> orderItems, ShippingInfo shippingInfo, String couponCode, String deliveryOpt)
-            throws MessagingException, IOException, StripeException {
+    public PaymentResponse createGuestOrder(
+            List<OrderItems> orderItems,
+            ShippingInfo shippingInfo,
+            String couponCode,
+            PaymentMethod paymentMethod,
+            String deliveryOpt
+    ) throws MessagingException, IOException, StripeException {
+        double total = orderItems.stream()
+                .mapToDouble(item -> item.getPrice() * item.getQuantity())
+                .sum();
 
-//        double total = orderHelper.calculateTotal(orderItems);
-//
-//        orderHelper.validateMinimumOrderAmount(total);
-//
-//        Users user = orderHelper.getOrCreateGuestUser(shippingInfo);
-//
-//        shippingInfo.setUsers(user);
-//        ShippingInfo shippingInfo1 = shippingInfoRepo.save(shippingInfo);
-//
-//        double discountAmount = orderHelper.applyCoupon(couponCode, total);
-//        double grandTotal = total - discountAmount;
-//
-//        // Apply delivery charge
-//        DeliveryOpt deliveryOption = orderHelper.getDeliveryOption(deliveryOpt);
-//        grandTotal += (double) deliveryOption.getCharge();
-//
-//        Orders orders = new Orders();
-//        orders.setTotal(grandTotal);
-//        orders.setShippingInfo(shippingInfo1);
-//        Orders savedOrder = ordersRepo.save(orders);
-//
-//        orderHelper.saveOrderItems(orderItems, savedOrder);
-//
-//        // Process payment with Stripe
-////        String paymentIntentId = orderHelper.createStripePaymentIntent(grandTotal, user.getEmail());
-//
-//        // Save payment information
-////        orderHelper.savePaymentInfo(savedOrder, paymentIntentId, grandTotal);
-//
-//        mailUtils.sendOrderConfirmationMail(user.getEmail(), savedOrder.getOrderId());
-//
-////        return savedOrder;
+        // Minimum order amount validation
+        if (total < 50) {
+            throw new IllegalArgumentException("Please ensure your total is at least $50 to proceed with the checkout!");
+        }
+
+        // Create or fetch user based on email
+        Users user = (Users) usersRepo.findByEmail(shippingInfo.getEmail())
+                .orElseGet(() -> {
+                    Users newUser = new Users();
+                    newUser.setEmail(shippingInfo.getEmail());
+                    return usersRepo.save(newUser);
+                });
+
+        shippingInfo.setUsers(user);
+        shippingInfoRepo.save(shippingInfo);
+
+        // Validate coupon if provided and calculate discount amount
+        double discountAmount = 0.0;
+        if (couponCode != null && !couponCode.isEmpty()) {
+            Coupons coupon = couponRepo.findByCode(couponCode);
+            if (coupon == null || !coupon.getIsActive()) {
+                throw new IllegalArgumentException("Invalid or inactive coupon code");
+            }
+            Timestamp currentTime = Timestamp.from(Instant.now());
+            if (coupon.getValidFrom().after(currentTime) ||
+                    (coupon.getValidUntil() != null && coupon.getValidUntil().before(currentTime))) {
+                throw new IllegalArgumentException("The coupon is not valid for this period");
+            }
+            if (total < coupon.getMinimumOrderAmount()) {
+                throw new IllegalArgumentException("The order does not meet the minimum amount required for the coupon");
+            }
+            discountAmount = switch (coupon.getDiscountType()) {
+                case FIXED -> coupon.getDiscountAmount();
+                case PERCENTAGE -> total * (coupon.getDiscountAmount() / 100);
+            };
+        }
+
+        // Fetch delivery option
+        DeliveryOpt selectedDeliveryOpt = deliveryOptRepo.findByOption(deliveryOpt);
+        if (selectedDeliveryOpt == null) {
+            throw new IllegalArgumentException("Invalid delivery option");
+        }
+        double deliveryCharge = selectedDeliveryOpt.getCharge();
+
+        // Create and save the order and its items
+        Orders newOrder = new Orders();
+        newOrder.setTotal(total + deliveryCharge - discountAmount);
+        newOrder.setOrderDate(Timestamp.from(Instant.now()));
+        newOrder.setShippingInfo(shippingInfo);
+        newOrder.setCoupon(couponCode);
+        newOrder.setDeliveryOpt(selectedDeliveryOpt);
+        newOrder.setOrderStatus(paymentMethod.equals(PaymentMethod.STRIPE) ? OrderStatus.PENDING : OrderStatus.COMPLETED);
+        Orders savedOrder = ordersRepo.save(newOrder);
+
+        for (OrderItems item : orderItems) {
+            OrderItems newItem = new OrderItems();
+            newItem.setOrder(savedOrder);
+            newItem.setProducts(item.getProducts());
+            newItem.setQuantity(item.getQuantity());
+            newItem.setPrice(item.getPrice());
+            newItem.setTotalAmt(item.getQuantity() * item.getPrice());
+            orderItemsRepo.save(newItem);
+        }
+
+        // Create and save payment record
+        Payments payments = new Payments();
+        payments.setPaymentStatus(PaymentStatus.PENDING);
+        payments.setOrders(savedOrder);
+        payments.setAmount(savedOrder.getTotal());
+        paymentsRepo.save(payments);
+
+        // Handle payments if needed
+        if (PaymentMethod.STRIPE.equals(paymentMethod)) {
+            return paymentService.createPaymentLink(newOrder);
+        }
+
+        return new PaymentResponse(); // For completed orders with other payment methods
     }
+
 
 
     @Override

@@ -62,6 +62,18 @@ public class PaymentController {
         orders.setOrderStatus(OrderStatus.COMPLETED);
         ordersRepo.save(orders);
 
+        List<OrderItems> orderItemsList = orderItemsRepo.findByOrder_OrderId(orders.getOrderId());
+
+        for (OrderItems items : orderItemsList) {
+            Products products = productsRepo.findById(items.getProducts().getProductId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Product not found with the id: " + items.getProducts().getProductId()));
+            products.setStock(products.getStock() - items.getQuantity());
+            productsRepo.save(products);
+        }
+
+        mailUtils.sendOrderConfirmationMail(orders.getShippingInfo().getUsers().getEmail(), orders);
+
+
 //        cartService.clearCart(orders.getShippingInfo().getUsers().getUserId());
 
         ModelAndView modelAndView = new ModelAndView();
