@@ -2,14 +2,8 @@ package com.msp.everestFitness.everestFitness.service.impl;
 
 import com.msp.everestFitness.everestFitness.dto.PaymentResponse;
 import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
-import com.msp.everestFitness.everestFitness.model.OrderItems;
-import com.msp.everestFitness.everestFitness.model.Orders;
-import com.msp.everestFitness.everestFitness.model.Products;
-import com.msp.everestFitness.everestFitness.model.Users;
-import com.msp.everestFitness.everestFitness.repository.OrderItemsRepo;
-import com.msp.everestFitness.everestFitness.repository.PaymentsRepo;
-import com.msp.everestFitness.everestFitness.repository.ProductsRepo;
-import com.msp.everestFitness.everestFitness.repository.UsersRepo;
+import com.msp.everestFitness.everestFitness.model.*;
+import com.msp.everestFitness.everestFitness.repository.*;
 import com.msp.everestFitness.everestFitness.service.PaymentService;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
@@ -43,6 +37,9 @@ public class PaymentServiceImpl implements PaymentService {
     @Autowired
     private OrderItemsRepo orderItemsRepo;
 
+    @Autowired
+    private DeliveryOptRepo deliveryOptRepo;
+
     @Override
     public PaymentResponse createPaymentLink(Orders savedOrder) throws StripeException {
         Stripe.apiKey = stripeSecretKey;
@@ -62,6 +59,9 @@ public class PaymentServiceImpl implements PaymentService {
                 .build();
         Customer customer = Customer.create(customerParams);
 
+//        Get deliver option
+        DeliveryOpt deliveryOpt = deliveryOptRepo.findById(savedOrder.getDeliveryOpt().getOptionId()).get();
+
 //        Get order_items
         List<OrderItems> itemsList = orderItemsRepo.findByOrder_OrderId(savedOrder.getOrderId());
 
@@ -77,9 +77,9 @@ public class PaymentServiceImpl implements PaymentService {
                     .setPriceData(
                             SessionCreateParams.LineItem.PriceData.builder()
                                     .setCurrency("usd")
-                                    .setUnitAmount(BigDecimal.valueOf(item.getPrice())
-                                            .multiply(BigDecimal.valueOf(100))
-                                            .longValue())
+                                    .setUnitAmountDecimal(
+                                            BigDecimal.valueOf(item.getPrice() * 100)
+                                    )
                                     .setProductData(
                                             SessionCreateParams.LineItem.PriceData.ProductData.builder()
                                                     .setName(products.getName()) // Ensured that a name is provided
@@ -88,6 +88,21 @@ public class PaymentServiceImpl implements PaymentService {
                     .build();
             lineItems.add(lineItem);
         });
+
+        // Adding a delivery charge as a separate line item
+        SessionCreateParams.LineItem deliveryChargeItem = SessionCreateParams.LineItem.builder()
+                .setQuantity(1L)
+                .setPriceData(
+                        SessionCreateParams.LineItem.PriceData.builder()
+                                .setCurrency("usd")
+                                .setUnitAmountDecimal(BigDecimal.valueOf(deliveryOpt.getCharge() * 100)) // Corrected the parentheses
+                                .setProductData(
+                                        SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                                .setName("Delivery Charge")
+                                                .build())
+                                .build())
+                .build();
+        lineItems.add(deliveryChargeItem);
 
 
         // Create session parameters
