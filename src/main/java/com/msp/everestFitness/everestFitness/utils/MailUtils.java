@@ -1,8 +1,9 @@
 package com.msp.everestFitness.everestFitness.utils;
 
-import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
+import com.msp.everestFitness.everestFitness.model.DeliveryOpt;
 import com.msp.everestFitness.everestFitness.model.OrderItems;
 import com.msp.everestFitness.everestFitness.model.Orders;
+import com.msp.everestFitness.everestFitness.repository.DeliveryOptRepo;
 import com.msp.everestFitness.everestFitness.repository.OrderItemsRepo;
 import com.msp.everestFitness.everestFitness.repository.OrdersRepo;
 import jakarta.mail.MessagingException;
@@ -24,7 +25,6 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.Year;
 import java.util.List;
-import java.util.UUID;
 
 
 @Service
@@ -41,6 +41,9 @@ public class MailUtils {
 
     @Autowired
     private OrderItemsRepo orderItemsRepo;
+
+    @Autowired
+    private DeliveryOptRepo deliveryOptRepo;
 
     String currentYear = String.valueOf(Year.now().getValue());
 
@@ -111,7 +114,7 @@ public class MailUtils {
 
         String subject = "Order Confirmation - " + savedOrder.getOrderId();
 
-        String estimatedDeliveryDate= String.valueOf(Timestamp.from(Instant.now().plusSeconds(3 * 24 * 60 * 60)));
+        String estimatedDeliveryDate = String.valueOf(Timestamp.from(Instant.now().plusSeconds(3 * 24 * 60 * 60)));
 
         // Load the HTML template
         ClassPathResource htmlFile = new ClassPathResource("templates/OrderConfirmation.html");
@@ -131,14 +134,17 @@ public class MailUtils {
             double price = item.getPrice();
             double total = price * quantity;
 
-            orderItemsHtml.append("<tr>")
-                    .append("<td>").append(sn += 1).append("</td>")
-                    .append("<td>").append(productName).append("</td>")
-                    .append("<td>").append(quantity).append("</td>")
-                    .append("<td>$").append(price).append("</td>")
-                    .append("<td>$").append(total).append("</td>")
-                    .append("</tr>");
+
+                    orderItemsHtml.append("<tr>")
+                            .append("<td>").append(sn += 1).append("</td>")
+                            .append("<td>").append(productName).append("</td>")
+                            .append("<td>").append(quantity).append("</td>")
+                            .append("<td>$").append(price).append("</td>")
+                            .append("<td>$").append(total).append("</td>")
+                            .append("</tr>");
         }
+        DeliveryOpt deliveryOpt =deliveryOptRepo.findById(savedOrder.getDeliveryOpt().getOptionId()).get();
+
 
         // Inject the dynamic order items and other placeholders into the template
         htmlContent = htmlContent.replace("${orderItemsHtml}", orderItemsHtml.toString())
@@ -146,6 +152,7 @@ public class MailUtils {
                 .replace("${orderId}", savedOrder.getOrderId().toString())
                 .replace("${orderDate}", savedOrder.getOrderDate().toString())
                 .replace("${deliveryDate}", estimatedDeliveryDate) // Adjust delivery date if needed
+                .replace("${charge}", String.valueOf(deliveryOpt.getCharge()))
                 .replace("${orderTotal}", String.valueOf(savedOrder.getTotal()))
                 .replace("${shippingAddress}", savedOrder.getShippingInfo().getAddress())
                 .replace("${shippingCity}", savedOrder.getShippingInfo().getCity())

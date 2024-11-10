@@ -138,8 +138,6 @@ public class OrderServiceImpl implements OrderService {
             orderItemsRepo.save(newItem); // Save the new item
         }
 
-//        mailUtils.sendOrderConfirmationMail(user.getEmail(), savedOrder);
-
         Payments payments = new Payments();
         payments.setPaymentStatus(PaymentStatus.PENDING);
         payments.setOrders(savedOrder);
@@ -147,6 +145,10 @@ public class OrderServiceImpl implements OrderService {
         paymentsRepo.save(payments);        // Handle payment if Stripe is used
         if (orders.getPaymentMethod().equals(PaymentMethod.STRIPE)) {
             return paymentService.createPaymentLink(savedOrder);
+        }
+        else if (orders.getPaymentMethod().equals(PaymentMethod.CASH_ON_DELIVERY)){
+            mailUtils.sendOrderConfirmationMail(savedOrder.getShippingInfo().getUsers().getEmail(), savedOrder);
+
         }
 
         return new PaymentResponse(); // Return response for completed order
@@ -240,6 +242,10 @@ public class OrderServiceImpl implements OrderService {
         // Handle payments if needed
         if (PaymentMethod.STRIPE.equals(paymentMethod)) {
             return paymentService.createPaymentLink(newOrder);
+        }
+        else if (paymentMethod.equals(PaymentMethod.CASH_ON_DELIVERY)){
+            mailUtils.sendOrderConfirmationMail(savedOrder.getShippingInfo().getUsers().getEmail(), savedOrder);
+
         }
 
         return new PaymentResponse(); // For completed orders with other payment methods
