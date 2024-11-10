@@ -39,6 +39,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         System.out.println("Orders is : " + savedOrder);
 
+
         // Ensure that ShippingInfo and Users are not null before proceeding
         if (savedOrder.getShippingInfo() == null) {
             throw new IllegalArgumentException("ShippingInfo is not available.");
@@ -46,6 +47,12 @@ public class PaymentServiceImpl implements PaymentService {
 
         Users user = usersRepo.findById(savedOrder.getShippingInfo().getUsers().getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with the id: " + savedOrder.getShippingInfo().getUsers().getUserId()));
+
+        BigDecimal total= BigDecimal.valueOf(savedOrder.getTotal());
+
+        // Convert total amount to cents while keeping two decimal places and convert to integer
+        BigDecimal totalAmountInCents = total.multiply(BigDecimal.valueOf(100)).setScale(0, BigDecimal.ROUND_HALF_UP);
+        int unitAmountCents = totalAmountInCents.intValue(); // Convert to integer for Stripe
 
         // Create a new customer in Stripe with the provided email
         CustomerCreateParams customerParams = CustomerCreateParams.builder()
@@ -64,7 +71,8 @@ public class PaymentServiceImpl implements PaymentService {
                         .setQuantity(1L)
                         .setPriceData(SessionCreateParams.LineItem.PriceData.builder()
                                 .setCurrency("usd")
-                                .setUnitAmountDecimal(BigDecimal.valueOf(savedOrder.getTotal() * 100))
+//                                .setUnitAmountDecimal(BigDecimal.valueOf(savedOrder.getTotal() * 100))
+                                .setUnitAmountDecimal(BigDecimal.valueOf(unitAmountCents))
                                 .setProductData(SessionCreateParams.LineItem.PriceData.ProductData.builder()
                                         .setName("Order Id: " + savedOrder.getOrderId())
                                         .build())
