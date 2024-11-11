@@ -52,8 +52,6 @@ public class ShippingInfo {
     @Transient
     private String email;
 
-    // Add this method to ensure the Users object is not null
-    public Users getUsers() {
-        return users != null ? users : new Users();
-    }
+    @Transient
+    private String name;
 }

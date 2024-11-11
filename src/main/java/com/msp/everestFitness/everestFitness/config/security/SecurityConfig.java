@@ -54,6 +54,7 @@ public class SecurityConfig {
                                 "/api/auth/reset-form",
                                 "/api/auth/google/**",
                                 "/error",
+                                "/api/order/guest",
 
                                 // OpenAPI 3.x (Swagger UI v3)
                                 "/v3/api-docs/**",

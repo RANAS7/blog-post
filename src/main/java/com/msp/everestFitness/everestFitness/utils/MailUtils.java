@@ -3,9 +3,12 @@ package com.msp.everestFitness.everestFitness.utils;
 import com.msp.everestFitness.everestFitness.model.DeliveryOpt;
 import com.msp.everestFitness.everestFitness.model.OrderItems;
 import com.msp.everestFitness.everestFitness.model.Orders;
+import com.msp.everestFitness.everestFitness.model.Products;
 import com.msp.everestFitness.everestFitness.repository.DeliveryOptRepo;
 import com.msp.everestFitness.everestFitness.repository.OrderItemsRepo;
 import com.msp.everestFitness.everestFitness.repository.OrdersRepo;
+import com.msp.everestFitness.everestFitness.repository.ProductsRepo;
+import com.stripe.model.Product;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
@@ -44,6 +47,9 @@ public class MailUtils {
 
     @Autowired
     private DeliveryOptRepo deliveryOptRepo;
+
+    @Autowired
+    private ProductsRepo productsRepo;
 
     String currentYear = String.valueOf(Year.now().getValue());
 
@@ -128,22 +134,23 @@ public class MailUtils {
         int sn = 0;
 
         for (OrderItems item : orderItems) {
+            Products products = productsRepo.findById(item.getProducts().getProductId()).get();
 
-            String productName = item.getProducts().getName(); // Assuming getProduct() has a getName() method
+            String productName = products.getName(); // Assuming getProduct() has a getName() method
             int quantity = item.getQuantity();
             double price = item.getPrice();
             double total = price * quantity;
 
 
-                    orderItemsHtml.append("<tr>")
-                            .append("<td>").append(sn += 1).append("</td>")
-                            .append("<td>").append(productName).append("</td>")
-                            .append("<td>").append(quantity).append("</td>")
-                            .append("<td>$").append(price).append("</td>")
-                            .append("<td>$").append(total).append("</td>")
-                            .append("</tr>");
+            orderItemsHtml.append("<tr>")
+                    .append("<td>").append(sn += 1).append("</td>")
+                    .append("<td>").append(productName).append("</td>")
+                    .append("<td>").append(quantity).append("</td>")
+                    .append("<td>$").append(price).append("</td>")
+                    .append("<td>$").append(total).append("</td>")
+                    .append("</tr>");
         }
-        DeliveryOpt deliveryOpt =deliveryOptRepo.findById(savedOrder.getDeliveryOpt().getOptionId()).get();
+        DeliveryOpt deliveryOpt = deliveryOptRepo.findById(savedOrder.getDeliveryOpt().getOptionId()).get();
 
 
         // Inject the dynamic order items and other placeholders into the template

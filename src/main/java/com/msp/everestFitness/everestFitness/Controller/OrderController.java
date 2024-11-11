@@ -1,5 +1,6 @@
 package com.msp.everestFitness.everestFitness.Controller;
 
+import com.msp.everestFitness.everestFitness.dto.GuestOrderRequest;
 import com.msp.everestFitness.everestFitness.dto.PaymentResponse;
 import com.msp.everestFitness.everestFitness.enumrated.OrderStatus;
 import com.msp.everestFitness.everestFitness.enumrated.PaymentMethod;
@@ -40,19 +41,13 @@ public class OrderController {
     }
 
     @PostMapping("/guest")
-    public ResponseEntity<?> createGuestOrder(
-            @RequestBody List<OrderItems> orderItems,
-            @RequestBody ShippingInfo shippingInfo,
-            @RequestParam(required = false) String couponCode,
-            @RequestParam PaymentMethod paymentMethod,
-            @RequestParam String deliveryOpt)
-            throws MessagingException, IOException, StripeException {
-        PaymentResponse response = orderService.createGuestOrder(orderItems, shippingInfo, couponCode, paymentMethod, deliveryOpt);
-        if (paymentMethod.equals(PaymentMethod.STRIPE)) {
-            return new ResponseEntity<>(response.getPaymentUrl(), HttpStatus.OK);
+    public ResponseEntity<?> createGuestOrder(@RequestBody GuestOrderRequest orderRequest)
+            throws StripeException, MessagingException, IOException {
+        PaymentResponse response = orderService.createGuestOrder(orderRequest.getOrders(), orderRequest.getShippingInfo());
+        if (orderRequest.getOrders().getPaymentMethod().equals(PaymentMethod.STRIPE)) {
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
-        return new ResponseEntity<>("Order created successfully! Please check your email for confirmation.", HttpStatus.CREATED);
-
+        return new ResponseEntity<>("Order Processing", HttpStatus.CREATED);
     }
 
     @PostMapping("/status")

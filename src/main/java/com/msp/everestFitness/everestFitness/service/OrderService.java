@@ -3,6 +3,7 @@ package com.msp.everestFitness.everestFitness.service;
 import com.msp.everestFitness.everestFitness.dto.PaymentResponse;
 import com.msp.everestFitness.everestFitness.enumrated.OrderStatus;
 import com.msp.everestFitness.everestFitness.enumrated.PaymentMethod;
+import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
 import com.msp.everestFitness.everestFitness.model.OrderItems;
 import com.msp.everestFitness.everestFitness.model.Orders;
 import com.msp.everestFitness.everestFitness.model.ShippingInfo;
@@ -16,9 +17,6 @@ import java.util.UUID;
 public interface OrderService {
 
     PaymentResponse createOrder(Orders order) throws MessagingException, IOException, StripeException;
-
-    PaymentResponse createGuestOrder(List<OrderItems> orderItems, ShippingInfo shippingInfo, String couponCode, PaymentMethod paymentMethod, String deliveryOpt) throws MessagingException, IOException, StripeException;
-
     Orders getOrderById(UUID orderId);
 
     List<Orders> getAllOrders();
@@ -26,4 +24,8 @@ public interface OrderService {
     void deleteOrder(UUID orderId);
 
     void updateOrderStatus(UUID orderId, OrderStatus orderStatus);
+
+    //    Create order for GUEST
+    PaymentResponse createGuestOrder(Orders orders, ShippingInfo guestShippingInfo)
+            throws ResourceNotFoundException, IOException, MessagingException, StripeException;
 }

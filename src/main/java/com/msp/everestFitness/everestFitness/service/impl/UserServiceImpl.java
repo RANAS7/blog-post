@@ -22,6 +22,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void registerUser(Users users) {
+        if (users.getPassword() == null) {
+            throw new IllegalArgumentException("Password required");
+        }
         users.setPassword(passwordEncoder.encode(users.getPassword()));
         usersRepo.save(users);
     }
@@ -57,7 +60,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Users getUserByEmail(String email) {
         return (Users) usersRepo.findByEmail(email)
-                .orElseThrow(()-> new ResourceNotFoundException("The user is not found with the email: "+ email));
+                .orElseThrow(() -> new ResourceNotFoundException("The user is not found with the email: " + email));
     }
 
     @Override
