@@ -165,7 +165,6 @@ public class OrderServiceImpl implements OrderService {
                     Users newUser=new Users();
                     newUser.setEmail(guestShippingInfo.getEmail());
                     newUser.setName(guestShippingInfo.getName());
-                    newUser.setPassword(guestShippingInfo.getPassword());
                     newUser.setUserType(UserType.GUEST);
                     return usersRepo.save(newUser);
                 });
