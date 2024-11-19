@@ -28,4 +28,6 @@ public interface OrderService {
     //    Create order for GUEST
     PaymentResponse createGuestOrder(Orders orders, ShippingInfo guestShippingInfo)
             throws ResourceNotFoundException, IOException, MessagingException, StripeException;
+
+    List<Orders> getOrderOfUser();
 }

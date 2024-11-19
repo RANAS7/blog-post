@@ -1,5 +1,6 @@
 package com.msp.everestFitness.everestFitness.service.impl;
 
+import com.msp.everestFitness.everestFitness.config.LoginUtil;
 import com.msp.everestFitness.everestFitness.dto.PaymentResponse;
 import com.msp.everestFitness.everestFitness.enumrated.OrderStatus;
 import com.msp.everestFitness.everestFitness.enumrated.PaymentMethod;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -59,6 +61,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private PaymentService paymentService;
+
+    @Autowired
+    private LoginUtil loginUtil;
 
     @Override
     public PaymentResponse createOrder(Orders orders)
@@ -161,8 +166,8 @@ public class OrderServiceImpl implements OrderService {
             throws ResourceNotFoundException, IOException, MessagingException, StripeException {
 
         Users users = (Users) usersRepo.findByEmail(guestShippingInfo.getEmail())
-                .orElseGet(()->{
-                    Users newUser=new Users();
+                .orElseGet(() -> {
+                    Users newUser = new Users();
                     newUser.setEmail(guestShippingInfo.getEmail());
                     newUser.setName(guestShippingInfo.getName());
                     newUser.setUserType(UserType.GUEST);
@@ -256,6 +261,12 @@ public class OrderServiceImpl implements OrderService {
 
         return new PaymentResponse(); // Return appropriate response for completed order
     }
+
+    @Override
+    public List<Orders> getOrderOfUser() {
+        return ordersRepo.findByShippingInfo_Users_UserId(loginUtil.getCurrentUserId());
+    }
+
 
     @Override
     public Orders getOrderById(UUID orderId) {

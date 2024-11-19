@@ -55,4 +55,9 @@ public class OrderController {
         orderService.updateOrderStatus(orderId, orderStatus);
         return new ResponseEntity<>("Order status updated successfully !!", HttpStatus.CREATED);
     }
+
+    @GetMapping("/by-user")
+    public ResponseEntity<?> getOrderOfUser() {
+        return new ResponseEntity<>(orderService.getOrderOfUser(), HttpStatus.OK);
+    }
 }
