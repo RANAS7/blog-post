@@ -1,5 +1,6 @@
 package com.msp.everestFitness.everestFitness.service.impl;
 
+import com.msp.everestFitness.everestFitness.config.LoginUtil;
 import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
 import com.msp.everestFitness.everestFitness.model.Wishlist;
 import com.msp.everestFitness.everestFitness.repository.WishListRepo;
@@ -15,6 +16,9 @@ public class WishlistServiceImpl implements WishlistService {
     @Autowired
     private WishListRepo wishListRepo;
 
+    @Autowired
+    private LoginUtil loginUtil;
+
     @Override
     public void createWishlist(Wishlist wishlist) {
         wishListRepo.save(wishlist);
@@ -22,7 +26,7 @@ public class WishlistServiceImpl implements WishlistService {
 
     @Override
     public List<Wishlist> getAllWishList() {
-        return wishListRepo.findAll();
+        return wishListRepo.findByUsers_UserId(loginUtil.getCurrentUserId());
     }
 
     @Override

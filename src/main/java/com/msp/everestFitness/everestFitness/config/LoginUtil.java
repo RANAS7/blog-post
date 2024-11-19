@@ -40,7 +40,7 @@ public class LoginUtil {
         String username = getCurrentUserUsername(); // Get the username from UserDetails
         if (username != null) {
             Users user = (Users) usersRepo.findByEmail(username)
-                    .orElseThrow(()-> new ResourceNotFoundException("User not found with the email: "+username)); // Query the database by username/email
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found with the email: " + username)); // Query the database by username/email
             if (user != null) {
                 return user.getUserId();
             }

@@ -1,5 +1,6 @@
 package com.msp.everestFitness.everestFitness.service.impl;
 
+import com.msp.everestFitness.everestFitness.config.LoginUtil;
 import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
 import com.msp.everestFitness.everestFitness.model.Users;
 import com.msp.everestFitness.everestFitness.repository.UsersRepo;
@@ -20,6 +21,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private LoginUtil loginUtil;
+
     @Override
     public void registerUser(Users users) {
         if (users.getPassword() == null) {
@@ -30,8 +34,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void changePassword(UUID userId, String oldPassword, String newPassword, String confirmPassword) {
-        Users user = usersRepo.findById(userId)
+    public void changePassword(String oldPassword, String newPassword, String confirmPassword) {
+        Users user = usersRepo.findById(loginUtil.getCurrentUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {

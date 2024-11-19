@@ -71,7 +71,7 @@ public class PaymentController {
             productsRepo.save(products);
         }
 
-        System.out.println("User Email is: "+orders.getShippingInfo().getUsers().getEmail());
+        System.out.println("User Email is: " + orders.getShippingInfo().getUsers().getEmail());
 
         mailUtils.sendOrderConfirmationMail(orders.getShippingInfo().getUsers().getEmail(), orders);
 

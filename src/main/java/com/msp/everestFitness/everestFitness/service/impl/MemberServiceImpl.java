@@ -1,6 +1,7 @@
 
 package com.msp.everestFitness.everestFitness.service.impl;
 
+import com.msp.everestFitness.everestFitness.config.LoginUtil;
 import com.msp.everestFitness.everestFitness.enumrated.UserType;
 import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
 import com.msp.everestFitness.everestFitness.model.Members;
@@ -22,11 +23,14 @@ public class MemberServiceImpl implements MemberService {
     @Autowired
     private UsersRepo usersRepo;
 
+    @Autowired
+    private LoginUtil loginUtil;
+
     @Override
     public void createMember(Members members) {
-        if (members.getMemberId() != null) {
-            Members members1 = membersRepo.findById(members.getMemberId())
-                    .orElseThrow(() -> new ResourceNotFoundException("The member not found with the memberId: " + members.getMemberId()));
+        if (loginUtil.getCurrentUserId() != null) {
+            Members members1 = membersRepo.findById(loginUtil.getCurrentUserId())
+                    .orElseThrow(() -> new ResourceNotFoundException("The member not found with the memberId: " + loginUtil.getCurrentUserId()));
             members1.setAddress(members.getAddress());
             members1.setFirstName(members.getFirstName());
             members1.setLastName(members.getLastName());
@@ -48,6 +52,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public Members getMemberById(UUID memberId) {
-        return membersRepo.findById(memberId).orElseThrow(() -> new ResourceNotFoundException("The member not found with the memberId: " + memberId));
+        return membersRepo.findById(memberId)
+                .orElseThrow(() -> new ResourceNotFoundException("The member not found with the memberId: " + memberId));
     }
 }

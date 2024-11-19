@@ -1,7 +1,5 @@
 package com.msp.everestFitness.everestFitness.dto;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import lombok.Data;
 
 import java.util.List;

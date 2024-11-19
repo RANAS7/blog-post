@@ -8,7 +8,7 @@ import java.util.UUID;
 public interface UserService {
 //    List<Users> getUsers();
     void registerUser(Users users);
-    void changePassword(UUID userId, String oldPassword, String newPassword, String confirmPassword);
+    void changePassword(String oldPassword, String newPassword, String confirmPassword);
     List<Users> getAllUsers();
     Users getUserById(UUID id);
     Users getUserByEmail(String email);

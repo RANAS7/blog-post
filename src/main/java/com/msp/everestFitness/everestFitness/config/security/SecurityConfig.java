@@ -1,6 +1,5 @@
 package com.msp.everestFitness.everestFitness.config.security;
 
-import com.msp.everestFitness.everestFitness.enumrated.UserType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

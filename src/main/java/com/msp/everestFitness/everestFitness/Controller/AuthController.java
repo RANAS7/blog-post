@@ -85,9 +85,9 @@ public class AuthController {
 
         JwtResponse response = JwtResponse.builder()
                 .jwtToken(token)
-                .username(userDetails.getUsername())
-                .userID(user.getUserId())
-                .userType(user.getUserType().name())
+//                .username(userDetails.getUsername())
+//                .userID(user.getUserId())
+//                .userType(user.getUserType().name())
                 .build();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -157,20 +157,14 @@ public class AuthController {
         modelAndView.setViewName("email-verification-success");
         return modelAndView;
     }
-//    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
-//        emailVerificationService.verifyEmail(token);
-//        return new ResponseEntity<>("Email verified successfully", HttpStatus.OK);
-
-
-//    }
 
 
     @PostMapping("/password/change")
-    public ResponseEntity<?> changePassword(@RequestParam UUID userId,
-                                            @RequestParam String oldPassword,
-                                            @RequestParam String newPassword,
-                                            @RequestParam String confirmPassword) {
-        userService.changePassword(userId, oldPassword, newPassword, confirmPassword);
+    public ResponseEntity<?> changePassword(
+            @RequestPart String oldPassword,
+            @RequestPart String newPassword,
+            @RequestPart String confirmPassword) {
+        userService.changePassword(oldPassword, newPassword, confirmPassword);
         return new ResponseEntity<>("Password changed successfully", HttpStatus.OK);
     }
 

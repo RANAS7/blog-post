@@ -120,7 +120,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductWithImagesDto getProductByIdWithImages(UUID productId) {
-        Products product = productsRepo.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product with ID " + productId + " was not found."));
+        Products product = productsRepo.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product with ID " + productId + " was not found."));
 
         List<String> imageUrls = productsImagesRepo.findByProduct_ProductId(productId)
                 .stream()
