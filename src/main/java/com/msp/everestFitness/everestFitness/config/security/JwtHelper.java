@@ -1,9 +1,13 @@
 package com.msp.everestFitness.everestFitness.config.security;
 
+import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
+import com.msp.everestFitness.everestFitness.model.Users;
+import com.msp.everestFitness.everestFitness.repository.UsersRepo;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -21,6 +25,9 @@ public class JwtHelper {
 
     @Value("${JWT_SECRET_KEY}")
     private String secret;  // Secret key
+
+    @Autowired
+    private UsersRepo usersRepo;
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes());  // Generate signing key from secret
@@ -59,7 +66,14 @@ public class JwtHelper {
 
     // Generate a token for the user
     public String generateToken(UserDetails userDetails) {
+        // Retrieve user by username (email in this case)
+        Users users = (Users) usersRepo.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with the username: " + userDetails.getUsername()));
+
+
+        // Create claims map with the user role
         Map<String, Object> claims = new HashMap<>();
+        claims.put("role", users.getUserType());  // Use "role" instead of "Role" for consistency
         return doGenerateToken(claims, userDetails.getUsername());
     }
 
