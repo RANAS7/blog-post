@@ -38,14 +38,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Authorization
         String requestHeader = request.getHeader("Authorization");
+
         String username = null;
         String token = null;
 
         String requestUri = request.getRequestURI();
 
-        if (requestHeader != null && requestHeader.startsWith("Bearer"))
-        {
+        if (requestHeader != null && requestHeader.startsWith("Bearer")) {
             token = requestHeader.substring(7);
+
+            System.out.println("Token is: " + token);
             try {
                 username = this.jwtHelper.getUsernameFromToken(token);
             } catch (ExpiredJwtException ex) {
@@ -61,8 +63,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 logger.info("An unexpected error occurred.", ex);
                 throw new RuntimeException("An unexpected error occurred. Please try again later.");
             }
-        }
-        else{
+        } else {
             // Log and throw the invalid header value exception only if the path requires authentication
             logger.info("The Request URI is permitted without authentication: " + requestUri);
 

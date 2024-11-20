@@ -68,6 +68,8 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/webjars/**").permitAll()  //access Allowed without login
 
+                        .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
+
                         // Endpoints that do not require authentication only for get method
                         .requestMatchers(HttpMethod.GET, "/api/subcategory/",
                                 "/api/subcategory/by-category",
@@ -111,18 +113,6 @@ public class SecurityConfig {
 
         // Build the security filter chain
         return http.build();
-    }
-
-
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "HEAD", "POST", "PUT", "DELETE"));
-        configuration.setAllowedHeaders(List.of("*"));
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 
 //    @Bean
