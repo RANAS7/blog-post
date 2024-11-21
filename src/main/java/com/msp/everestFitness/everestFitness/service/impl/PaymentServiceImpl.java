@@ -58,6 +58,10 @@ public class PaymentServiceImpl implements PaymentService {
     @Autowired
     private CartItemRepo cartItemRepo;
 
+    @Autowired
+    private ShippingInfoRepo shippingInfoRepo;
+
+
     @Override
     public PaymentResponse createPaymentLink(Orders savedOrder) throws StripeException {
         Stripe.apiKey = stripeSecretKey;
@@ -183,18 +187,15 @@ public class PaymentServiceImpl implements PaymentService {
             }
         }
 
-        // Send order confirmation email
-        String userEmail = orders.getShippingInfo().getUsers().getEmail();
-        if (userEmail != null) {
-            try {
-                mailUtils.sendOrderConfirmationMail(userEmail, orders);
-            } catch (MessagingException | IOException e) {
-                System.err.println("Failed to send order confirmation email to: " + userEmail);
-                e.printStackTrace();
-            }
-        } else {
-            System.err.println("Email not found for user associated with order ID: " + orderId);
-        }
+        ShippingInfo shippingInfo = shippingInfoRepo.findById(orders.getShippingInfo().getShippingId())
+                .orElseThrow(() -> new ResourceNotFoundException("Shipping info not found with the id: " + orders.getShippingInfo().getShippingId()));
+
+        Users users = usersRepo.findById(shippingInfo.getUsers().getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with the id: " + shippingInfo.getUsers().getUserId()));
+
+
+        mailUtils.sendOrderConfirmationMail(users.getEmail(), orders);
+
     }
 
 }

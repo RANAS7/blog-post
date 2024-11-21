@@ -14,5 +14,5 @@ public interface CartRepo extends JpaRepository<Carts, UUID> {
     @Query(value = "SELECT * FROM carts WHERE user_id = :userId AND is_active = :isActive", nativeQuery = true)
     Optional<Carts> findByUserIdAndIsActive(@Param("userId") UUID userId, @Param("isActive") boolean isActive);
 
-    Carts findByUsers_UserId(UUID users);
+    Optional<Carts> findByUsers_UserId(UUID users);
 }

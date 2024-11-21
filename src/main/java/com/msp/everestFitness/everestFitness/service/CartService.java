@@ -14,11 +14,5 @@ public interface CartService {
 
     void removeItemFromCart(UUID cartItemId);
 
-    Carts getCartByUserId(UUID userId);
-
-    Carts getOrCreateCart(UUID userId);
-
-    Carts createNewCart(UUID userId);
-
     void clearCart(UUID userId);
 }

@@ -2,6 +2,7 @@ package com.msp.everestFitness.everestFitness.service.impl;
 
 import com.msp.everestFitness.everestFitness.dto.CartItemDto;
 import com.msp.everestFitness.everestFitness.dto.UpdateCartItemDto;
+import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
 import com.msp.everestFitness.everestFitness.model.CartItems;
 import com.msp.everestFitness.everestFitness.model.Carts;
 import com.msp.everestFitness.everestFitness.repository.CartItemRepo;
@@ -26,7 +27,13 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartItems addItemToCart(CartItemDto cartItemDto) {
-        Carts cart = cartRepo.findByUsers_UserId(cartItemDto.getUsers().getUserId());
+        Carts cart = cartRepo.findByUsers_UserId(cartItemDto.getUsers().getUserId())
+                .orElseGet(() -> {
+                    Carts carts = new Carts();
+                    carts.setUsers(cartItemDto.getUsers());
+                    return cartRepo.save(carts);
+                });
+
         List<CartItems> existingItem = cartItemRepo.findByCartAndProduct(cart.getCartId(), cartItemDto.getProducts().getProductId());
 
         CartItems cartItem;
@@ -56,28 +63,11 @@ public class CartServiceImpl implements CartService {
         cartItemRepo.delete(cartItem);
     }
 
-    @Override
-    public Carts getCartByUserId(UUID userId) {
-        return cartRepo.findByUserIdAndIsActive(userId, true)
-                .orElseGet(() -> createNewCart(userId));
-    }
-
-    @Override
-    public Carts getOrCreateCart(UUID userId) {
-        return cartRepo.findByUserIdAndIsActive(userId, true).orElseGet(() -> createNewCart(userId));
-    }
-
-    @Override
-    public Carts createNewCart(UUID userId) {
-
-        Carts cart = cartRepo.findByUsers_UserId(userId);
-        cart.setUsers(cart.getUsers());
-        return cartRepo.save(cart);
-    }
 
     @Override
     public void clearCart(UUID userId) {
-        Carts carts = cartRepo.findByUsers_UserId(userId);
+        Carts carts = cartRepo.findByUsers_UserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found associated with the user id: " + userId));
 
         List<CartItems> cartItemsList = cartItemRepo.findByCarts_cartId(carts.getCartId());
         for (CartItems items : cartItemsList) {
