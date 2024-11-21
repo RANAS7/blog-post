@@ -41,7 +41,7 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
 
         emailVerificationRepogitory.save(emailVerificationToken);
 
-        mailUtils.sendEmailVerificationMail(email, emailVerificationToken.getToken(), users.getName());
+        mailUtils.sendEmailVerificationMail(email, emailVerificationToken.getToken(), users.getFirstName()+" "+users.getLastName());
     }
 
     @Override

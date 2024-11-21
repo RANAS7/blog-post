@@ -44,14 +44,17 @@ public class ShippingInfo {
     private AddressType addressType;
 
     @Column(columnDefinition = "Timestamp default current_timestamp", updatable = false)
-    private Timestamp createdAt=Timestamp.from(Instant.now());
+    private Timestamp createdAt = Timestamp.from(Instant.now());
 
     @Column(insertable = false, columnDefinition = "Timestamp default current_timestamp")
-    private Timestamp updatedAt= Timestamp.from(Instant.now());
+    private Timestamp updatedAt = Timestamp.from(Instant.now());
 
     @Transient
     private String email;
 
     @Transient
-    private String name;
+    private String firstName;
+
+    @Transient
+    private String lastName;
 }

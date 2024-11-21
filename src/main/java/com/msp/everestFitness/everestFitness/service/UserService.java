@@ -12,7 +12,9 @@ public interface UserService {
     List<Users> getAllUsers();
     Users getUserById(UUID id);
     Users getUserByEmail(String email);
-    Users getUserByName(String name);
-    List<Users> searchUsers(String name, String email);
+//    Users getUserByName(String name);
+
+    List<Users> searchUsers(String fName, String lName, String email);
+
     Users getByUserType(String userType);
 }

@@ -45,7 +45,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         passwordResetTokenRepository.save(passwordResetToken);
 
 
-        mailUtils.sendPasswordResetEmail(email, passwordResetToken.getToken(), users.getName());
+        mailUtils.sendPasswordResetEmail(email, passwordResetToken.getToken(), users.getFirstName()+" "+users.getLastName());
     }
 
     @Override

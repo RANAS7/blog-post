@@ -12,7 +12,7 @@ import java.util.UUID;
 public class CartItemDto {
     private Products products;
     private Users users;
-    private int quantity;
+    private Long quantity;
     private BigDecimal price;
 }
 

@@ -155,7 +155,7 @@ public class MailUtils {
 
         // Inject the dynamic order items and other placeholders into the template
         htmlContent = htmlContent.replace("${orderItemsHtml}", orderItemsHtml.toString())
-                .replace("${customerName}", savedOrder.getShippingInfo().getUsers().getName())  // Correct method for customer name
+                .replace("${customerName}", savedOrder.getShippingInfo().getUsers().getFirstName() + " " + savedOrder.getShippingInfo().getUsers().getLastName())  // Correct method for customer name
                 .replace("${orderId}", savedOrder.getOrderId().toString())
                 .replace("${orderDate}", savedOrder.getOrderDate().toString())
                 .replace("${deliveryDate}", estimatedDeliveryDate) // Adjust delivery date if needed

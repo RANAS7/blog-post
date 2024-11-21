@@ -1,7 +1,6 @@
 package com.msp.everestFitness.everestFitness.Controller;
 
 import com.msp.everestFitness.everestFitness.dto.CartItemDto;
-import com.msp.everestFitness.everestFitness.dto.UpdateCartItemDto;
 import com.msp.everestFitness.everestFitness.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,9 +22,9 @@ public class CartController {
         return new ResponseEntity<>(cartService.addItemToCart(cartItemDto), HttpStatus.OK);
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<?> updateCartItem(@RequestParam UUID cartItemId, @RequestAttribute UpdateCartItemDto updateDto) {
-        return new ResponseEntity<>(cartService.updateCartItem(cartItemId, updateDto), HttpStatus.OK);
+    @PostMapping("/update")
+    public ResponseEntity<?> updateCartItem(@RequestPart UUID cartItemId, @RequestPart Long quantity) {
+        return new ResponseEntity<>(cartService.updateCartItem(cartItemId, quantity), HttpStatus.OK);
     }
 
     @DeleteMapping("/remove")
@@ -35,7 +34,13 @@ public class CartController {
     }
 
     @GetMapping("/")
-    public ResponseEntity<?> getUserCart(@RequestParam UUID userId) {
-        return new ResponseEntity<>(cartService.getCartByUserId(userId), HttpStatus.OK);
+    public ResponseEntity<?> getUserCart() {
+        return new ResponseEntity<>(cartService.getCartByUserId(), HttpStatus.OK);
+    }
+
+    @PostMapping("/clear")
+    public ResponseEntity<?> clearCart() {
+        cartService.clearCart();
+        return new ResponseEntity<>("Cart have been cleared", HttpStatus.OK);
     }
 }

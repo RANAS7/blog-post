@@ -181,16 +181,17 @@ public class AuthController {
         return new ResponseEntity<>(userService.getUserByEmail(email), HttpStatus.OK);
     }
 
-    @GetMapping("/user/by-name")
-    public ResponseEntity<?> getUserByName(@RequestParam String name) {
-        return new ResponseEntity<>(userService.getUserByName(name), HttpStatus.OK);
-    }
+//    @GetMapping("/user/by-name")
+//    public ResponseEntity<?> getUserByName(@RequestParam String name) {
+//        return new ResponseEntity<>(userService.getUserByName(name), HttpStatus.OK);
+//    }
 
     @GetMapping("/users/search")
     public ResponseEntity<List<Users>> searchUsers(
-            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String fName,
+            @RequestParam(required = false) String lName,
             @RequestParam(required = false) String email) {
-        return new ResponseEntity<>(userService.searchUsers(name, email), HttpStatus.OK);
+        return new ResponseEntity<>(userService.searchUsers(fName, lName, email), HttpStatus.OK);
     }
 
     @GetMapping("/users/type")

@@ -22,7 +22,7 @@ public class CartItems {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Products product;
-    private int quantity;
+    private Long quantity;
     private BigDecimal price;
 
     @Column(updatable = false, columnDefinition = "Timestamp default current_timestamp")

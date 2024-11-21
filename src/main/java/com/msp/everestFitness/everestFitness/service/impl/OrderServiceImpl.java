@@ -202,7 +202,8 @@ public class OrderServiceImpl implements OrderService {
                 .orElseGet(() -> {
                     Users newUser = new Users();
                     newUser.setEmail(guestShippingInfo.getEmail());
-                    newUser.setName(guestShippingInfo.getName());
+                    newUser.setFirstName(guestShippingInfo.getFirstName());
+                    newUser.setLastName(guestShippingInfo.getLastName());
                     newUser.setUserType(UserType.GUEST);
                     return usersRepo.save(newUser);
                 });

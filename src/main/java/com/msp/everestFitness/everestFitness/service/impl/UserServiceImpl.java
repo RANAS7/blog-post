@@ -67,15 +67,15 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("The user is not found with the email: " + email));
     }
 
-    @Override
-    public Users getUserByName(String name) {
-        return usersRepo.findByName(name);
-    }
+//    @Override
+//    public Users getUserByName(String name) {
+//        return usersRepo.findByName(name);
+//    }
 
     @Override
-    public List<Users> searchUsers(String name, String email) {
-        if (name != null && !name.isEmpty()) {
-            return usersRepo.findByNameContainingIgnoreCase(name);
+    public List<Users> searchUsers(String fName, String lName, String email) {
+        if (fName != null || lName != null) {
+            return usersRepo.findByFirstNameAndLastName(fName, lName);
         } else if (email != null && !email.isEmpty()) {
             return usersRepo.findByEmailIgnoreCase(email);
         } else {
