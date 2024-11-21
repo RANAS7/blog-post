@@ -54,6 +54,9 @@ public class SecurityConfig {
                                 "/api/auth/google/**",
                                 "/error",
                                 "/api/order/guest",
+                                "/api/subcategory/by-category",
+
+
 
                                 // OpenAPI 3.x (Swagger UI v3)
                                 "/v3/api-docs/**",
@@ -72,7 +75,6 @@ public class SecurityConfig {
 
                         // Endpoints that do not require authentication only for get method
                         .requestMatchers(HttpMethod.GET, "/api/subcategory/",
-                                "/api/subcategory/by-category",
                                 "/api/category/",
                                 "/api/shipping/info/",
                                 "/api/product/",
