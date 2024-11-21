@@ -71,9 +71,11 @@ public class OrderServiceImpl implements OrderService {
 
         for (OrderItems items : orders.getOrderItems()) {
 
+            // Fetch the product associated with the order item
             Products products = productsRepo.findById(items.getProducts().getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Product not found with th ID"));
 
+            // Check if the requested quantity is available
             if (items.getQuantity() > products.getStock()) {
                 throw new IllegalArgumentException("Insufficient stock for product name: "
                         + products.getName() + ". Requested: "
@@ -182,9 +184,11 @@ public class OrderServiceImpl implements OrderService {
 
         for (OrderItems items : orders.getOrderItems()) {
 
+            // Fetch the product associated with the order item
             Products products = productsRepo.findById(items.getProducts().getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Product not found with th ID"));
 
+            // Check if the requested quantity is available
             if (items.getQuantity() > products.getStock()) {
                 throw new IllegalArgumentException("Insufficient stock for product name: "
                         + products.getName() + ". Requested: "
