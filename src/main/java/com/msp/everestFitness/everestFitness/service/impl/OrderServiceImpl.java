@@ -68,6 +68,21 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public PaymentResponse createOrder(Orders orders)
             throws ResourceNotFoundException, IOException, MessagingException, StripeException {
+
+        for (OrderItems items : orders.getOrderItems()) {
+
+            Products products = productsRepo.findById(items.getProducts().getProductId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Product not found with th ID"));
+
+            if (items.getQuantity() > products.getStock()) {
+                throw new IllegalArgumentException("Insufficient stock for product name: "
+                        + products.getName() + ". Requested: "
+                        + items.getQuantity() + ", Available: "
+                        + products.getStock());
+
+            }
+        }
+
         // Fetch ShippingInfo
         ShippingInfo shippingInfo = shippingInfoRepo.findById(orders.getShippingInfo().getShippingId())
                 .orElseThrow(() -> new ResourceNotFoundException("ShippingInfo not found with the id: " + orders.getShippingInfo().getShippingId()));
@@ -164,6 +179,20 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public PaymentResponse createGuestOrder(Orders orders, ShippingInfo guestShippingInfo)
             throws ResourceNotFoundException, IOException, MessagingException, StripeException {
+
+        for (OrderItems items : orders.getOrderItems()) {
+
+            Products products = productsRepo.findById(items.getProducts().getProductId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Product not found with th ID"));
+
+            if (items.getQuantity() > products.getStock()) {
+                throw new IllegalArgumentException("Insufficient stock for product name: "
+                        + products.getName() + ". Requested: "
+                        + items.getQuantity() + ", Available: "
+                        + products.getStock());
+
+            }
+        }
 
         Users users = (Users) usersRepo.findByEmail(guestShippingInfo.getEmail())
                 .orElseGet(() -> {
