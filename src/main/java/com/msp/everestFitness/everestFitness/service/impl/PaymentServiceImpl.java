@@ -179,7 +179,8 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         // Clear user cart
-        Carts carts = cartRepo.findByUsers_UserId(orders.getShippingInfo().getUsers().getUserId());
+        Carts carts = cartRepo.findByUsers_UserId(orders.getShippingInfo().getUsers().getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found associated witht the user id: " + orders.getShippingInfo().getUsers().getUserId()));
         if (carts != null) {
             List<CartItems> cartItemsList = cartItemRepo.findByCarts_cartId(carts.getCartId());
             for (CartItems item : cartItemsList) {

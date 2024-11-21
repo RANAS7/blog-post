@@ -34,6 +34,7 @@ public class CartServiceImpl implements CartService {
                     return cartRepo.save(carts);
                 });
 
+
         List<CartItems> existingItem = cartItemRepo.findByCartAndProduct(cart.getCartId(), cartItemDto.getProducts().getProductId());
 
         CartItems cartItem;
@@ -61,6 +62,13 @@ public class CartServiceImpl implements CartService {
     public void removeItemFromCart(UUID cartItemId) {
         CartItems cartItem = cartItemRepo.findById(cartItemId).orElseThrow(() -> new IllegalStateException("Item not found"));
         cartItemRepo.delete(cartItem);
+    }
+
+    @Override
+    public Carts getCartByUserId(UUID userId) {
+        return cartRepo.findByUserIdAndIsActive(userId, true)
+                .orElseGet(() -> cartRepo.findByUsers_UserId(userId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Cart not found associated with the user id: " + userId)));
     }
 
 
