@@ -8,6 +8,7 @@ import com.msp.everestFitness.everestFitness.model.*;
 import com.msp.everestFitness.everestFitness.repository.*;
 import com.msp.everestFitness.everestFitness.service.CartService;
 import com.msp.everestFitness.everestFitness.service.OrderService;
+import com.msp.everestFitness.everestFitness.service.PaymentService;
 import com.msp.everestFitness.everestFitness.utils.MailUtils;
 import com.stripe.exception.StripeException;
 import jakarta.mail.MessagingException;
@@ -24,59 +25,14 @@ import java.util.UUID;
 public class PaymentController {
 
     @Autowired
-    private OrderService orderService;
-
-    @Autowired
-    private PaymentsRepo paymentsRepo;
-
-    @Autowired
-    private MailUtils mailUtils;
-
-    @Autowired
-    private OrdersRepo ordersRepo;
-
-    @Autowired
-    private CartService cartService;
-
-    @Autowired
-    private OrderItemsRepo orderItemsRepo;
-
-    @Autowired
-    private ProductsRepo productsRepo;
+    private PaymentService paymentService;
 
 
     // Success URL handler for Stripe
     @GetMapping("/success")
     public ModelAndView handlePaymentSuccess(@RequestParam UUID orderId) throws ResourceNotFoundException, StripeException, MessagingException, IOException {
-        String paymentMethod = PaymentMethod.STRIPE.name();
 
-        Payments payments = paymentsRepo.findByOrders_orderId(orderId);
-        if (payments == null) {
-            throw new ResourceNotFoundException("Payment record not found for order ID: " + orderId);
-        }
-
-        payments.setPaymentStatus(PaymentStatus.PAID);
-        paymentsRepo.save(payments);
-
-        Orders orders = ordersRepo.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found with the Id"));
-        orders.setOrderStatus(OrderStatus.COMPLETED);
-        ordersRepo.save(orders);
-
-        List<OrderItems> orderItemsList = orderItemsRepo.findByOrder_OrderId(orders.getOrderId());
-
-        for (OrderItems items : orderItemsList) {
-            Products products = productsRepo.findById(items.getProducts().getProductId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Product not found with the id: " + items.getProducts().getProductId()));
-            products.setStock(products.getStock() - items.getQuantity());
-            productsRepo.save(products);
-        }
-
-        System.out.println("User Email is: " + orders.getShippingInfo().getUsers().getEmail());
-
-        mailUtils.sendOrderConfirmationMail(orders.getShippingInfo().getUsers().getEmail(), orders);
-
-
-//        cartService.clearCart(orders.getShippingInfo().getUsers().getUserId());
+        paymentService.paymentSuccess(orderId);
 
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.addObject("orderId", orderId);
