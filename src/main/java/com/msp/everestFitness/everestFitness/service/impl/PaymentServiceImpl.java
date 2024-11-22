@@ -3,6 +3,7 @@ package com.msp.everestFitness.everestFitness.service.impl;
 import com.msp.everestFitness.everestFitness.dto.PaymentResponse;
 import com.msp.everestFitness.everestFitness.enumrated.OrderStatus;
 import com.msp.everestFitness.everestFitness.enumrated.PaymentStatus;
+import com.msp.everestFitness.everestFitness.enumrated.UserType;
 import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
 import com.msp.everestFitness.everestFitness.model.*;
 import com.msp.everestFitness.everestFitness.repository.*;
@@ -178,22 +179,23 @@ public class PaymentServiceImpl implements PaymentService {
             productsRepo.save(products);
         }
 
-        // Clear user cart
-        Carts carts = cartRepo.findByUsers_UserId(orders.getShippingInfo().getUsers().getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("Cart not found associated witht the user id: " + orders.getShippingInfo().getUsers().getUserId()));
-        if (carts != null) {
-            List<CartItems> cartItemsList = cartItemRepo.findByCarts_cartId(carts.getCartId());
-            for (CartItems item : cartItemsList) {
-                cartItemRepo.deleteById(item.getCartItemId());
+
+        Users users=usersRepo.findById(orders.getShippingInfo().getUsers().getUserId())
+                .orElseThrow(()-> new ResourceNotFoundException("User not found with the id: "+orders.getShippingInfo().getUsers().getUserId()));
+
+        if (users.getUserType().equals(UserType.MEMBER)||users.getUserType().equals(UserType.USER)){
+
+            // Clear user cart
+            Carts carts = cartRepo.findByUsers_UserId(orders.getShippingInfo().getUsers().getUserId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Cart not found associated witht the user id: " + orders.getShippingInfo().getUsers().getUserId()));
+
+            if (carts != null) {
+                List<CartItems> cartItemsList = cartItemRepo.findByCarts_cartId(carts.getCartId());
+                for (CartItems item : cartItemsList) {
+                    cartItemRepo.deleteById(item.getCartItemId());
+                }
             }
         }
-
-        ShippingInfo shippingInfo = shippingInfoRepo.findById(orders.getShippingInfo().getShippingId())
-                .orElseThrow(() -> new ResourceNotFoundException("Shipping info not found with the id: " + orders.getShippingInfo().getShippingId()));
-
-        Users users = usersRepo.findById(shippingInfo.getUsers().getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with the id: " + shippingInfo.getUsers().getUserId()));
-
 
         mailUtils.sendOrderConfirmationMail(users.getEmail(), orders);
 

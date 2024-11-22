@@ -43,5 +43,4 @@ public class Users {
 
     @Column
     private Timestamp updatedAt;
-
 }
