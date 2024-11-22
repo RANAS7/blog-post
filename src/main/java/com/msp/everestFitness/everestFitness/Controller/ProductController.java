@@ -1,7 +1,6 @@
 package com.msp.everestFitness.everestFitness.Controller;
 
 import com.msp.everestFitness.everestFitness.model.Products;
-import com.msp.everestFitness.everestFitness.model.Subcategory;
 import com.msp.everestFitness.everestFitness.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

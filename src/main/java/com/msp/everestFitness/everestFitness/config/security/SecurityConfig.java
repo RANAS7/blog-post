@@ -8,9 +8,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -78,7 +75,7 @@ public class SecurityConfig {
                                 "/api/delivery/").permitAll() //access Allowed without login only for get method
 
                         // Endpoints that require ADMIN role
-                        .requestMatchers("/api/subcategory/",
+                        .requestMatchers(HttpMethod.POST,"/api/subcategory/",
                                 "/api/subcategory/",
                                 "/api/category/", "/api/product/",
                                 "/api/order-item/").hasRole("ADMIN")  // Only ADMIN can access
@@ -86,8 +83,6 @@ public class SecurityConfig {
                         // Endpoints that require MEMBER or USER role
                         .requestMatchers("/api/shipping/info/", "/api/order/").hasAnyRole("MEMBER", "USER", "GUEST")  // Only MEMBER, GUEST, and USER can access
 
-                        // Endpoints that require authentication
-                        .requestMatchers("/test").authenticated()        // Require authentication for this endpoint
                         .anyRequest().authenticated()                    // Require authentication for all other requests
                 )
 
