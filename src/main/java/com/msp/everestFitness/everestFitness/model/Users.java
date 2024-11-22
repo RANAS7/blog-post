@@ -38,10 +38,10 @@ public class Users {
     @Enumerated(EnumType.STRING)
     private UserType userType = UserType.USER;
 
-    @Column(columnDefinition = "Timestamp default current_timestamp", updatable = false)
+    @Column
     private Timestamp createdAt;
 
-    @Column(insertable = false, columnDefinition = "Timestamp default current_timestamp")
+    @Column
     private Timestamp updatedAt;
 
 }

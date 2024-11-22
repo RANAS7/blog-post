@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,6 +31,7 @@ public class UserServiceImpl implements UserService {
         if (users.getPassword() == null) {
             throw new IllegalArgumentException("Password required");
         }
+        users.setCreatedAt(Timestamp.from(Instant.now()));
         users.setPassword(passwordEncoder.encode(users.getPassword()));
         usersRepo.save(users);
     }

@@ -39,7 +39,7 @@ public class ShippingInfo {
     @Column(nullable = false)
     private String country;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     @Enumerated(EnumType.STRING)
     private AddressType addressType;
 
