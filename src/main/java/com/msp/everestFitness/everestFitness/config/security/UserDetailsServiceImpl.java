@@ -13,7 +13,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 @Configuration
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -22,23 +21,23 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Users user = (Users) usersRepo.findByEmail(email)
-                .orElseThrow(()-> new UsernameNotFoundException("Email not found with email: "+email));
+        Users users = usersRepo.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Email not found with email: " + email));
 
         return User.builder()
-                .username(user.getEmail())
-                .password(user.getPassword())
-                .roles(user.getUserType().name())
+                .username(users.getEmail())
+                .password(users.getPassword())
+                .roles(users.getUserType().name())
                 .build();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration builder) throws Exception{
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration builder) throws Exception {
         return builder.getAuthenticationManager();
     }
 }

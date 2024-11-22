@@ -17,7 +17,7 @@ public class DeliveryOptController {
     private DeliveryOptService deliveryOptService;
 
 
-    @PostMapping
+    @PostMapping("/")
     public ResponseEntity<?> createDeliveryOption(@RequestBody DeliveryOpt deliveryOpt) {
         deliveryOptService.createDeliveryOption(deliveryOpt);
         return new ResponseEntity<>("Delivery option created successfully", HttpStatus.CREATED);

@@ -13,12 +13,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -57,7 +52,6 @@ public class SecurityConfig {
                                 "/api/subcategory/by-category",
 
 
-
                                 // OpenAPI 3.x (Swagger UI v3)
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
@@ -71,7 +65,7 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/webjars/**").permitAll()  //access Allowed without login
 
-                        .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // Endpoints that do not require authentication only for get method
                         .requestMatchers(HttpMethod.GET, "/api/subcategory/",
@@ -80,7 +74,8 @@ public class SecurityConfig {
                                 "/api/product/",
                                 "/api/product-ratings/",
                                 "/api/payment/success",
-                                "/api/payment/failed").permitAll() //access Allowed without login only for get method
+                                "/api/payment/failed",
+                                "/api/delivery/").permitAll() //access Allowed without login only for get method
 
                         // Endpoints that require ADMIN role
                         .requestMatchers("/api/subcategory/",
@@ -95,11 +90,13 @@ public class SecurityConfig {
                         .requestMatchers("/test").authenticated()        // Require authentication for this endpoint
                         .anyRequest().authenticated()                    // Require authentication for all other requests
                 )
-                // OAuth2 login configuration for Google
+
 //                .oauth2Login(oauth2 -> oauth2
-//                        .loginPage("/api/auth/google") // Optional: Define a custom Google login page
-//                        .defaultSuccessUrl("/api/auth/google-success", true)
+//                        .loginPage("/api/auth/google") // Optional custom login page
+//                        .defaultSuccessUrl("/api/auth/google/success", true)
+//                        .failureUrl("/api/auth/google/failure")
 //                )
+
                 // Exception handling configuration
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(point)  // Use custom entry point for unauthorized access

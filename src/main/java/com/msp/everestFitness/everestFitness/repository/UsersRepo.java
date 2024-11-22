@@ -12,8 +12,8 @@ import java.util.UUID;
 
 @Repository
 public interface UsersRepo extends JpaRepository<Users, UUID> {
-    Optional<Object> findByEmail(String email);
-//    Users findByFirstName(String name);
+
+    Optional<Users> findByEmail(String email);
 
     // Custom query to find users by first and last name, allowing both to be null
     @Query("SELECT u FROM Users u WHERE " +
