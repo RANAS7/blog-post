@@ -26,7 +26,7 @@ public class CartItems {
     private BigDecimal price;
 
     @Column(updatable = false, columnDefinition = "Timestamp default current_timestamp")
-    private Timestamp createdAt=Timestamp.from(Instant.now());
+    private Timestamp createdAt;
     @Column(insertable = false, columnDefinition = "Timestamp default current_timestamp")
-    private Timestamp updatedAt=Timestamp.from(Instant.now());
+    private Timestamp updatedAt;
 }

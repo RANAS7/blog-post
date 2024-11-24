@@ -2,19 +2,15 @@ package com.msp.everestFitness.everestFitness.service.impl;
 
 import com.msp.everestFitness.everestFitness.config.LoginUtil;
 import com.msp.everestFitness.everestFitness.dto.CartItemDto;
+import com.msp.everestFitness.everestFitness.dto.CartWithCartItems;
 import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
-import com.msp.everestFitness.everestFitness.model.CartItems;
-import com.msp.everestFitness.everestFitness.model.Carts;
-import com.msp.everestFitness.everestFitness.model.Products;
-import com.msp.everestFitness.everestFitness.model.Users;
-import com.msp.everestFitness.everestFitness.repository.CartItemRepo;
-import com.msp.everestFitness.everestFitness.repository.CartRepo;
-import com.msp.everestFitness.everestFitness.repository.ProductsRepo;
-import com.msp.everestFitness.everestFitness.repository.UsersRepo;
+import com.msp.everestFitness.everestFitness.model.*;
+import com.msp.everestFitness.everestFitness.repository.*;
 import com.msp.everestFitness.everestFitness.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,6 +31,9 @@ public class CartServiceImpl implements CartService {
 
     @Autowired
     private UsersRepo usersRepo;
+
+    @Autowired
+    private ProductsImagesRepo productsImagesRepo;
 
     @Override
     public CartItems addItemToCart(CartItemDto cartItemDto) {
@@ -102,10 +101,48 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public Carts getCartByUserId() {
-        return cartRepo.findByUsers_UserId(loginUtil.getCurrentUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("Cart not found associated with the user id: " + loginUtil.getCurrentUserId()));
+    public CartWithCartItems getCartByUserId() {
+        // Retrieve the current user's cart or throw an exception if not found
+        Carts carts = cartRepo.findByUsers_UserId(loginUtil.getCurrentUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found for user ID: " + loginUtil.getCurrentUserId()));
+
+        // Retrieve the list of cart items for the cart
+        List<CartItems> itemsList = cartItemRepo.findByCarts_cartId(carts.getCartId());
+
+        // Prepare the DTO
+        CartWithCartItems cartWithCartItems = new CartWithCartItems();
+        cartWithCartItems.setCartId(carts.getCartId());
+
+        // Populate the lists in the DTO
+        List<Long> quantities = itemsList.stream()
+                .map(CartItems::getQuantity)
+                .toList();
+
+        List<BigDecimal> prices = itemsList.stream()
+                .map(CartItems::getPrice)
+                .toList();
+
+        List<String> names = itemsList.stream()
+                .map(item -> item.getProduct().getName())
+                .toList();
+
+        List<String> imageUrls = itemsList.stream()
+                .map(item -> productsImagesRepo.findByProduct_ProductId(item.getProduct().getProductId()).stream()
+                        .findFirst() // Get the first image (if available)
+                        .map(ProductImages::getImageUrl)
+                        .orElse(null)) // Fallback to null if no image is found
+                .toList();
+
+
+        cartWithCartItems.setQuantities(quantities);
+        cartWithCartItems.setPrices(prices);
+        cartWithCartItems.setNames(names);
+        cartWithCartItems.setImageUrls(imageUrls);
+
+        return cartWithCartItems;
     }
+
+
 
 
     @Override
