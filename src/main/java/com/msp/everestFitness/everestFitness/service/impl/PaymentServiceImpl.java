@@ -194,6 +194,7 @@ public class PaymentServiceImpl implements PaymentService {
                 for (CartItems item : cartItemsList) {
                     cartItemRepo.deleteById(item.getCartItemId());
                 }
+                cartRepo.deleteById(carts.getCartId());
             }
         }
 
