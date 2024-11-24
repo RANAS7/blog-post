@@ -3,6 +3,7 @@ package com.msp.everestFitness.everestFitness.service.impl;
 import com.msp.everestFitness.everestFitness.config.LoginUtil;
 import com.msp.everestFitness.everestFitness.dto.CartItemDto;
 import com.msp.everestFitness.everestFitness.dto.CartWithCartItemsDto;
+import com.msp.everestFitness.everestFitness.dto.UpdateCartItemQtyDto;
 import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
 import com.msp.everestFitness.everestFitness.model.*;
 import com.msp.everestFitness.everestFitness.repository.*;
@@ -78,22 +79,23 @@ public class CartServiceImpl implements CartService {
 
 
     @Override
-    public CartItems updateCartItem(UUID cartItemId, Long quantity) {
-        CartItems cartItem = cartItemRepo.findById(cartItemId).orElseThrow(() -> new IllegalStateException("Item not found"));
+    public CartItems updateCartItem(UpdateCartItemQtyDto updateCartItemQtyDto) {
+        CartItems existed = cartItemRepo.findById(updateCartItemQtyDto.getItemId())
+                .orElseThrow(() -> new IllegalStateException("Cart Item not found with the item id: " + updateCartItemQtyDto.getItemId()));
 
-        Products products = productsRepo.findById(cartItem.getProduct().getProductId())
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with the Id: " + cartItem.getProduct().getProductId()));
+        Products products = productsRepo.findById(existed.getProduct().getProductId())
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with the Id: " + existed.getProduct().getProductId()));
 
         // Check if the requested quantity is available
-        if (quantity > products.getStock()) {
+        if (updateCartItemQtyDto.getQuantity() > products.getStock()) {
             throw new IllegalArgumentException("Insufficient stock for product name: "
                     + products.getName() + ". Requested: "
-                    + quantity + ", Available: "
+                    + updateCartItemQtyDto.getQuantity() + ", Available: "
                     + products.getStock());
         }
 
-        cartItem.setQuantity(quantity);
-        return cartItemRepo.save(cartItem);
+        existed.setQuantity(updateCartItemQtyDto.getQuantity());
+        return cartItemRepo.save(existed);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.msp.everestFitness.everestFitness.Controller;
 
 import com.msp.everestFitness.everestFitness.dto.CartItemDto;
+import com.msp.everestFitness.everestFitness.dto.UpdateCartItemQtyDto;
 import com.msp.everestFitness.everestFitness.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,8 +25,9 @@ public class CartController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<?> updateCartItem(@RequestParam UUID cartItemId, @RequestParam Long quantity) {
-        return new ResponseEntity<>(cartService.updateCartItem(cartItemId, quantity), HttpStatus.OK);
+    public ResponseEntity<?> updateCartItem(@RequestBody UpdateCartItemQtyDto updateCartItem) {
+        cartService.updateCartItem(updateCartItem);
+        return new ResponseEntity<>("Item quantity updated successfully", HttpStatus.OK);
     }
 
     @DeleteMapping("/remove")
