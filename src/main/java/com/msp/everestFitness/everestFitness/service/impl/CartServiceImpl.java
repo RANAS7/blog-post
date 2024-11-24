@@ -34,7 +34,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartItems addItemToCart(CartItemDto cartItemDto) {
-        Carts cart = cartRepo.findByUsers_UserId(cartItemDto.getUsers().getUserId())
+        Carts cart = cartRepo.findByUsers_UserId(loginUtil.getCurrentUserId())
                 .orElseGet(() -> {
                     Carts carts = new Carts();
                     carts.setUsers(cartItemDto.getUsers());

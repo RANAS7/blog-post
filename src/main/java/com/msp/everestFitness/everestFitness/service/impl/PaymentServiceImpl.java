@@ -199,7 +199,6 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         mailUtils.sendOrderConfirmationMail(users.getEmail(), orders);
-
     }
 
 }
