@@ -24,7 +24,7 @@ public class CartController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<?> updateCartItem(@RequestPart UUID cartItemId, @RequestPart Long quantity) {
+    public ResponseEntity<?> updateCartItem(@RequestParam UUID cartItemId, @RequestParam Long quantity) {
         return new ResponseEntity<>(cartService.updateCartItem(cartItemId, quantity), HttpStatus.OK);
     }
 
