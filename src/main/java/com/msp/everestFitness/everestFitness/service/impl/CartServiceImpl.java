@@ -38,31 +38,43 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartItems addItemToCart(CartItemDto cartItemDto) {
+
+        // Fetch the user and throw an exception if not found
         Users users = usersRepo.findById(loginUtil.getCurrentUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with the id"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with the id: " + loginUtil.getCurrentUserId()));
+
+        // Fetch the cart for the user or create a new one if it doesn't exist
         Carts cart = cartRepo.findByUsers_UserId(loginUtil.getCurrentUserId())
                 .orElseGet(() -> {
-                    Carts carts = new Carts();
-                    carts.setUsers(users);
-                    return cartRepo.save(carts);
+                    Carts newCart = new Carts();
+                    newCart.setUsers(users);
+                    return cartRepo.save(newCart);
                 });
 
+        // Log the created or fetched cart ID
+        System.out.println("Cart ID: " + cart.getCartId());
 
-        List<CartItems> existingItem = cartItemRepo.findByCartAndProduct(cart.getCartId(), cartItemDto.getProducts().getProductId());
-
+        // Check if the product already exists in the cart
+        List<CartItems> existingItems = cartItemRepo.findByCartAndProduct(cart.getCartId(), cartItemDto.getProducts().getProductId());
         CartItems cartItem;
-        if (existingItem != null) {
-            cartItem = existingItem.getFirst();
+
+        if (!existingItems.isEmpty()) {
+            // Update quantity if item already exists
+            cartItem = existingItems.get(0);
             cartItem.setQuantity(cartItem.getQuantity() + cartItemDto.getQuantity());
         } else {
+            // Create a new cart item
             cartItem = new CartItems();
             cartItem.setCarts(cart);
             cartItem.setProduct(cartItemDto.getProducts());
             cartItem.setQuantity(cartItemDto.getQuantity());
             cartItem.setPrice(cartItemDto.getPrice());
         }
+
+        // Save and return the updated/created cart item
         return cartItemRepo.save(cartItem);
     }
+
 
     @Override
     public CartItems updateCartItem(UUID cartItemId, Long quantity) {
