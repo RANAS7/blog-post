@@ -38,8 +38,8 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartItems addItemToCart(CartItemDto cartItemDto) {
-        Users users= usersRepo.findById(loginUtil.getCurrentUserId())
-                .orElseThrow(()-> new ResourceNotFoundException("User not found with the id"));
+        Users users = usersRepo.findById(loginUtil.getCurrentUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with the id"));
         Carts cart = cartRepo.findByUsers_UserId(loginUtil.getCurrentUserId())
                 .orElseGet(() -> {
                     Carts carts = new Carts();
@@ -77,7 +77,6 @@ public class CartServiceImpl implements CartService {
                     + products.getName() + ". Requested: "
                     + quantity + ", Available: "
                     + products.getStock());
-
         }
 
         cartItem.setQuantity(quantity);
@@ -92,9 +91,8 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Carts getCartByUserId() {
-        return cartRepo.findByUserIdAndIsActive(loginUtil.getCurrentUserId(), true)
-                .orElseGet(() -> cartRepo.findByUsers_UserId(loginUtil.getCurrentUserId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Cart not found associated with the user id: " + loginUtil.getCurrentUserId())));
+        return cartRepo.findByUsers_UserId(loginUtil.getCurrentUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found associated with the user id: " + loginUtil.getCurrentUserId()))git co;
     }
 
 
