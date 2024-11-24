@@ -6,9 +6,11 @@ import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundExceptio
 import com.msp.everestFitness.everestFitness.model.CartItems;
 import com.msp.everestFitness.everestFitness.model.Carts;
 import com.msp.everestFitness.everestFitness.model.Products;
+import com.msp.everestFitness.everestFitness.model.Users;
 import com.msp.everestFitness.everestFitness.repository.CartItemRepo;
 import com.msp.everestFitness.everestFitness.repository.CartRepo;
 import com.msp.everestFitness.everestFitness.repository.ProductsRepo;
+import com.msp.everestFitness.everestFitness.repository.UsersRepo;
 import com.msp.everestFitness.everestFitness.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,13 +33,17 @@ public class CartServiceImpl implements CartService {
     @Autowired
     private ProductsRepo productsRepo;
 
+    @Autowired
+    private UsersRepo usersRepo;
 
     @Override
     public CartItems addItemToCart(CartItemDto cartItemDto) {
+        Users users= usersRepo.findById(loginUtil.getCurrentUserId())
+                .orElseThrow(()-> new ResourceNotFoundException("User not found with the id"));
         Carts cart = cartRepo.findByUsers_UserId(loginUtil.getCurrentUserId())
                 .orElseGet(() -> {
                     Carts carts = new Carts();
-                    carts.setUsers(cartItemDto.getUsers());
+                    carts.setUsers(users);
                     return cartRepo.save(carts);
                 });
 
