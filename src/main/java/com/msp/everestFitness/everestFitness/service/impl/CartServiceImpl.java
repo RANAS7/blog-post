@@ -92,7 +92,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public Carts getCartByUserId() {
         return cartRepo.findByUsers_UserId(loginUtil.getCurrentUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("Cart not found associated with the user id: " + loginUtil.getCurrentUserId()))git co;
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found associated with the user id: " + loginUtil.getCurrentUserId()));
     }
 
 
