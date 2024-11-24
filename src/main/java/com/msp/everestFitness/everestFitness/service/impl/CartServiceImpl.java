@@ -2,7 +2,7 @@ package com.msp.everestFitness.everestFitness.service.impl;
 
 import com.msp.everestFitness.everestFitness.config.LoginUtil;
 import com.msp.everestFitness.everestFitness.dto.CartItemDto;
-import com.msp.everestFitness.everestFitness.dto.CartWithCartItems;
+import com.msp.everestFitness.everestFitness.dto.CartWithCartItemsDto;
 import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
 import com.msp.everestFitness.everestFitness.model.*;
 import com.msp.everestFitness.everestFitness.repository.*;
@@ -10,7 +10,7 @@ import com.msp.everestFitness.everestFitness.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -101,48 +101,38 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public CartWithCartItems getCartByUserId() {
+    public List<CartWithCartItemsDto> getCartByUserId() {
         // Retrieve the current user's cart or throw an exception if not found
         Carts carts = cartRepo.findByUsers_UserId(loginUtil.getCurrentUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found for user ID: " + loginUtil.getCurrentUserId()));
 
         // Retrieve the list of cart items for the cart
-        List<CartItems> itemsList = cartItemRepo.findByCarts_cartId(carts.getCartId());
+        List<CartItems> cartItemsList = cartItemRepo.findByCarts_cartId(carts.getCartId());
 
-        // Prepare the DTO
-        CartWithCartItems cartWithCartItems = new CartWithCartItems();
-        cartWithCartItems.setCartId(carts.getCartId());
+        List<CartWithCartItemsDto> dtoList = new ArrayList<>();
 
-        // Populate the lists in the DTO
-        List<Long> quantities = itemsList.stream()
-                .map(CartItems::getQuantity)
-                .toList();
+        for (CartItems cartItems : cartItemsList) {
+            CartWithCartItemsDto items = new CartWithCartItemsDto();
 
-        List<BigDecimal> prices = itemsList.stream()
-                .map(CartItems::getPrice)
-                .toList();
+            items.setCartId(carts.getCartId());
+            items.setQuantities(cartItems.getQuantity());
+            items.setPrices(cartItems.getPrice());
 
-        List<String> names = itemsList.stream()
-                .map(item -> item.getProduct().getName())
-                .toList();
+            Products products = productsRepo.findById(cartItems.getProduct().getProductId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Product not found with the id: " + cartItems.getProduct().getProductId()));
 
-        List<String> imageUrls = itemsList.stream()
-                .map(item -> productsImagesRepo.findByProduct_ProductId(item.getProduct().getProductId()).stream()
-                        .findFirst() // Get the first image (if available)
-                        .map(ProductImages::getImageUrl)
-                        .orElse(null)) // Fallback to null if no image is found
-                .toList();
+            items.setNames(products.getName());
 
+//            Fetch image url by product id
+            ProductImages productImages = productsImagesRepo.findByProduct_ProductId(products.getProductId()).getFirst();
 
-        cartWithCartItems.setQuantities(quantities);
-        cartWithCartItems.setPrices(prices);
-        cartWithCartItems.setNames(names);
-        cartWithCartItems.setImageUrls(imageUrls);
+            items.setImageUrls(productImages.getImageUrl());
 
-        return cartWithCartItems;
+            dtoList.add(items);
+        }
+
+        return dtoList;
     }
-
-
 
 
     @Override

@@ -1,10 +1,10 @@
 package com.msp.everestFitness.everestFitness.service;
 
 import com.msp.everestFitness.everestFitness.dto.CartItemDto;
-import com.msp.everestFitness.everestFitness.dto.CartWithCartItems;
+import com.msp.everestFitness.everestFitness.dto.CartWithCartItemsDto;
 import com.msp.everestFitness.everestFitness.model.CartItems;
-import com.msp.everestFitness.everestFitness.model.Carts;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface CartService {
@@ -14,7 +14,7 @@ public interface CartService {
 
     void removeItemFromCart(UUID cartItemId);
 
-    CartWithCartItems getCartByUserId();
+    List<CartWithCartItemsDto> getCartByUserId();
 
 
 
