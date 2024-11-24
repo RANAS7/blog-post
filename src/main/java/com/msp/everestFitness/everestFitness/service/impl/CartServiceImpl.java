@@ -10,6 +10,7 @@ import com.msp.everestFitness.everestFitness.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -62,6 +63,7 @@ public class CartServiceImpl implements CartService {
             cartItem = existingItems.get(0);
             cartItem.setQuantity(cartItem.getQuantity() + cartItemDto.getQuantity());
         } else {
+
             // Create a new cart item
             cartItem = new CartItems();
             cartItem.setCarts(cart);
@@ -117,6 +119,7 @@ public class CartServiceImpl implements CartService {
             items.setCartId(carts.getCartId());
             items.setQuantities(cartItems.getQuantity());
             items.setPrices(cartItems.getPrice());
+            items.setItemId(cartItems.getCartItemId());
 
             Products products = productsRepo.findById(cartItems.getProduct().getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Product not found with the id: " + cartItems.getProduct().getProductId()));
