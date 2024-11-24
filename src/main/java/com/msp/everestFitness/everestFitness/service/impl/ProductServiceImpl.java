@@ -226,7 +226,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
-
     @Override
     public List<ProductWithImagesDto> getSuggestedProductsByCategory(UUID categoryId) {
         // Fetch subcategories for the given category
