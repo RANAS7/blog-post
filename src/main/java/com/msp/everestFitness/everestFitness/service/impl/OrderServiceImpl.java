@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -298,7 +299,23 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<Orders> getOrderOfUser() {
-        return ordersRepo.findByShippingInfo_Users_UserId(loginUtil.getCurrentUserId());
+        // Retrieve the current user's ID
+        UUID currentUserId = loginUtil.getCurrentUserId();
+
+        // Check if the user exists
+        if (!usersRepo.existsById(currentUserId)) {
+            throw new ResourceNotFoundException("User not found with the ID: " + currentUserId);
+        }
+
+        // Fetch all shipping IDs associated with the user in a single query
+        List<UUID> shippingIds = shippingInfoRepo.findShippingIdsByUserId(currentUserId);
+
+        if (shippingIds.isEmpty()) {
+            return Collections.emptyList(); // No orders if no shipping info is found
+        }
+
+        // Fetch all orders in a single query using the list of shipping IDs
+        return ordersRepo.findAllByShippingInfoIdIn(shippingIds);
     }
 
 

@@ -12,5 +12,5 @@ import java.util.UUID;
 public interface OrdersRepo extends JpaRepository<Orders, UUID> {
     List<OrderItems> getOrderItemsByOrderId(UUID orderId);
 
-    List<Orders> findByShippingInfo_Users_UserId(UUID currentUserId);
+    List<Orders> findAllByShippingInfoIdIn(List<UUID> shippingIds);
 }

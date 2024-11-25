@@ -19,4 +19,6 @@ public interface ShippingInfoRepo extends JpaRepository<ShippingInfo, UUID> {
     ShippingInfo findByUsersUserIdAndAddressType(UUID userId, AddressType addressType);
 
     ShippingInfo findByUsers_userId(UUID userId);
+
+    List<UUID> findShippingIdsByUserId(UUID currentUserId);
 }
