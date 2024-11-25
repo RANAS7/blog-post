@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -69,8 +70,10 @@ public class ShippingInfoServiceImpl implements ShippingInfoService {
 
     @Override
     public ShippingInfo getShippingInfoById(UUID id) {
-        return shippingInfoRepo.findById(id)
+        ShippingInfo shippingInfo = shippingInfoRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("The Shipping information with ID " + id + " does not exist."));
+        shippingInfo.setUsers(null);
+        return shippingInfo;
     }
 
     @Override
@@ -83,7 +86,14 @@ public class ShippingInfoServiceImpl implements ShippingInfoService {
 
     @Override
     public List<ShippingInfo> findByUsersUserId() {
-        return shippingInfoRepo.findByUsers_UserId(loginUtil.getCurrentUserId());
+        List<ShippingInfo> shippingInfoList = shippingInfoRepo.findByUsers_UserId(loginUtil.getCurrentUserId());
+
+        List<ShippingInfo> infoList = new ArrayList<>();
+        for (ShippingInfo info : shippingInfoList) {
+            info.setUsers(null);
+            infoList.add(info);
+        }
+        return infoList;
     }
 
 
