@@ -122,6 +122,7 @@ public class CartServiceImpl implements CartService {
             items.setQuantities(cartItems.getQuantity());
             items.setPrices(cartItems.getPrice());
             items.setItemId(cartItems.getCartItemId());
+            items.setProductId(cartItems.getProduct().getProductId());
 
             Products products = productsRepo.findById(cartItems.getProduct().getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Product not found with the id: " + cartItems.getProduct().getProductId()));

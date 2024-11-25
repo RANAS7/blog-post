@@ -10,6 +10,7 @@ import java.util.UUID;
 public class CartWithCartItemsDto {
     private UUID cartId;
     private UUID itemId;
+    private UUID productId;
     private Long quantities; // List of quantities
     private BigDecimal prices; // List of prices
     private String names; // List of product names
