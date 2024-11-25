@@ -299,23 +299,19 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<Orders> getOrderOfUser() {
-        // Retrieve the current user's ID
-        UUID currentUserId = loginUtil.getCurrentUserId();
+        // Fetch the user's shipping info list using the current user's ID
+        List<ShippingInfo> shippingInfoList = shippingInfoRepo.findByUsers_UserId(loginUtil.getCurrentUserId());
 
-        // Check if the user exists
-        if (!usersRepo.existsById(currentUserId)) {
-            throw new ResourceNotFoundException("User not found with the ID: " + currentUserId);
-        }
+        // List to collect all orders
+        List<Orders> ordersList = new ArrayList<>();
 
-        // Fetch all shipping IDs associated with the user in a single query
-        List<UUID> shippingIds = shippingInfoRepo.findShippingIdsByUserId(currentUserId);
+        // Use a foreach loop to iterate through the shippingInfoList and collect orders
+        shippingInfoList.forEach(shippingInfo -> {
+            // Fetch orders for each shipping info and add them to the ordersList
+            ordersList.addAll(ordersRepo.findAllByShippingInfo_ShippingId(shippingInfo.getShippingId()));
+        });
 
-        if (shippingIds.isEmpty()) {
-            return Collections.emptyList(); // No orders if no shipping info is found
-        }
-
-        // Fetch all orders in a single query using the list of shipping IDs
-        return ordersRepo.findAllByShippingInfoIdIn(shippingIds);
+        return ordersList; // Return the aggregated list of orders
     }
 
 
