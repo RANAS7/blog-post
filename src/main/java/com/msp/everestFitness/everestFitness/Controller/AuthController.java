@@ -1,6 +1,7 @@
 package com.msp.everestFitness.everestFitness.Controller;
 
 import com.msp.everestFitness.everestFitness.dto.PasswordResetFormDto;
+import com.msp.everestFitness.everestFitness.enumrated.UserType;
 import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
 import com.msp.everestFitness.everestFitness.jwt.JwtRequest;
 import com.msp.everestFitness.everestFitness.jwt.JwtResponse;
@@ -195,8 +196,13 @@ public class AuthController {
     }
 
     @GetMapping("/users/type")
-    public ResponseEntity<?> getUsersByUserType(@RequestParam String userType) {
+    public ResponseEntity<?> getUsersByUserType(@RequestParam UserType userType) {
         return new ResponseEntity<>(userService.getByUserType(userType), HttpStatus.OK);
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<?> getProfile() {
+        return new ResponseEntity<>(userService.getProfile(), HttpStatus.OK);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.msp.everestFitness.everestFitness.service;
 
+import com.msp.everestFitness.everestFitness.enumrated.UserType;
 import com.msp.everestFitness.everestFitness.model.Users;
 
 import java.util.List;
@@ -16,5 +17,7 @@ public interface UserService {
 
     List<Users> searchUsers(String fName, String lName, String email);
 
-    Users getByUserType(String userType);
+    List<Users> getByUserType(UserType userType);
+
+    Users getProfile();
 }

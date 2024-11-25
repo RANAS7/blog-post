@@ -38,7 +38,7 @@ public class CartServiceImpl implements CartService {
     private ProductsImagesRepo productsImagesRepo;
 
     @Override
-    public CartItems addItemToCart(CartItemDto cartItemDto) {
+    public void addItemToCart(CartItemDto cartItemDto) {
 
         // Fetch the user and throw an exception if not found
         Users users = usersRepo.findById(loginUtil.getCurrentUserId())
@@ -74,12 +74,12 @@ public class CartServiceImpl implements CartService {
         }
 
         // Save and return the updated/created cart item
-        return cartItemRepo.save(cartItem);
+        cartItemRepo.save(cartItem);
     }
 
 
     @Override
-    public CartItems updateCartItem(UpdateCartItemQtyDto updateCartItemQtyDto) {
+    public void updateCartItem(UpdateCartItemQtyDto updateCartItemQtyDto) {
         CartItems existed = cartItemRepo.findById(updateCartItemQtyDto.getItemId())
                 .orElseThrow(() -> new IllegalStateException("Cart Item not found with the item id: " + updateCartItemQtyDto.getItemId()));
 
@@ -95,7 +95,7 @@ public class CartServiceImpl implements CartService {
         }
 
         existed.setQuantity(updateCartItemQtyDto.getQuantity());
-        return cartItemRepo.save(existed);
+        cartItemRepo.save(existed);
     }
 
     @Override

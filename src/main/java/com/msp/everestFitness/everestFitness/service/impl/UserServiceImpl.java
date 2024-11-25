@@ -1,6 +1,7 @@
 package com.msp.everestFitness.everestFitness.service.impl;
 
 import com.msp.everestFitness.everestFitness.config.LoginUtil;
+import com.msp.everestFitness.everestFitness.enumrated.UserType;
 import com.msp.everestFitness.everestFitness.exceptions.ResourceNotFoundException;
 import com.msp.everestFitness.everestFitness.model.Users;
 import com.msp.everestFitness.everestFitness.repository.UsersRepo;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -55,43 +57,81 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<Users> getAllUsers() {
-        return usersRepo.findAll();
+        List<Users> usersList = usersRepo.findAll();
+        List<Users> users = new ArrayList<>();
+        for (Users user : usersList) {
+            user.setPassword(null);
+
+            usersList.add(user);
+        }
+
+        return usersList;
     }
 
     @Override
     public Users getUserById(UUID id) {
-        return usersRepo.findById(id)
+        Users users = usersRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("The user is not found with the id: " + id));
+        users.setPassword(null);
+        return users;
     }
-
-//    @Override
-//    public Users=
 
     @Override
     public Users getUserByEmail(String email) {
-        return (Users) usersRepo.findByEmail(email)
+        Users users = usersRepo.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("The user is not found with the email: " + email));
+        users.setPassword(null);
+        return users;
     }
-
-//    @Override
-//    public Users getUserByName(String name) {
-//        return usersRepo.findByName(name);
-//    }
 
     @Override
     public List<Users> searchUsers(String fName, String lName, String email) {
         if (fName != null || lName != null) {
-            return usersRepo.findByFirstNameAndLastName(fName, lName);
+            List<Users> usersList = usersRepo.findByFirstNameAndLastName(fName, lName);
+
+            List<Users> users = new ArrayList<>();
+            for (Users user : usersList) {
+                user.setPassword(null);
+
+                usersList.add(user);
+            }
+
+            return usersList;
         } else if (email != null && !email.isEmpty()) {
-            return usersRepo.findByEmailIgnoreCase(email);
+            List<Users> usersList = usersRepo.findByEmailIgnoreCase(email);
+            List<Users> users = new ArrayList<>();
+            for (Users user : usersList) {
+                user.setPassword(null);
+
+                usersList.add(user);
+            }
+
+            return usersList;
         } else {
             throw new IllegalArgumentException("Either name or email must be provided for the search");
         }
     }
 
     @Override
-    public Users getByUserType(String userType) {
-        return usersRepo.findByUserType(userType);
+    public List<Users> getByUserType(UserType userType) {
+        List<Users> usersList = usersRepo.findByUserType(userType);
+
+        List<Users> users = new ArrayList<>();
+        for (Users user : usersList) {
+            user.setPassword(null);
+
+            usersList.add(user);
+        }
+
+        return usersList;
+    }
+
+    @Override
+    public Users getProfile() {
+        Users users = usersRepo.findById(loginUtil.getCurrentUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with the id: " + loginUtil.getCurrentUserId()));
+        users.setPassword(null);
+        return users;
     }
 
 }

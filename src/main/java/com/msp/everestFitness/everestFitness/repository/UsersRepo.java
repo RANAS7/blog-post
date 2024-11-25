@@ -1,5 +1,6 @@
 package com.msp.everestFitness.everestFitness.repository;
 
+import com.msp.everestFitness.everestFitness.enumrated.UserType;
 import com.msp.everestFitness.everestFitness.model.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -25,5 +26,5 @@ public interface UsersRepo extends JpaRepository<Users, UUID> {
 
     List<Users> findByEmailIgnoreCase(String email);
 
-    Users findByUserType(String userType);
+    List<Users> findByUserType(UserType userType);
 }
