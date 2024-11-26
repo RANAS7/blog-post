@@ -34,4 +34,9 @@ public class WishlistController {
         wishlistService.removeWishlist(wishlistId);
         return new ResponseEntity<>("The product removed from your wishlist", HttpStatus.OK);
     }
+
+    @GetMapping("/by-user")
+    public ResponseEntity<?> getWishlistOfUer() {
+        return new ResponseEntity<>(wishlistService.getWishlistOfUser(), HttpStatus.OK);
+    }
 }

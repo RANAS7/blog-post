@@ -25,7 +25,8 @@ public class MembersController {
     public ResponseEntity<?> getMembers(@RequestParam UUID memberId) {
         if (memberId != null) {
             return new ResponseEntity<>(memberService.getMemberById(memberId), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(memberService.getAllMembers(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(memberService.getAllMembers(), HttpStatus.OK);
     }
 }

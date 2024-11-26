@@ -12,6 +12,9 @@ import com.msp.everestFitness.everestFitness.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,12 +38,15 @@ public class MemberServiceImpl implements MemberService {
             members1.setFirstName(members.getFirstName());
             members1.setLastName(members.getLastName());
             members.setDateOfBirth(members.getDateOfBirth());
+            members.setUpdatedAt(Timestamp.from(Instant.now()));
             membersRepo.save(members1);
         }
+        Users user = usersRepo.findById(loginUtil.getCurrentUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("The user not found with the userId: " + members.getUsers().getUserId()));
+
+        members.setUsers(user);
         membersRepo.save(members);
 
-        Users user = usersRepo.findById(members.getUsers().getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("The user not found with the userId: " + members.getUsers().getUserId()));
         user.setUserType(UserType.MEMBER);
         usersRepo.save(user);
     }

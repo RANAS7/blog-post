@@ -1,5 +1,6 @@
 package com.msp.everestFitness.everestFitness.service;
 
+import com.msp.everestFitness.everestFitness.dto.ProductWithImagesDto;
 import com.msp.everestFitness.everestFitness.model.Wishlist;
 
 import java.util.List;
@@ -13,5 +14,7 @@ public interface WishlistService {
     Wishlist getWishlistById(UUID wishlistId);
 
     void removeWishlist(UUID wishlistId);
+
+    List<ProductWithImagesDto> getWishlistOfUser();
 }
 

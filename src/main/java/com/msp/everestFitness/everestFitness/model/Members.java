@@ -35,7 +35,7 @@ public class Members {
     private LocalDate dateOfBirth;
 
     @Column(updatable = false, columnDefinition = "Timestamp default current_timestamp")
-    private Timestamp membershipStartDate=Timestamp.from(Instant.now()) ;
+    private Timestamp membershipStartDate;
 
     private Timestamp membershipEndDate;
 
@@ -43,5 +43,5 @@ public class Members {
     private MembershipStatus membershipStatus;
 
     @Column(insertable = false, columnDefinition = "Timestamp default current_timestamp")
-    private Timestamp updatedAt= Timestamp.from(Instant.now());
+    private Timestamp updatedAt;
 }
