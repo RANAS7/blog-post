@@ -1,5 +1,6 @@
 package com.msp.everestFitness.everestFitness.service;
 
+import com.msp.everestFitness.everestFitness.dto.OrderDTO;
 import com.msp.everestFitness.everestFitness.dto.PaymentResponse;
 import com.msp.everestFitness.everestFitness.enumrated.OrderStatus;
 import com.msp.everestFitness.everestFitness.enumrated.PaymentMethod;
@@ -29,5 +30,9 @@ public interface OrderService {
     PaymentResponse createGuestOrder(Orders orders, ShippingInfo guestShippingInfo)
             throws ResourceNotFoundException, IOException, MessagingException, StripeException;
 
-    List<Orders> getOrderOfUser();
+    Orders getById(UUID orderID);
+
+    List<Orders> getAll();
+
+    List<OrderDTO> getOrderOfUser();
 }

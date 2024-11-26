@@ -50,6 +50,15 @@ public class OrderController {
         return new ResponseEntity<>("Order Processing", HttpStatus.CREATED);
     }
 
+    @GetMapping("/")
+    public ResponseEntity<?> getOrders(@RequestParam(required = false) UUID orderId) {
+        if (orderId == null) {
+            return new ResponseEntity<>(orderService.getAll(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(orderService.getById(orderId), HttpStatus.OK);
+        }
+    }
+
     @PostMapping("/status")
     public ResponseEntity<?> updateOrderStatus(@RequestParam UUID orderId, OrderStatus orderStatus) {
         orderService.updateOrderStatus(orderId, orderStatus);

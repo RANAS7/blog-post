@@ -1,6 +1,7 @@
 package com.msp.everestFitness.everestFitness.service.impl;
 
 import com.msp.everestFitness.everestFitness.config.LoginUtil;
+import com.msp.everestFitness.everestFitness.dto.OrderDTO;
 import com.msp.everestFitness.everestFitness.dto.PaymentResponse;
 import com.msp.everestFitness.everestFitness.enumrated.OrderStatus;
 import com.msp.everestFitness.everestFitness.enumrated.PaymentMethod;
@@ -21,7 +22,6 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -298,20 +298,41 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Orders> getOrderOfUser() {
-        // Fetch the user's shipping info list using the current user's ID
+    public Orders getById(UUID orderID) {
+        return ordersRepo.findById(orderID)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with the id: " + orderID));
+    }
+
+    @Override
+    public List<Orders> getAll() {
+        return ordersRepo.findAll();
+    }
+
+    @Override
+    public List<OrderDTO> getOrderOfUser() {
         List<ShippingInfo> shippingInfoList = shippingInfoRepo.findByUsers_UserId(loginUtil.getCurrentUserId());
+        List<OrderDTO> orderDTOList = new ArrayList<>();
 
-        // List to collect all orders
-        List<Orders> ordersList = new ArrayList<>();
+        for (ShippingInfo shippingInfo : shippingInfoList) {
+            List<Orders> orders = ordersRepo.findAllByShippingInfo_ShippingId(shippingInfo.getShippingId());
+            for (Orders order : orders) {
+                // Map Orders to OrderDTO
+                OrderDTO dto = new OrderDTO();
+                dto.setOrderId(order.getOrderId());
+                dto.setOrderDate(order.getOrderDate());
+                dto.setOrderStatus(String.valueOf(order.getOrderStatus()));
 
-        // Use a foreach loop to iterate through the shippingInfoList and collect orders
-        shippingInfoList.forEach(shippingInfo -> {
-            // Fetch orders for each shipping info and add them to the ordersList
-            ordersList.addAll(ordersRepo.findAllByShippingInfo_ShippingId(shippingInfo.getShippingId()));
-        });
+                DeliveryOpt deliveryOpt = deliveryOptRepo.findById(order.getDeliveryOpt().getOptionId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Delivery option not found with the id: " + order.getDeliveryOpt().getOptionId()));
 
-        return ordersList; // Return the aggregated list of orders
+                dto.setDeliveryOption(deliveryOpt.getOption());
+                dto.setPaymentMethod(String.valueOf(order.getPaymentMethod()));
+                dto.setTotal(order.getTotal());
+                orderDTOList.add(dto);
+            }
+        }
+
+        return orderDTOList;
     }
 
 
