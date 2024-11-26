@@ -12,9 +12,7 @@ import com.msp.everestFitness.everestFitness.service.WishlistService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,15 +43,33 @@ public class WishlistServiceImpl implements WishlistService {
         wishListRepo.save(wishlist);
     }
 
-    @Override
-    public List<Wishlist> getAllWishList() {
-        return wishListRepo.findByUsers_UserId(loginUtil.getCurrentUserId());
-    }
 
     @Override
-    public Wishlist getWishlistById(UUID wishlistId) {
-        return wishListRepo.findById(wishlistId)
+    public ProductWithImagesDto getWishlistById(UUID wishlistId) {
+        Wishlist wishlist = wishListRepo.findById(wishlistId)
                 .orElseThrow(() -> new ResourceNotFoundException("The wishlist not found with the wish list Id: " + wishlistId));
+
+
+        Products products = productsRepo.findById(wishlist.getProduct().getProductId())
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with the Id: " + wishlist.getWishlistId()));
+
+        List<String> imageUrls = productsImagesRepo.findByProduct_ProductId(products.getProductId())
+                .stream()
+                .map(ProductImages::getImageUrl)
+                .collect(Collectors.toList());
+
+
+        ProductWithImagesDto dto = new ProductWithImagesDto();
+        dto.setWishlistId(wishlistId);
+        dto.setProductId(products.getProductId());
+        dto.setName(products.getName());
+        dto.setDescription(products.getDescription());
+        dto.setPrice(products.getPrice());
+        dto.setDiscountedPrice(products.getDiscountedPrice());
+        dto.setImageUrls(imageUrls);
+        dto.setRating(productRatingRepo.getAverageRatingByProductId(products.getProductId()));
+
+        return dto;
     }
 
     @Override
@@ -77,6 +93,7 @@ public class WishlistServiceImpl implements WishlistService {
                     .collect(Collectors.toList());
 
             ProductWithImagesDto dto = new ProductWithImagesDto();
+            dto.setWishlistId(wishlist.getWishlistId());
             dto.setProductId(products.getProductId());
             dto.setName(products.getName());
             dto.setDescription(products.getDescription());

@@ -14,4 +14,6 @@ public class ProductWithImagesDto {
     private Double discountedPrice;
     private List<String> imageUrls;
     private Double rating;
+
+    private UUID wishlistId;
 }

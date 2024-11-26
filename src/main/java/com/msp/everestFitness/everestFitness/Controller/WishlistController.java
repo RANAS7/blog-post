@@ -25,18 +25,14 @@ public class WishlistController {
     public ResponseEntity<?> getWishlist(@RequestParam(name = "wishlistId", required = false) UUID wishlistId) {
         if (wishlistId != null) {
             return new ResponseEntity<>(wishlistService.getWishlistById(wishlistId), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(wishlistService.getWishlistOfUser(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(wishlistService.getAllWishList(), HttpStatus.OK);
     }
 
     @DeleteMapping("/")
     public ResponseEntity<?> removeWishlist(@RequestParam UUID wishlistId) {
         wishlistService.removeWishlist(wishlistId);
         return new ResponseEntity<>("The product removed from your wishlist", HttpStatus.OK);
-    }
-
-    @GetMapping("/by-user")
-    public ResponseEntity<?> getWishlistOfUer() {
-        return new ResponseEntity<>(wishlistService.getWishlistOfUser(), HttpStatus.OK);
     }
 }
