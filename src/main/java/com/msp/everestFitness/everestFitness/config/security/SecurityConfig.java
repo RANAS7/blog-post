@@ -79,10 +79,11 @@ public class SecurityConfig {
                         .requestMatchers("/api/testimonial/","/api/subcategory/",
                                 "/api/subcategory/",
                                 "/api/category/", "/api/product/",
-                                "/api/order-item/").hasRole("ADMIN")  // Only ADMIN can access
+                                "/api/order-item/",
+                                "/api/order/").hasRole("ADMIN")  // Only ADMIN can access
 
                         // Endpoints that require MEMBER or USER role
-                        .requestMatchers("/api/shipping/info/", "/api/order/").hasAnyRole("MEMBER", "USER", "GUEST")  // Only MEMBER, GUEST, and USER can access
+                        .requestMatchers("/api/shipping/info/", "/api/order/by-user").hasAnyRole("MEMBER", "USER", "GUEST")  // Only MEMBER, GUEST, and USER can access
 
                         .anyRequest().authenticated()                    // Require authentication for all other requests
                 )
