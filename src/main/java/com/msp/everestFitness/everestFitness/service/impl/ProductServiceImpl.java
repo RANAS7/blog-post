@@ -62,7 +62,6 @@ public class ProductServiceImpl implements ProductService {
             existingProduct.setName(products.getName());
             existingProduct.setDescription(products.getDescription());
             existingProduct.setPrice(products.getPrice());
-            existingProduct.setSubcategory(subcategory);
             existingProduct.setDiscountedPrice(products.getDiscountedPrice());
 
             // Save the updated product

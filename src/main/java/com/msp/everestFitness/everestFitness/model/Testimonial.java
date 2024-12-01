@@ -30,8 +30,8 @@ public class Testimonial {
     private String description;
 
     @Column(columnDefinition = "Timestamp default current_timestamp", updatable = false, insertable = false)
-    private Timestamp createdAt= Timestamp.from(Instant.now());
+    private Timestamp createdAt;
 
     @Column(columnDefinition = "Timestamp default current_timestamp", insertable = false)
-    private Timestamp updatedAt= Timestamp.from(Instant.now());
+    private Timestamp updatedAt;
 }
