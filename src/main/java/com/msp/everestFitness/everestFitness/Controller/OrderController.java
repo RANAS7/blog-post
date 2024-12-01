@@ -52,10 +52,10 @@ public class OrderController {
 
     @GetMapping("/")
     public ResponseEntity<?> getOrders(@RequestParam(required = false) UUID orderId) {
-        if (orderId == null) {
-            return new ResponseEntity<>(orderService.getAllOrders(), HttpStatus.OK);
-        } else {
+        if (orderId != null) {
             return new ResponseEntity<>(orderService.getOrderById(orderId), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(orderService.getAllOrders(), HttpStatus.OK);
         }
     }
 

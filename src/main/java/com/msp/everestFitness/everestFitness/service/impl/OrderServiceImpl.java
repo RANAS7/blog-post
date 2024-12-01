@@ -15,6 +15,7 @@ import com.msp.everestFitness.everestFitness.service.PaymentService;
 import com.msp.everestFitness.everestFitness.utils.MailUtils;
 import com.stripe.exception.StripeException;
 import jakarta.mail.MessagingException;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -299,8 +300,25 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
-    public List<Orders> getAllOrders() {
-        return ordersRepo.findAll();
+    public List<OrderDTO> getAllOrders() {
+        List<Orders> ordersList=ordersRepo.findAll();
+
+        List<OrderDTO> orderDTOList=new ArrayList<>();
+        for (Orders order: ordersList){
+            OrderDTO dto = new OrderDTO();
+            dto.setOrderId(order.getOrderId());
+            dto.setOrderDate(order.getOrderDate());
+            dto.setOrderStatus(String.valueOf(order.getOrderStatus()));
+
+            DeliveryOpt deliveryOpt = deliveryOptRepo.findById(order.getDeliveryOpt().getOptionId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Delivery option not found with the id: " + order.getDeliveryOpt().getOptionId()));
+
+            dto.setDeliveryOption(deliveryOpt.getOption());
+            dto.setPaymentMethod(String.valueOf(order.getPaymentMethod()));
+            dto.setTotal(order.getTotal());
+            orderDTOList.add(dto);
+        }
+        return orderDTOList;
     }
 
     @Override
@@ -332,17 +350,29 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
-    public Orders getOrderById(UUID orderId) {
-        return ordersRepo.findById(orderId)
+    public OrderDTO getOrderById(UUID orderId) {
+        Orders order=ordersRepo.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id " + orderId));
+
+        OrderDTO dto=new OrderDTO();
+        dto.setOrderId(order.getOrderId());
+        dto.setOrderDate(order.getOrderDate());
+        dto.setOrderStatus(String.valueOf(order.getOrderStatus()));
+
+        DeliveryOpt deliveryOpt = deliveryOptRepo.findById(order.getDeliveryOpt().getOptionId())
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery option not found with the id: " + order.getDeliveryOpt().getOptionId()));
+
+        dto.setDeliveryOption(deliveryOpt.getOption());
+        dto.setPaymentMethod(String.valueOf(order.getPaymentMethod()));
+        dto.setTotal(order.getTotal());
+        return dto;
     }
 
 
 
     @Override
     public void deleteOrder(UUID orderId) {
-        Orders existingOrder = getOrderById(orderId);
-        ordersRepo.delete(existingOrder);
+        ordersRepo.deleteById(orderId);
     }
 
     @Override

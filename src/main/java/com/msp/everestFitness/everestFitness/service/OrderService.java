@@ -18,9 +18,9 @@ import java.util.UUID;
 public interface OrderService {
 
     PaymentResponse createOrder(Orders order) throws MessagingException, IOException, StripeException;
-    Orders getOrderById(UUID orderId);
+    OrderDTO getOrderById(UUID orderId);
 
-    List<Orders> getAllOrders();
+    List<OrderDTO> getAllOrders();
 
     void deleteOrder(UUID orderId);
 

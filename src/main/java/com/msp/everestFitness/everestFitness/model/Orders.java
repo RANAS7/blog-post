@@ -22,7 +22,6 @@ public class Orders {
     private UUID orderId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shipping_id", nullable = false)
     private ShippingInfo shippingInfo;
 
     @Column(columnDefinition = "Timestamp default current_timestamp", updatable = false)
@@ -40,8 +39,6 @@ public class Orders {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private DeliveryOpt deliveryOpt;
-
-
     @Transient
     private List<OrderItems> orderItems = new ArrayList<>();
     @Transient
