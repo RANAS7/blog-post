@@ -53,9 +53,9 @@ public class OrderController {
     @GetMapping("/")
     public ResponseEntity<?> getOrders(@RequestParam(required = false) UUID orderId) {
         if (orderId == null) {
-            return new ResponseEntity<>(orderService.getAll(), HttpStatus.OK);
+            return new ResponseEntity<>(orderService.getAllOrders(), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(orderService.getById(orderId), HttpStatus.OK);
+            return new ResponseEntity<>(orderService.getOrderById(orderId), HttpStatus.OK);
         }
     }
 

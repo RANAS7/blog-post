@@ -297,14 +297,9 @@ public class OrderServiceImpl implements OrderService {
         return new PaymentResponse(); // Return appropriate response for completed order
     }
 
-    @Override
-    public Orders getById(UUID orderID) {
-        return ordersRepo.findById(orderID)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found with the id: " + orderID));
-    }
 
     @Override
-    public List<Orders> getAll() {
+    public List<Orders> getAllOrders() {
         return ordersRepo.findAll();
     }
 
@@ -342,11 +337,6 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id " + orderId));
     }
 
-
-    @Override
-    public List<Orders> getAllOrders() {
-        return ordersRepo.findAll();
-    }
 
 
     @Override

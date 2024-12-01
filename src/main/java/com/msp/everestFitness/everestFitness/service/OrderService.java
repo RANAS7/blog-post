@@ -30,9 +30,5 @@ public interface OrderService {
     PaymentResponse createGuestOrder(Orders orders, ShippingInfo guestShippingInfo)
             throws ResourceNotFoundException, IOException, MessagingException, StripeException;
 
-    Orders getById(UUID orderID);
-
-    List<Orders> getAll();
-
     List<OrderDTO> getOrderOfUser();
 }
