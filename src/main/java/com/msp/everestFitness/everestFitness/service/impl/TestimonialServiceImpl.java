@@ -29,7 +29,7 @@ public class TestimonialServiceImpl implements TestimonialService {
     @Override
     public void addTestimonial(Testimonial testimonial, MultipartFile imageFile) throws IOException {
 
-        String fileName = fileUtils.generateFileName(imageFile);
+        String fileName = fileUtils.uploadFileToCloudinary(imageFile);
 
         if (testimonial.getTestimonialId() != null) {
             Testimonial testimonial1 = testimonialRepo.findById(testimonial.getTestimonialId())

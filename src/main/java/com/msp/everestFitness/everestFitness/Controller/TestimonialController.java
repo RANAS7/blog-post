@@ -24,11 +24,12 @@ public class TestimonialController {
     }
 
     @GetMapping("/")
-    public ResponseEntity<?> getTestimonial(@RequestParam UUID testimonialId) {
+    public ResponseEntity<?> getTestimonial(@RequestParam(required = false) UUID testimonialId) {
         if (testimonialId != null) {
             return new ResponseEntity<>(testimonialService.getTestimonialById(testimonialId), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(testimonialService.getAllTestimonial(), HttpStatus.OK);
         }
-        return new ResponseEntity<>(testimonialService.getAllTestimonial(), HttpStatus.OK);
     }
 
     @DeleteMapping("/")
