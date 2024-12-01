@@ -52,11 +52,10 @@ public class ProductServiceImpl implements ProductService {
         Subcategory subcategory = subcategoryRepo.findById(subcategoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Subcategory not found with Id: " + subcategoryId));
 
-        Products existingProduct = null;
-
+        Products savedProduct = null;
         // If the product ID is present, update the existing product
         if (products.getProductId() != null) {
-            existingProduct = productsRepo.findById(products.getProductId())
+            Products existingProduct = productsRepo.findById(products.getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Product not found with Id: " + products.getProductId()));
 
             existingProduct.setName(products.getName());
@@ -69,8 +68,8 @@ public class ProductServiceImpl implements ProductService {
         } else {
             // If it's a new product, set the subcategory and save the product
             products.setSubcategory(subcategory);
-            existingProduct = productsRepo.save(products);
-        }
+            savedProduct = productsRepo.save(products);
+
 
         // Check if the total number of images exceeds the limit of 4
         if (images.size() + images.size() > 5) {
@@ -86,10 +85,10 @@ public class ProductServiceImpl implements ProductService {
 
 
             // Set image details
-            productImage.setProduct(existingProduct);
+            productImage.setProduct(savedProduct);
             productImage.setImageUrl(imageUrl); // Directly store the URL
             productsImagesRepo.save(productImage);
-        }
+        }}
     }
 
 

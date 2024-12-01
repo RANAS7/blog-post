@@ -18,7 +18,7 @@ public class TestimonialController {
     private TestimonialService testimonialService;
 
     @PostMapping("/")
-    public ResponseEntity<?> addTestimonial(@RequestAttribute Testimonial testimonial, @RequestParam MultipartFile imageFile) throws IOException {
+    public ResponseEntity<?> addTestimonial(@ModelAttribute Testimonial testimonial, @RequestParam MultipartFile imageFile) throws IOException {
         testimonialService.addTestimonial(testimonial, imageFile);
         return new ResponseEntity<>("Testimonial created successfully", HttpStatus.CREATED);
     }
