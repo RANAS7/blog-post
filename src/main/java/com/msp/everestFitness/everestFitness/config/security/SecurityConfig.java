@@ -73,13 +73,15 @@ public class SecurityConfig {
                                 "/api/payment/success",
                                 "/api/payment/failed",
                                 "/api/delivery/",
-                                "/api/testimonial/").permitAll() //access Allowed without login only for get method
+                                "/api/testimonial/",
+                                "/api/order-item/").permitAll() //access Allowed without login only for get method
 
                         // Endpoints that require ADMIN role
-                        .requestMatchers("/api/testimonial/","/api/subcategory/",
+                        .requestMatchers("/api/testimonial/",
                                 "/api/subcategory/",
-                                "/api/category/", "/api/product/",
-                                "/api/order-item/",
+                                "/api/subcategory/",
+                                "/api/category/",
+                                "/api/product/",
                                 "/api/order/").hasRole("ADMIN")  // Only ADMIN can access
 
                         // Endpoints that require MEMBER or USER role

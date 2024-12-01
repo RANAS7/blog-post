@@ -19,6 +19,6 @@ public class OrderItemController {
 
     @GetMapping("/")
     public ResponseEntity<?> getOrderItemsByOrderId(@RequestParam UUID orderId){
-        return new ResponseEntity<>(orderItemService.findByOrders_orderId(orderId), HttpStatus.OK);
+        return new ResponseEntity<>(orderItemService.getOrderItemsOfOrder(orderId), HttpStatus.OK);
     }
 }
