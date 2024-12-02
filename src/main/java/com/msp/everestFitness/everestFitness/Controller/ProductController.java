@@ -58,4 +58,14 @@ public class ProductController {
     public ResponseEntity<?> getAllSuggestedProducts(@RequestParam UUID subcategoryId,@RequestParam double minDiscount){
         return new ResponseEntity<>(productService.getSuggestedProducts(subcategoryId, minDiscount),HttpStatus.OK);
     }
+
+    @GetMapping("/by-category")
+    public ResponseEntity<?> getProductByCategory(@RequestParam UUID categoryId) {
+        return new ResponseEntity<>(productService.getSuggestedProductsByCategory(categoryId), HttpStatus.OK);
+    }
+
+    @GetMapping("/popular")
+    public ResponseEntity<?> getPopularProducts() {
+        return new ResponseEntity<>(productService.getPopularProducts(), HttpStatus.OK);
+    }
 }
