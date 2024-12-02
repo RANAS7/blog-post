@@ -13,11 +13,17 @@ import java.util.UUID;
 public interface OrderItemsRepo extends JpaRepository<OrderItems, UUID> {
     List<OrderItems> findByOrder_OrderId(UUID orderId);
 
-    // Find the top 10 popular products based on total quantity sold
     @Query("SELECT o.products, SUM(o.quantity) as totalQuantitySold " +
             "FROM OrderItems o " +
             "GROUP BY o.products " +
-            "ORDER BY totalQuantitySold DESC")
-    List<Object[]> findPopularProducts(Pageable pageable);
+            "ORDER BY totalQuantitySold DESC " +
+            "LIMIT 10")
+    List<Object[]> findPopularProducts();
+
+
+//    @Query("SELECT o.product, SUM(o.quantity) as totalQuantitySold FROM OrderItems o " +
+//            "GROUP BY o.product ORDER BY totalQuantitySold DESC")
+//    List<Object[]> findPopularProducts(Pageable pageable);
+
 
 }

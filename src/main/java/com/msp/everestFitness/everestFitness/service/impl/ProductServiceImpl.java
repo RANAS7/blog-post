@@ -323,11 +323,8 @@ public class ProductServiceImpl implements ProductService {
     // Find the top 10 popular products based on total quantity sold
     @Override
     public List<ProductWithImagesDto> getPopularProducts() {
-        // Define pagination to limit the results to 10
-        Pageable top10 = (Pageable) PageRequest.of(0, 10);
-
-        // Fetch 10 popular products by quantity sold
-        List<Object[]> popularProductsData = orderItemsRepo.findPopularProducts(top10);
+        // Fetch top 10 popular products by quantity sold
+        List<Object[]> popularProductsData = orderItemsRepo.findPopularProducts();
         List<ProductWithImagesDto> popularProducts = new ArrayList<>();
 
         for (Object[] row : popularProductsData) {
@@ -353,4 +350,5 @@ public class ProductServiceImpl implements ProductService {
 
         return popularProducts;
     }
+
 }
