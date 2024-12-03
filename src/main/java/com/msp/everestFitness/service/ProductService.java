@@ -26,4 +26,6 @@ public interface ProductService {
     List<ProductWithImagesDto> getSuggestedProducts(UUID subcategoryId, double minDiscount);
 
     List<ProductWithImagesDto> getPopularProducts();
+
+    List<ProductWithImagesDto> search(String productName);
 }

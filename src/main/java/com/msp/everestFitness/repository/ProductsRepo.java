@@ -12,4 +12,6 @@ public interface ProductsRepo extends JpaRepository<Products, UUID> {
     List<Products> findBySubcategory_SubcategoryId(UUID subcategoryId);
 
     List<Products> findByDiscountedPriceGreaterThan(double price);
+
+    List<Products> findByNameContainingIgnoreCase(String productName);
 }

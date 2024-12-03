@@ -6,9 +6,9 @@ import com.msp.everestFitness.exceptions.ResourceNotFoundException;
 import com.msp.everestFitness.model.ProductImages;
 import com.msp.everestFitness.model.Products;
 import com.msp.everestFitness.model.Subcategory;
+import com.msp.everestFitness.repository.*;
 import com.msp.everestFitness.service.ProductService;
 import com.msp.everestFitness.utils.FileUtils;
-import com.msp.everestFitness.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -349,4 +349,32 @@ public class ProductServiceImpl implements ProductService {
         return popularProducts;
     }
 
+    @Override
+    public List<ProductWithImagesDto> search(String productName) {
+
+        List<Products> productsList = productsRepo.findByNameContainingIgnoreCase(productName);
+
+        List<ProductWithImagesDto> dtoList = new ArrayList<>();
+
+        for (Products product : productsList) {
+
+            List<String> imageUrls = productsImagesRepo.findByProduct_ProductId(product.getProductId())
+                    .stream()
+                    .map(ProductImages::getImageUrl)
+                    .collect(Collectors.toList());
+
+            ProductWithImagesDto dto = new ProductWithImagesDto();
+            dto.setProductId(product.getProductId());
+            dto.setName(product.getName());
+            dto.setDescription(product.getDescription());
+            dto.setPrice(product.getPrice());
+            dto.setDiscountedPrice(product.getDiscountedPrice());
+            dto.setImageUrls(imageUrls);
+            dtoList.add(dto);
+
+        }
+        return dtoList;
+    }
+
 }
+
