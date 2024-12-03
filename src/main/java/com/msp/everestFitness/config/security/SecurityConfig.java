@@ -79,7 +79,8 @@ public class SecurityConfig {
                                 "/api/product/popular",
                                 "/api/product/suggestions/by-subcategory",
                                 "/api/product/suggestions",
-                                "/api/product/suggestions/by-discount").permitAll() //access Allowed without login only for get method
+                                "/api/product/suggestions/by-discount",
+                                "/api/product/search").permitAll() //access Allowed without login only for get method
 
                         // Endpoints that require ADMIN role
                         .requestMatchers("/api/testimonial/",
