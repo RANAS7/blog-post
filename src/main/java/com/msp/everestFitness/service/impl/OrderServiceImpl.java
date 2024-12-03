@@ -1,18 +1,18 @@
 package com.msp.everestFitness.service.impl;
 
+import com.msp.everestFitness.config.LoginUtil;
 import com.msp.everestFitness.dto.OrderDTO;
 import com.msp.everestFitness.dto.PaymentResponse;
 import com.msp.everestFitness.enumrated.OrderStatus;
 import com.msp.everestFitness.enumrated.PaymentMethod;
 import com.msp.everestFitness.enumrated.PaymentStatus;
 import com.msp.everestFitness.enumrated.UserType;
-import com.msp.everestFitness.config.LoginUtil;
 import com.msp.everestFitness.exceptions.ResourceNotFoundException;
+import com.msp.everestFitness.model.*;
 import com.msp.everestFitness.repository.*;
 import com.msp.everestFitness.service.OrderService;
 import com.msp.everestFitness.service.PaymentService;
 import com.msp.everestFitness.utils.MailUtils;
-import com.msp.everestFitness.model.*;
 import com.stripe.exception.StripeException;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -300,12 +300,22 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderDTO> getAllOrders() {
+
         List<Orders> ordersList=ordersRepo.findAll();
+
 
         List<OrderDTO> orderDTOList=new ArrayList<>();
         for (Orders order: ordersList){
+            ShippingInfo shippingInfo = shippingInfoRepo.findById(order.getShippingInfo().getShippingId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Shipping info not found with the Id: " + order.getShippingInfo().getShippingId()));
+
+            Users user = usersRepo.findById(shippingInfo.getUsers().getUserId())
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found with the Id: " + shippingInfo.getUsers().getUserId()));
+
+
             OrderDTO dto = new OrderDTO();
             dto.setOrderId(order.getOrderId());
+            dto.setCustomerName(user.getFirstName() + " " + user.getLastName());
             dto.setOrderDate(order.getOrderDate());
             dto.setOrderStatus(String.valueOf(order.getOrderStatus()));
 

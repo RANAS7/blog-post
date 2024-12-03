@@ -8,6 +8,7 @@ import java.util.UUID;
 public class OrderDTO {
     private UUID orderId;
     private Timestamp orderDate;
+    private String customerName;
     private double total;
     private String orderStatus;
     private String paymentMethod;
