@@ -19,7 +19,7 @@ public class FeatureImage {
     private String fileUrl;
 
     @Column(updatable = false, columnDefinition = "Timestamp default current_timestamp")
-    private Timestamp createdAt=Timestamp.from(Instant.now());
+    private Timestamp createdAt;
 
     @Column(insertable = false, columnDefinition = "Timestamp default current_timestamp")
     private Timestamp updatedAt;

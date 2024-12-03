@@ -45,6 +45,7 @@ public class SecurityConfig {
                                 "/api/auth/reset-form",
                                 "/api/auth/google/**",
                                 "/error",
+                                "/api/order/",
                                 "/api/order/guest",
                                 "/api/subcategory/by-category",
 
@@ -87,8 +88,7 @@ public class SecurityConfig {
                                 "/api/subcategory/",
                                 "/api/subcategory/",
                                 "/api/category/",
-                                "/api/product/",
-                                "/api/order/").hasRole("ADMIN")  // Only ADMIN can access
+                                "/api/product/").hasRole("ADMIN")  // Only ADMIN can access
 
                         // Endpoints that require MEMBER or USER role
                         .requestMatchers("/api/shipping/info/", "/api/order/by-user").hasAnyRole("MEMBER", "USER", "GUEST")  // Only MEMBER, GUEST, and USER can access

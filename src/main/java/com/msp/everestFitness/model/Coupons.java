@@ -10,44 +10,44 @@ import java.util.UUID;
 
 @Entity
 @Data
-@Table(name = "coupons")
+@Table
 public class Coupons {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID couponId;
 
-    @Column(name = "code", unique = true, nullable = false, length = 50)
+    @Column(unique = true, nullable = false, length = 50)
     private String code;
 
-    @Column(name = "discount_amount", nullable = false, columnDefinition = "Decimal(10,2)")
+    @Column(nullable = false, columnDefinition = "Decimal(10,2)")
     private double discountAmount;
 
-    @Column(name = "valid_from", nullable = false, updatable = false)
-    private Timestamp validFrom = Timestamp.from(Instant.now());
+    @Column(nullable = false, updatable = false, columnDefinition = "Timestamp default current_timestamp")
+    private Timestamp validFrom;
 
-    @Column(name = "valid_until")
+    @Column
     private Timestamp validUntil;
 
-    @Column(name = "minimum_order_amount", columnDefinition = "Decimal(10,2)")
+    @Column(columnDefinition = "Decimal(10,2)")
     private double minimumOrderAmount;
 
-    @Column(name = "max_discount_amount", columnDefinition = "Decimal(10,2)")
+    @Column( columnDefinition = "Decimal(10,2)")
     private double maxDiscountAmount;
 
-    @Column(name = "is_active", nullable = false)
+    @Column(nullable = false)
     private Boolean isActive = true;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "discount_type", nullable = false)
+    @Column( nullable = false)
     private DiscountType discountType;
 
-    @Column(name = "description")
+    @Column
     private String description;  // Fixed incorrect Column annotation to String
 
-    @Column(name = "created_at", updatable = false)
-    private Timestamp createdAt = Timestamp.from(Instant.now());
+    @Column(updatable = false)
+    private Timestamp createdAt;
 
-    @Column(name = "updated_at")
+    @Column
     private Timestamp updatedAt = Timestamp.from(Instant.now());
 }

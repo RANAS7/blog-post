@@ -34,11 +34,10 @@ public class Users {
     @Column(nullable = false)
     private boolean isVerified = false;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private UserType userType = UserType.USER;
+    private UserType userType=UserType.USER;
 
-    @Column
+    @Column(columnDefinition = "Timestamp default current_timestamp")
     private Timestamp createdAt;
 
     @Column

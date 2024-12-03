@@ -10,15 +10,14 @@ import java.util.UUID;
 
 @Entity
 @Data
-@Table(name = "shipping_info")
+@Table
 public class ShippingInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID shippingId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Users users;
 
     @Column(nullable = false)
@@ -44,10 +43,12 @@ public class ShippingInfo {
     private AddressType addressType;
 
     @Column(columnDefinition = "Timestamp default current_timestamp", updatable = false)
-    private Timestamp createdAt = Timestamp.from(Instant.now());
+    private Timestamp createdAt;
 
     @Column(insertable = false, columnDefinition = "Timestamp default current_timestamp")
-    private Timestamp updatedAt = Timestamp.from(Instant.now());
+    private Timestamp updatedAt;
+
+
 
     @Transient
     private String email;

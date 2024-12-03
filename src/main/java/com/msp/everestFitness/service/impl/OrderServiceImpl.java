@@ -306,9 +306,14 @@ public class OrderServiceImpl implements OrderService {
 
         List<OrderDTO> orderDTOList=new ArrayList<>();
         for (Orders order: ordersList){
+
+
+
             ShippingInfo shippingInfo = shippingInfoRepo.findById(order.getShippingInfo().getShippingId())
                     .orElseThrow(() -> new ResourceNotFoundException("Shipping info not found with the Id: " + order.getShippingInfo().getShippingId()));
 
+
+            System.out.println("User id is: "+shippingInfo.getUsers().getUserId());
             Users user = usersRepo.findById(shippingInfo.getUsers().getUserId())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found with the Id: " + shippingInfo.getUsers().getUserId()));
 

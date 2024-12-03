@@ -9,15 +9,14 @@ import java.util.UUID;
 
 @Entity
 @Data
-@Table(name = "membership_payments")
+@Table
 public class MembershipPayments {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID membershipPaymentId;
 
-    @ManyToOne
-    @JoinColumn(name = "member_id", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Members member;
     @Column(nullable = false)
     private Double amount;

@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Entity
 @Data
-@Table(name = "product_ratings")
+@Table
 public class ProductRating {
 
     @Id
@@ -17,11 +17,11 @@ public class ProductRating {
     private UUID ratingId;
 
     @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
+    @JoinColumn(nullable = false)
     private Products products;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(nullable = false)
     private Users users;
 
     @Column(nullable = false)

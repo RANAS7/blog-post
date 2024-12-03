@@ -9,15 +9,15 @@ import java.util.UUID;
 
 @Data
 @Entity
-@Table(name = "carts")
+@Table
 public class Carts {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID cartId;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     private Users users;
 
     @Column(columnDefinition = "Timestamp default current_timestamp")
-    private Timestamp createdAt = Timestamp.from(Instant.now());
+    private Timestamp createdAt;
 }

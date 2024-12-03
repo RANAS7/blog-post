@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Entity
 @Data
-@Table(name = "payments")
+@Table
 public class Payments {
 
     @Id
@@ -18,7 +18,7 @@ public class Payments {
     private UUID paymentId;
 
     @ManyToOne
-    @JoinColumn(name = "order_id", nullable = false)
+    @JoinColumn(nullable = false)
     private Orders orders;
 
     @Column(nullable = false)
@@ -28,8 +28,8 @@ public class Payments {
     private PaymentStatus paymentStatus;
 
     @Column(columnDefinition = "Timestamp default current_timestamp", updatable = false)
-    private Timestamp createdAt = Timestamp.from(Instant.now());
+    private Timestamp createdAt;
 
     @Column(insertable = false, columnDefinition = "Timestamp default current_timestamp")
-    private Timestamp updatedAt = Timestamp.from(Instant.now());
+    private Timestamp updatedAt;
 }

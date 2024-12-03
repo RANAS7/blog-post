@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Entity
 @Data
-@Table(name = "products")
+@Table
 public class Products {
 
     @Id
@@ -29,13 +29,12 @@ public class Products {
 
     private Double discountedPrice;
 
-    @ManyToOne
-    @JoinColumn(name = "subcategory_id")
+    @ManyToOne(fetch = FetchType.EAGER)
     private Subcategory subcategory;
 
     @Column(updatable = false, columnDefinition = "Timestamp default current_timestamp")
-    private Timestamp createdAt = Timestamp.from(Instant.now());
+    private Timestamp createdAt;
 
     @Column(insertable = false, columnDefinition = "Timestamp default current_timestamp")
-    private Timestamp updatedAt = Timestamp.from(Instant.now());
+    private Timestamp updatedAt;
 }

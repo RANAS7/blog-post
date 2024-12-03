@@ -10,14 +10,13 @@ import java.util.UUID;
 
 @Entity
 @Data
-@Table(name = "members")
+@Table
 public class Members {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID memberId;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Users users;
 
     @Column(nullable = false)

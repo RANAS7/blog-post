@@ -4,7 +4,9 @@ import com.msp.everestFitness.config.LoginUtil;
 import com.msp.everestFitness.enumrated.AddressType;
 import com.msp.everestFitness.exceptions.ResourceNotFoundException;
 import com.msp.everestFitness.model.ShippingInfo;
+import com.msp.everestFitness.model.Users;
 import com.msp.everestFitness.repository.ShippingInfoRepo;
+import com.msp.everestFitness.repository.UsersRepo;
 import com.msp.everestFitness.service.ShippingInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,9 @@ public class ShippingInfoServiceImpl implements ShippingInfoService {
 
     @Autowired
     private LoginUtil loginUtil;
+
+    @Autowired
+    private UsersRepo usersRepo;
 
     @Override
     public void addShippingInfo(ShippingInfo shippingInfo) {
@@ -49,13 +54,12 @@ public class ShippingInfoServiceImpl implements ShippingInfoService {
             info.setUpdatedAt(Timestamp.from(Instant.now()));
 
             shippingInfoRepo.save(info);
-
         }
 
         // New ShippingInfo case
 
         // Check if the user already has a PRIMARY address
-        ShippingInfo primaryAddress = shippingInfoRepo.findByUsersUserIdAndAddressType(shippingInfo.getUsers().getUserId(), AddressType.PRIMARY);
+        ShippingInfo primaryAddress = shippingInfoRepo.findByUsersUserIdAndAddressType(loginUtil.getCurrentUserId(), AddressType.PRIMARY);
         if (primaryAddress == null) {
             // If no PRIMARY address exists, set the new one as PRIMARY
             shippingInfo.setAddressType(AddressType.PRIMARY);
@@ -63,7 +67,11 @@ public class ShippingInfoServiceImpl implements ShippingInfoService {
             // Otherwise, set the new address as ALTERNATIVE
             shippingInfo.setAddressType(AddressType.ALTERNATIVE);
         }
+        Users user = usersRepo.findById(loginUtil.getCurrentUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with the id: " + loginUtil.getCurrentUserId()));
 
+        System.out.println("User is : "+user);
+        shippingInfo.setUsers(user);
         shippingInfoRepo.save(shippingInfo);
     }
 

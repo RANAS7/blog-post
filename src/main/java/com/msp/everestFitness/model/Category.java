@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Entity
 @Data
-@Table(name = "categories")
+@Table
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -20,8 +20,8 @@ public class Category {
     private String name;
 
     @Column(updatable = false, columnDefinition = "Timestamp default current_timestamp")
-    private Timestamp createdAt = Timestamp.from(Instant.now());
+    private Timestamp createdAt;
 
-    @Column(insertable = false, columnDefinition = "Timestamp default current_timestamp")
-    private Timestamp updatedAt = Timestamp.from(Instant.now());
+    @Column(insertable = false)
+    private Timestamp updatedAt;
 }

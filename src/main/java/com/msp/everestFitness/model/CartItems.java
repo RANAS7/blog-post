@@ -9,17 +9,16 @@ import java.util.UUID;
 
 @Data
 @Entity
-@Table(name = "cart_items")
+@Table
 public class CartItems {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID cartItemId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cart_id")
+    @ManyToOne(fetch = FetchType.EAGER)
     private Carts carts;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Products product;
     private Long quantity;
     private BigDecimal price;

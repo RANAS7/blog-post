@@ -28,6 +28,7 @@ public class CategoryServiceImpl implements CategoryService {
             categoryRepo.save(category1);
             return;
         }
+        category.setCreatedAt(Timestamp.from(Instant.now()));
         categoryRepo.save(category);
     }
 
