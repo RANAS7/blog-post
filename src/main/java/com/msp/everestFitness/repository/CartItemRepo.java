@@ -15,12 +15,13 @@ import java.util.UUID;
 public interface CartItemRepo extends JpaRepository<CartItems, UUID> {
 
     // Corrected query to fetch CartItems by cartId and productId (product_product_id)
-    @Query(value = "SELECT ci.cart_item_id, ci.cart_id, ci.product_product_id, ci.quantity, ci.price, ci.created_at, ci.updated_at " +
-            "FROM cart_items ci WHERE ci.cart_id = :cartId AND ci.product_product_id = :productId", nativeQuery = true)
+    @Query(value = "SELECT ci.cart_item_id, ci.carts_cart_id, ci.product_product_id, ci.quantity, ci.price, ci.created_at, ci.updated_at " +
+            "FROM cart_items ci WHERE ci.carts_cart_id = :cartId AND ci.product_product_id = :productId", nativeQuery = true)
     List<CartItems> findByCartAndProduct(@Param("cartId") UUID cartId, @Param("productId") UUID productId);
 
+
     @Modifying
-    @Query(value = "DELETE FROM cart_items WHERE cart_id = :cartId", nativeQuery = true)
+    @Query(value = "DELETE FROM cart_items WHERE carts_cart_id = :cartId", nativeQuery = true)
     Iterable<? extends OrderItems> deleteByCartId(@Param("cartId") UUID cartId);
 
     List<CartItems> findByCarts_cartId(UUID cartId);

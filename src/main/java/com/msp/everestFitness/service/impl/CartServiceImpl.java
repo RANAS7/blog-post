@@ -60,7 +60,7 @@ public class CartServiceImpl implements CartService {
 
         if (!existingItems.isEmpty()) {
             // Update quantity if item already exists
-            cartItem = existingItems.get(0);
+            cartItem = existingItems.getFirst();
             cartItem.setQuantity(cartItem.getQuantity() + cartItemDto.getQuantity());
         } else {
 
