@@ -19,7 +19,7 @@ public class Subcategory {
     @ManyToOne(fetch = FetchType.EAGER)
     private Category category;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @Column(columnDefinition = "Timestamp default current_timestamp", updatable = false)
