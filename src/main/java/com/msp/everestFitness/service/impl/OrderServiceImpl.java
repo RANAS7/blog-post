@@ -147,7 +147,7 @@ public class OrderServiceImpl implements OrderService {
         if (orders.getPaymentMethod().equals(PaymentMethod.STRIPE)) {
             newOrder.setOrderStatus(OrderStatus.PENDING);
         } else {
-            newOrder.setOrderStatus(OrderStatus.COMPLETED);
+            newOrder.setOrderStatus(OrderStatus.PENDING);
         }
         Orders savedOrder = ordersRepo.save(newOrder);
 
@@ -266,7 +266,7 @@ public class OrderServiceImpl implements OrderService {
         if (orders.getPaymentMethod().equals(PaymentMethod.STRIPE)) {
             newOrder.setOrderStatus(OrderStatus.PENDING);
         } else {
-            newOrder.setOrderStatus(OrderStatus.COMPLETED);
+            newOrder.setOrderStatus(OrderStatus.PENDING);
         }
         Orders savedOrder = ordersRepo.save(newOrder);
 
@@ -303,12 +303,9 @@ public class OrderServiceImpl implements OrderService {
 
         List<Orders> ordersList=ordersRepo.findAll();
 
-
         List<OrderDTO> orderDTOList=new ArrayList<>();
+
         for (Orders order: ordersList){
-
-
-
             ShippingInfo shippingInfo = shippingInfoRepo.findById(order.getShippingInfo().getShippingId())
                     .orElseThrow(() -> new ResourceNotFoundException("Shipping info not found with the Id: " + order.getShippingInfo().getShippingId()));
 
@@ -317,6 +314,7 @@ public class OrderServiceImpl implements OrderService {
             Users user = usersRepo.findById(shippingInfo.getUsers().getUserId())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found with the Id: " + shippingInfo.getUsers().getUserId()));
 
+            Payments payments = paymentsRepo.findByOrders_orderId(order.getOrderId());
 
             OrderDTO dto = new OrderDTO();
             dto.setOrderId(order.getOrderId());
@@ -330,6 +328,7 @@ public class OrderServiceImpl implements OrderService {
             dto.setDeliveryOption(deliveryOpt.getOption());
             dto.setPaymentMethod(String.valueOf(order.getPaymentMethod()));
             dto.setTotal(order.getTotal());
+            dto.setPaymentStatus(payments.getPaymentStatus().toString());
             orderDTOList.add(dto);
         }
         return orderDTOList;

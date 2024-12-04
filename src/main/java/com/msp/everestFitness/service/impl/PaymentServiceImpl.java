@@ -162,8 +162,6 @@ public class PaymentServiceImpl implements PaymentService {
         // Fetch and update order status
         Orders orders = ordersRepo.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with the ID: " + orderId));
-        orders.setOrderStatus(OrderStatus.COMPLETED);
-        ordersRepo.save(orders);
 
         // Update product stock based on order items
         List<OrderItems> orderItemsList = orderItemsRepo.findByOrder_OrderId(orders.getOrderId());

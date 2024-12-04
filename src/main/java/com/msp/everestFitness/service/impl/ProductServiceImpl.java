@@ -70,7 +70,7 @@ public class ProductServiceImpl implements ProductService {
 
 
         // Check if the total number of images exceeds the limit of 4
-        if (images.size() + images.size() > 5) {
+        if (images.size() > 5) {
             throw new IllegalArgumentException("You can only upload maximum 4 images for a product.");
         }
 

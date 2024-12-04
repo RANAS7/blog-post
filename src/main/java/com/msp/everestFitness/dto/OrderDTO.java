@@ -12,6 +12,7 @@ public class OrderDTO {
     private double total;
     private String orderStatus;
     private String paymentMethod;
-    private String deliveryOption;  // Derived from DeliveryOpt
+    private String deliveryOption;
+    private String paymentStatus;
 
 }
