@@ -1,9 +1,13 @@
 package com.msp.everestFitness.service.impl;
 
+import com.msp.everestFitness.config.LoginUtil;
 import com.msp.everestFitness.dto.ProductRatingRequestDto;
+import com.msp.everestFitness.exceptions.ResourceNotFoundException;
 import com.msp.everestFitness.model.ProductRating;
 import com.msp.everestFitness.model.Products;
+import com.msp.everestFitness.model.Users;
 import com.msp.everestFitness.repository.ProductRatingRepo;
+import com.msp.everestFitness.repository.UsersRepo;
 import com.msp.everestFitness.service.ProductRatingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,12 +21,21 @@ public class ProductRatingServiceImpl implements ProductRatingService {
     @Autowired
     private ProductRatingRepo productRatingRepo;
 
+    @Autowired
+    private LoginUtil loginUtil;
+
+    @Autowired
+    private UsersRepo usersRepo;
+
     // Add a new rating
     @Override
     public void addRating(ProductRatingRequestDto request) {
+        Users user = usersRepo.findById(loginUtil.getCurrentUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with the Id: " + loginUtil.getCurrentUserId()));
+
         ProductRating productRating = new ProductRating();
         productRating.setProducts(request.getProducts());
-        productRating.setUsers(request.getUsers());
+        productRating.setUsers(user);
         productRating.setRating(request.getRating());
         productRating.setReview(request.getReview());
 
