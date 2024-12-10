@@ -64,22 +64,27 @@ public class MailUtils {
 
             String subject = "Email Verification";
 
+            // Build verification link
             String verificationLink = domain + "/api/auth/verify-email?token=" + token;
 
+            // Read and process the HTML template
             ClassPathResource htmlFile = new ClassPathResource("templates/EmailVerification.html");
             String htmlContent = StreamUtils.copyToString(htmlFile.getInputStream(), StandardCharsets.UTF_8);
 
-            htmlContent = htmlContent.replace("[VERIFICATION_LINK]", verificationLink);
-            htmlContent = htmlContent.replace("[User]", recipientName);
-            htmlContent = htmlContent.replace("[Year]", currentYear);
+            // Replace placeholders in the HTML template
+            htmlContent = htmlContent.replace("{verificationLink}", verificationLink);
+            htmlContent = htmlContent.replace("{userName}", recipientName);
+            htmlContent = htmlContent.replace("{currentYear}", currentYear);
 
+            // Set email details
             helper.setTo(toEmail);
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
 
+            // Send email
             javaMailSender.send(mimeMessage);
         } catch (Exception e) {
-            throw new RuntimeException("Internal server error:" + e.getMessage(), e);
+            throw new RuntimeException("Internal server error: " + e.getMessage(), e);
         }
     }
 }

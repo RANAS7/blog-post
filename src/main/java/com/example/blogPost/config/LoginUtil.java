@@ -36,7 +36,7 @@ public class LoginUtil {
     }
 
     // Retrieve the current logged-in user's ID by querying the database
-    public UUID getCurrentUserId() {
+    public Long getCurrentUserId() {
         String username = getCurrentUserUsername(); // Get the username from UserDetails
         if (username != null) {
             Users user = usersRepo.findByEmail(username)

@@ -12,7 +12,7 @@ public interface UserService {
     void registerUser(Users users);
     void changePassword(String oldPassword, String newPassword, String confirmPassword);
     List<Users> getUsers(Boolean status);
-    Users getUserById(UUID id);
+    Users getUserById(Long id);
     Users getUserByEmail(String email);
     Users getProfile();
     JwtResponse login(JwtRequest request);

@@ -11,9 +11,9 @@ import java.util.UUID;
 @Table(name = "email_verification_tokens")
 public class EmailVerificationToken {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private UUID id;
+    private Long id;
 
     @Column(name = "token", nullable = false, unique = true)
     private String token;

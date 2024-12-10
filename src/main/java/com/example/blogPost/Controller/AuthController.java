@@ -116,7 +116,7 @@ public class AuthController {
 
     @GetMapping("/users")
     public ResponseEntity<?> getUsers(
-            @RequestParam(name = "id", required = false) UUID id,
+            @RequestParam(name = "id", required = false) Long id,
             @RequestParam(name = "status", required = false) Boolean status) {
 
         if (id != null) {

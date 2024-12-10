@@ -20,16 +20,16 @@ public class CommentController {
     @PostMapping
     public ResponseEntity<?> addComment(@RequestBody Comment comment) {
         commentService.addComment(comment);
-        return ResponseEntity.status(HttpStatus.CREATED).body(comment);
+        return new ResponseEntity<>("Your comment was added successfully!",HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<?> getComments(@RequestParam UUID postId) {
+    public ResponseEntity<?> getComments(@RequestParam Long postId) {
         return new ResponseEntity<>(commentService.getComments(postId),HttpStatus.OK);
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleteComment(@RequestParam UUID id){
+    public ResponseEntity<?> deleteComment(@RequestParam Long id){
         commentService.deleteComment(id);
         return new ResponseEntity<>("Comment deleted successfully", HttpStatus.OK);
     }

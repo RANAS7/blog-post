@@ -46,12 +46,16 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<Comment> getComments(UUID postId) {
-        return commentRepo.findByPostId(postId);
+    public List<Comment> getComments(Long postId) {
+        List<Comment> commentList=commentRepo.findByPostId(postId);
+        for (Comment comment: commentList){
+            comment.setPost(null);
+        }
+        return commentList;
     }
 
     @Override
-    public void deleteComment(UUID commentId) {
+    public void deleteComment(Long commentId) {
         Comment comment = commentRepo.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with the id: " + commentId));
 

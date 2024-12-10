@@ -22,7 +22,6 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -101,7 +100,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public Users getUserById(UUID id) {
+    public Users getUserById(Long id) {
         Users user = usersRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("The user is not found with the id: " + id));
         user.setPassword(null);
@@ -131,7 +130,8 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new ResourceNotFoundException("The user is not found in our records with the email: " + request.getEmail()));
 
         // Check if the user is verified before proceeding with authentication
-        if (!user.isVerified()){            throw new IllegalArgumentException("Please verify your email before logging in.");
+        if (!user.isVerified()) {
+            throw new IllegalArgumentException("Please verify your email before logging in.");
         }else {
             // If user is verified, proceed with authentication
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());

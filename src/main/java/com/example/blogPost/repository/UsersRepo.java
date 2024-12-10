@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface UsersRepo extends JpaRepository<Users, UUID> {
+public interface UsersRepo extends JpaRepository<Users, Long> {
     Optional<Users> findByEmail(String email);
     List<Users> findByIsVerifiedTrue();
     List<Users> findByIsVerifiedFalse();

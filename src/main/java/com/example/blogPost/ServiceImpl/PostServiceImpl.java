@@ -1,8 +1,10 @@
 package com.example.blogPost.ServiceImpl;
 
 import com.example.blogPost.config.LoginUtil;
+import com.example.blogPost.model.Comment;
 import com.example.blogPost.model.Post;
 import com.example.blogPost.model.Users;
+import com.example.blogPost.repository.CommentRepo;
 import com.example.blogPost.repository.PostRepo;
 import com.example.blogPost.repository.UsersRepo;
 import com.example.blogPost.service.PostService;
@@ -15,7 +17,6 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class PostServiceImpl implements PostService {
@@ -32,20 +33,24 @@ public class PostServiceImpl implements PostService {
     @Autowired
     private FileUtils fileUtils;
 
+    @Autowired
+    private CommentRepo commentRepo;
+
     @Override
     public void createAndUpdatePost(Post post, MultipartFile thumbnail) throws IOException {
         String thumbnailUrl = fileUtils.uploadFileToCloudinary(thumbnail);
+
         if (post.getId()!=null){
             Post existedPost = postRepo.findById(post.getId())
                     .orElseThrow(()-> new RuntimeException("Post not found with the Id: "+post.getId()));
-            post.setTitle(post.getTitle());
-            post.setContent(post.getContent());
+            existedPost.setTitle(post.getTitle());
+            existedPost.setContent(post.getContent());
 
             String publicId = fileUtils.extractPublicIdFromUrl(existedPost.getThumbnailUrl());
             fileUtils.deleteFileFromCloudinary(publicId);
 
-            post.setThumbnailUrl(thumbnailUrl);
-            post.setUpdatedAt(Timestamp.from(Instant.now()));
+            existedPost.setThumbnailUrl(thumbnailUrl);
+            existedPost.setUpdatedAt(Timestamp.from(Instant.now()));
             postRepo.save(existedPost);
         }else {
 
@@ -67,14 +72,18 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Post getPostById(UUID id) {
+    public Post getPostById(Long id) {
         return postRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
     }
 
 
     @Override
-    public void deletePost(UUID id) {
+    public void deletePost(Long id) {
+        List<Comment> commentList = commentRepo.findByPostId(id);
+        for (Comment comment : commentList) {
+            commentRepo.deleteById(comment.getId());
+        }
         postRepo.deleteById(id);
     }
 }

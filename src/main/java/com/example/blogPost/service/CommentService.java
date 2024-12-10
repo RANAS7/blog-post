@@ -9,7 +9,7 @@ import java.util.UUID;
 public interface CommentService {
     void addComment(Comment comment);
 
-    List<Comment> getComments(UUID postId);
+    List<Comment> getComments(Long postId);
 
-    void deleteComment(UUID commentId);
+    void deleteComment(Long commentId);
 }

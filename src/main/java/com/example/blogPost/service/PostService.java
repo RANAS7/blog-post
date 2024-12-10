@@ -12,7 +12,7 @@ public interface PostService {
 
     public abstract List<Post> getAllPosts();
 
-    public abstract Post getPostById(UUID id);
+    public abstract Post getPostById(Long id);
 
-    public abstract void deletePost(UUID id);
+    public abstract void deletePost(Long id);
 }

@@ -48,7 +48,8 @@ public class SecurityConfig {
                                 "/api/profile").permitAll()  // Only ADMIN can access these GET endpoints
 
 
-                        .requestMatchers("/api/auth/users").hasRole("ADMIN")
+                        .requestMatchers("/api/auth/users",
+                                "/api/auth/user/by-email").hasRole("ADMIN")
                         // Endpoints that require USER role
                         .requestMatchers("/api/posts/**", "/api/posts/comments/**").hasRole("USER")  // User can access these routes
 
