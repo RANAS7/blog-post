@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -17,8 +18,8 @@ public class PostController {
     private PostService postService;
 
     @PostMapping
-    public ResponseEntity<?> createPost(@ModelAttribute Post post) {
-        postService .createAndUpdatePost(post);
+    public ResponseEntity<?> createPost(@ModelAttribute Post post, @RequestParam MultipartFile thumbnail) {
+        postService .createAndUpdatePost(post, thumbnail);
         if (post.getId() != null) {
             return new ResponseEntity<>("The post updated successfully!", HttpStatus.OK);
         } else {

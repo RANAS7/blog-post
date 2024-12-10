@@ -1,6 +1,7 @@
 package com.example.blogPost.ServiceImpl;
 
 import com.example.blogPost.config.LoginUtil;
+import com.example.blogPost.exceptions.ResourceNotFoundException;
 import com.example.blogPost.model.Comment;
 import com.example.blogPost.model.Post;
 import com.example.blogPost.model.Users;
@@ -51,6 +52,14 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void deleteComment(UUID commentId) {
-        commentRepo.deleteById(commentId);
+        Comment comment = commentRepo.findById(commentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Comment not found with the id: " + commentId));
+
+        if (!comment.getUsers().getUserId().equals(loginUtil.getCurrentUserId())) {
+            throw new IllegalArgumentException("You are not authorized to delete this comment");
+        } else {
+            commentRepo.deleteById(commentId);
+        }
     }
+
 }

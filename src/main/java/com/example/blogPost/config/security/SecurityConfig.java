@@ -43,14 +43,14 @@ public class SecurityConfig {
                         .permitAll()  // Access allowed without login
 
                         // Endpoints that require GET method and ADMIN role
-                        .requestMatchers(HttpMethod.GET, "/api/posts/**", "/api/posts/comments/**", "/api/profile")
-                        .permitAll()  // Only ADMIN can access these GET endpoints
+                        .requestMatchers(HttpMethod.GET, "/api/posts/**",
+                                "/api/posts/comments/**",
+                                "/api/profile").permitAll()  // Only ADMIN can access these GET endpoints
 
 
                         .requestMatchers("/api/auth/users").hasRole("ADMIN")
                         // Endpoints that require USER role
-                        .requestMatchers("/api/posts/**", "/api/posts/comments/**")
-                        .hasAnyRole("USER")  // User can access these routes
+                        .requestMatchers("/api/posts/**", "/api/posts/comments/**").hasRole("USER")  // User can access these routes
 
                         // Any other request must be authenticated
                         .anyRequest().authenticated()

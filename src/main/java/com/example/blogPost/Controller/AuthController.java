@@ -69,23 +69,6 @@ public class AuthController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("/logout")
-    public ResponseEntity<String> logout() {
-        // Clear the authentication from the SecurityContext
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null) {
-            // Optionally, you can perform additional actions like invalidating the token in your storage if needed.
-            SecurityContextHolder.clearContext(); // Clear the context for the current user
-        }
-
-        // Return a success response
-        return new ResponseEntity<>("Successfully logged out", HttpStatus.OK);
-    }
-
-    @GetMapping("/current_user")
-    public String getLogInUser(Principal principal) {
-        return principal.getName();
-    }
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestParam String email) throws MessagingException {

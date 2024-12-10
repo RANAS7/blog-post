@@ -11,5 +11,5 @@ public interface EmailVerificationService {
     boolean validateToken(String token);
 
 
-    boolean verifyEmail(String token);
+    void verifyEmail(String token);
 }
