@@ -2,8 +2,6 @@ package com.example.blogPost.Controller;
 
 import com.example.blogPost.config.security.JwtHelper;
 import com.example.blogPost.dto.PasswordResetFormDto;
-import com.example.blogPost.enumrated.UserType;
-import com.example.blogPost.exceptions.ResourceNotFoundException;
 import com.example.blogPost.jwt.JwtRequest;
 import com.example.blogPost.jwt.JwtResponse;
 import com.example.blogPost.model.Users;
@@ -16,11 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -70,36 +65,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@RequestBody JwtRequest request) {
-
-        Users user =usersRepo.findByEmail(request.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("The user is not exist in our record with the email: " + request.getEmail()));
-
-        this.doAuthenticate(request.getEmail(), request.getPassword());
-
-
-        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
-        String token = this.helper.generateToken(userDetails);
-
-        JwtResponse response = JwtResponse.builder()
-                .jwtToken(token)
-//                .username(userDetails.getUsername())
-//                .userID(user.getUserId())
-//                .userType(user.getUserType().name())
-                .build();
+        JwtResponse response = userService.login(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    private void doAuthenticate(String email, String password) {
-
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email, password);
-        try {
-            manager.authenticate(authentication);
-
-
-        } catch (BadCredentialsException e) {
-            throw new BadCredentialsException(" Invalid Username or Password  !!");
-        }
-
     }
 
     @PostMapping("/logout")
@@ -165,23 +132,24 @@ public class AuthController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<?> getUsers(@RequestParam(name = "id", required = false) UUID id) {
+    public ResponseEntity<?> getUsers(
+            @RequestParam(name = "id", required = false) UUID id,
+            @RequestParam(name = "status", required = false) Boolean status) {
+
         if (id != null) {
             return new ResponseEntity<>(userService.getUserById(id), HttpStatus.OK);
         }
-        return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
+
+        // Pass the status to the service method to filter users or get all users
+        return new ResponseEntity<>(userService.getUsers(status), HttpStatus.OK);
     }
+
 
     @GetMapping("/user/by-email")
     public ResponseEntity<?> getUserByEmail(@RequestParam String email) {
         return new ResponseEntity<>(userService.getUserByEmail(email), HttpStatus.OK);
     }
 
-
-    @GetMapping("/users/type")
-    public ResponseEntity<?> getUsersByUserType(@RequestParam UserType userType) {
-        return new ResponseEntity<>(userService.getByUserType(userType), HttpStatus.OK);
-    }
 
     @GetMapping("/profile")
     public ResponseEntity<?> getProfile() {

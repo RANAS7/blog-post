@@ -1,6 +1,7 @@
 package com.example.blogPost.service;
 
 import com.example.blogPost.model.Comment;
+import com.example.blogPost.model.Post;
 
 import java.util.List;
 import java.util.UUID;

@@ -41,7 +41,7 @@ public class PostServiceImpl implements PostService {
             Users user = userRepo.findById(loginUtil.getCurrentUserId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
-            post.setUser(user);
+            post.setUsers(user);
             post.setCreatedAt(Timestamp.from(Instant.now()));
             post.setThumbnailUrl(post.getThumbnailUrl());
 

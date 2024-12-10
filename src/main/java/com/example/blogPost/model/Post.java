@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Data
 @Entity
-@Table(name = "post")
+@Table(name = "posts")
 public class Post {
 
     @Id
@@ -22,9 +22,8 @@ public class Post {
     @Column(name = "content", columnDefinition = "TEXT")
     private String content;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @Column(name = "user_id", nullable = false)
-    private Users user;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Users users;
 
     @Column(name = "thumbnail_url", length = 255)
     private String thumbnailUrl;

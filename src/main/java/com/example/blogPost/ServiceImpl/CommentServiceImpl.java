@@ -39,14 +39,14 @@ public class CommentServiceImpl implements CommentService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         comment.setPost(post);
-        comment.setUser(user);
+        comment.setUsers(user);
         comment.setCreatedAt(Timestamp.from(Instant.now()));
         commentRepo.save(comment);
     }
 
     @Override
     public List<Comment> getComments(UUID postId) {
-        return commentRepo.findByPost_PostId(postId);
+        return commentRepo.findByPostId(postId);
     }
 
     @Override

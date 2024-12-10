@@ -32,7 +32,7 @@ public class Users {
     private String password;
 
     @Column(name = "is_verified", nullable = false)
-    private boolean isVerified = false;
+    private boolean isVerified;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "user_type")

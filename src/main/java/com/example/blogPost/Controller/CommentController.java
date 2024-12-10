@@ -1,6 +1,7 @@
 package com.example.blogPost.Controller;
 
 import com.example.blogPost.model.Comment;
+import com.example.blogPost.model.Post;
 import com.example.blogPost.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
